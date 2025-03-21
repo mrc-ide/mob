@@ -1,12 +1,13 @@
 OBJECTS=RcppExports.o mob.o
 
-PKG_LIBS := -lcudart
+PKG_LIBS=-lcudart
 
 # We assume the nvidia-toolkit is available in the environment.
+# TODO: Use CUDA_PATH to find nvcc, if available
 # TODO: handle NDEBUG / optimization flags.
 
-NVCC:=nvcc
-NVCCFLAGS:=-Xcompiler -fPIC -arch=sm_86 --extended-lambda
+NVCC=nvcc
+NVCCFLAGS=-Xcompiler -fPIC -arch=sm_86 --extended-lambda
 
 %.o: %.cu
 	$(NVCC) $(ALL_CPPFLAGS) $(NVCCFLAGS) -c $< -o $@

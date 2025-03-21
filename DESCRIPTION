@@ -1,7 +1,7 @@
 Package: mob
-Title: Framework for simulating individual based models on GPUs.
+Title: Framework for simulating individual based models on GPUs
 Version: 0.0.0.9000
-Authors@R: 
+Authors@R:
     person(
       given = "Paul",
       family = "Liétar",
@@ -14,9 +14,17 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-LinkingTo: 
+LinkingTo:
     Rcpp,
     dust
-Imports: 
+Imports:
     Rcpp,
     dust
+Remotes:
+    mrc-ide/dust
+Config/build/extra-sources:
+    src/Makevars
+    src/*.cu
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
