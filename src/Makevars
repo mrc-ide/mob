@@ -1,4 +1,4 @@
-OBJECTS=RcppExports.o mob.o
+OBJECTS=RcppExports.o test-runner.o mob.o test-example.o
 
 PKG_LIBS := -lcudart
 

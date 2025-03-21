@@ -16,12 +16,17 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 LinkingTo: 
     Rcpp,
-    dust
+    dust,
+    testthat
 Imports: 
     Rcpp,
     dust
 Remotes:
     mrc-ide/dust
+Suggests:
+    testthat (>= 3.0.0),
+    xml2
 Config/build/extra-sources:
     src/Makevars
     src/*.cu
+Config/testthat/edition: 3
