@@ -1,0 +1,22 @@
+Package: mob
+Title: Framework for simulating individual based models on GPUs.
+Version: 0.0.0.9000
+Authors@R: 
+    person(
+      given = "Paul",
+      family = "Liétar",
+      role = c('aut', 'cre'),
+      comment = c(ORCID = "0009-0000-3813-6227"),
+      email = 'paul.lietar13@imperial.ac.uk'
+    )
+Description: A framework for writing individual based models on GPU devices.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+LinkingTo: 
+    Rcpp,
+    dust
+Imports: 
+    Rcpp,
+    dust

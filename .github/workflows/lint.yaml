@@ -1,0 +1,14 @@
+name: Formatting checks
+on: [push, pull_request]
+jobs:
+  formatting-check:
+    name: Formatting Check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run clang-format
+      uses: jidicula/clang-format-action@v4.15.0
+      with:
+        clang-format-version: '20'
+        check-path: 'src' # TODO: do `inst` as well?
+        exclude-regex: '^src/RcppExports\.cpp$'
