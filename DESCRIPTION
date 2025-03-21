@@ -1,5 +1,5 @@
 Package: mob
-Title: Framework for simulating individual based models on GPUs.
+Title: Framework for simulating individual based models on GPUs
 Version: 0.0.0.9000
 Authors@R:
     person(
