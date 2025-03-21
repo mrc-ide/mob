@@ -20,3 +20,8 @@ LinkingTo:
 Imports: 
     Rcpp,
     dust
+Remotes:
+    mrc-ide/dust
+Config/build/extra-sources:
+    src/Makevars
+    src/*.cu
