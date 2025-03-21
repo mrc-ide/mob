@@ -19,7 +19,6 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: windows-latest, r: 'release'}
           - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
           - {os: ubuntu-latest,   r: 'release'}
           - {os: ubuntu-latest,   r: 'oldrel-1'}
@@ -30,6 +29,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install cuda-toolkit
+        run: |
+          wget -P ${{ runner.temp }} https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+          sudo dpkg -i ${{ runner.temp }}/cuda-keyring_1.1-1_all.deb
+          sudo apt-get update
+          sudo apt-get -y install cuda-toolkit-12-8
 
       - uses: Jimver/cuda-toolkit@v0.2.22
         with:
