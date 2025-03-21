@@ -37,10 +37,6 @@ jobs:
           sudo apt-get update
           sudo apt-get -y install cuda-toolkit-12-8
 
-      - uses: Jimver/cuda-toolkit@v0.2.22
-        with:
-          cuda: '12.8.1'
-
       - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2
