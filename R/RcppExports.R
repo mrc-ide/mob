@@ -2,18 +2,18 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 parallel_runif <- function(n, min, max, seed) {
-    .Call('_mob_parallel_runif', PACKAGE = 'mob', n, min, max, seed)
+    .Call(`_mob_parallel_runif`, n, min, max, seed)
 }
 
 parallel_rbinom <- function(n, size, prob, seed) {
-    .Call('_mob_parallel_rbinom', PACKAGE = 'mob', n, size, prob, seed)
+    .Call(`_mob_parallel_rbinom`, n, size, prob, seed)
 }
 
 betabinomial_sampler <- function(data, k, seed) {
-    .Call('_mob_betabinomial_sampler_wrapper', PACKAGE = 'mob', data, k, seed)
+    .Call(`_mob_betabinomial_sampler_wrapper`, data, k, seed)
 }
 
 selection_sampler <- function(data, k, seed) {
-    .Call('_mob_selection_sampler_wrapper', PACKAGE = 'mob', data, k, seed)
+    .Call(`_mob_selection_sampler_wrapper`, data, k, seed)
 }
 
