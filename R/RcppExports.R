@@ -17,3 +17,11 @@ selection_sampler <- function(data, k, seed) {
     .Call(`_mob_selection_sampler_wrapper`, data, k, seed)
 }
 
+bernoulli_sampler <- function(data, p, seed) {
+    .Call(`_mob_bernouilli_sampler_wrapper`, data, p, seed)
+}
+
+bernoulli_sampler_simulate <- function(n, p, seed) {
+    .Call(`_mob_bernouilli_sampler_simulate`, n, p, seed)
+}
+

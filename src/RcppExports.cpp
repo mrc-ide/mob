@@ -64,12 +64,40 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// bernouilli_sampler_wrapper
+std::vector<double> bernouilli_sampler_wrapper(Rcpp::NumericVector data, double p, int seed);
+RcppExport SEXP _mob_bernouilli_sampler_wrapper(SEXP dataSEXP, SEXP pSEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< double >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(bernouilli_sampler_wrapper(data, p, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bernouilli_sampler_simulate
+size_t bernouilli_sampler_simulate(size_t n, double p, int seed);
+RcppExport SEXP _mob_bernouilli_sampler_simulate(SEXP nSEXP, SEXP pSEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(bernouilli_sampler_simulate(n, p, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mob_parallel_runif", (DL_FUNC) &_mob_parallel_runif, 4},
     {"_mob_parallel_rbinom", (DL_FUNC) &_mob_parallel_rbinom, 4},
     {"_mob_betabinomial_sampler_wrapper", (DL_FUNC) &_mob_betabinomial_sampler_wrapper, 3},
     {"_mob_selection_sampler_wrapper", (DL_FUNC) &_mob_selection_sampler_wrapper, 3},
+    {"_mob_bernouilli_sampler_wrapper", (DL_FUNC) &_mob_bernouilli_sampler_wrapper, 3},
+    {"_mob_bernouilli_sampler_simulate", (DL_FUNC) &_mob_bernouilli_sampler_simulate, 3},
     {NULL, NULL, 0}
 };
 
