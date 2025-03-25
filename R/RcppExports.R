@@ -25,3 +25,7 @@ bernoulli_sampler_simulate <- function(n, p, seed) {
     .Call(`_mob_bernouilli_sampler_simulate`, n, p, seed)
 }
 
+run_catch_tests <- function(args = NULL) {
+    .Call(`_mob_run_catch_tests`, args)
+}
+

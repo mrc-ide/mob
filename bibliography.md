@@ -133,6 +133,19 @@ use auxiliary datastructures (usually a hash set).
 # Compressed bitsets
 
 - ["Better bitmap performance with Roaring bitmaps" Chambi et al][chambi2014]
+
+    Most exisiting bitset compression schemes use a run-length encoding, where
+    a contiguous sequence of homogenous bits is replaced with a count of the
+    bits. This gives good compression, but makes random access difficult.
+
+    Roaring bitsets use a two-level indexing data structure. The space is
+    partitioned into chunks, each covering 64k. The top level index is an
+    ordered array, pointing to the secondary containers. Depending on their
+    cardinality, the containers can have two different representations.
+    Containers with fewer than 4096 elements (TODO: or is it 4095? 4097?) are
+    stored as an ordered array of integers. Containers with more elements than
+    that are stored using bitmaps.
+
 - ["Compressed bitmap indexes: beyond unions and intersections" Kaser et al.][kaser2014]
 - ["Consistently faster and smaller compressed bitmaps with Roaring" Lemire et al.][lemire2016]
 - ["Roaring Bitmaps: Implementation of an Optimized Software Library" Lemire et al.][lemire2017]

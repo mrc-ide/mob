@@ -1,6 +1,6 @@
-OBJECTS=RcppExports.o mob.o
+OBJECTS=RcppExports.o mob.o test-runner.o test-roaring.o
 
-PKG_LIBS=-lcudart
+PKG_LIBS=-lcudart -lrapidcheck -lCatch2
 
 # We assume the nvidia-toolkit is available in the environment.
 # TODO: Use CUDA_PATH to find nvcc, if available

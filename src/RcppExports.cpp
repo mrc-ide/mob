@@ -90,6 +90,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// run_catch_tests
+bool run_catch_tests(Rcpp::Nullable<Rcpp::StringVector> args);
+RcppExport SEXP _mob_run_catch_tests(SEXP argsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type args(argsSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_catch_tests(args));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mob_parallel_runif", (DL_FUNC) &_mob_parallel_runif, 4},
@@ -98,6 +109,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_selection_sampler_wrapper", (DL_FUNC) &_mob_selection_sampler_wrapper, 3},
     {"_mob_bernouilli_sampler_wrapper", (DL_FUNC) &_mob_bernouilli_sampler_wrapper, 3},
     {"_mob_bernouilli_sampler_simulate", (DL_FUNC) &_mob_bernouilli_sampler_simulate, 3},
+    {"_mob_run_catch_tests", (DL_FUNC) &_mob_run_catch_tests, 1},
     {NULL, NULL, 0}
 };
 
