@@ -62,9 +62,13 @@ struct device_random {
   struct proxy;
   struct iterator;
 
-  iterator begin() { return iterator(data.begin(), capacity); }
+  iterator begin() {
+    return iterator(data.begin(), capacity);
+  }
 
-  iterator end() { return iterator(data.begin() + capacity, capacity); }
+  iterator end() {
+    return iterator(data.begin() + capacity, capacity);
+  }
 
   struct proxy {
     using int_type = typename rng_state::int_type;
