@@ -40,6 +40,18 @@ rc::Gen<std::vector<T>> uniqueVectorGenerator(size_t size) {
       size, rc::gen::noShrink(rc::gen::arbitrary<T>()));
 }
 
+namespace rc {
+
+template <>
+struct Arbitrary<mob::roaring::bitset> {
+  static rc::Gen<mob::roaring::bitset> arbitrary() {
+    return rc::gen::scale(64, rc::gen::unique<mob::roaring::bitset>(
+                                  rc::gen::arbitrary<uint32_t>()));
+  }
+};
+
+} // namespace rc
+
 template <typename Container>
 void container_properties(std::optional<size_t> maxSize) {
   rc::prop("An empty container contains no value", [=] {
@@ -164,5 +176,41 @@ TEST_CASE("roaring::bitset") {
 
     std::sort(values.begin(), values.end());
     check_iterable(bitset, values);
+  });
+
+  rc::prop("intersection() elements are in both inputs", [] {
+    auto left = *rc::gen::arbitrary<mob::roaring::bitset>();
+    auto right = *rc::gen::arbitrary<mob::roaring::bitset>();
+    auto result = mob::roaring::intersection(left, right);
+
+    for (auto v : result) {
+      RC_ASSERT(left.find(v));
+      RC_ASSERT(right.find(v));
+    }
+    for (auto v : left) {
+      RC_ASSERT(right.find(v) == result.find(v));
+    }
+    for (auto v : right) {
+      RC_ASSERT(left.find(v) == result.find(v));
+    }
+  });
+
+  rc::prop("size() matches iteration", [] {
+    auto bitmap = *rc::gen::arbitrary<mob::roaring::bitset>();
+    uint64_t size = 0;
+    for ([[maybe_unused]] auto v : bitmap) {
+      size += 1;
+    }
+    RC_ASSERT(size == bitmap.size());
+  });
+
+  rc::prop("intersection_size() matches intersection()", [] {
+    auto left = *rc::gen::arbitrary<mob::roaring::bitset>();
+    auto right = *rc::gen::arbitrary<mob::roaring::bitset>();
+
+    auto intersection = mob::roaring::intersection(left, right);
+    uint32_t size = mob::roaring::intersection_size(left, right);
+
+    RC_ASSERT(intersection.size() == size);
   });
 }

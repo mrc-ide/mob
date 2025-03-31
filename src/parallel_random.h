@@ -1,6 +1,9 @@
+#pragma once
+
 #include <dust/random/prng.hpp>
 #include <dust/random/xoroshiro128.hpp>
 #include <thrust/device_vector.h>
+#include <thrust/host_vector.h>
 
 namespace mob {
 
@@ -11,9 +14,9 @@ namespace mob {
  * neighbouring GPU threads.
  *
  * By default, all random state is kept in GPU memory. The class can be
- * instatiated with `thrust::host_vector<uint64_t>` instead to use on the CPU.
- * This is useful for testing purposes, but the interleaved memory layout will
- * probably have an adverse effect.
+ * instatiated with `std::vector` or `thrust::host_vector` instead to use on
+ * the CPU. This is useful for testing purposes, but the interleaved memory
+ * layout will probably have an adverse performance effect.
  *
  * The container offers iterators that are designed to work together with
  * thrust's algorithms. For example the following example will produce N
@@ -34,18 +37,15 @@ namespace mob {
  * TODO: provide methods for use without thrust, eg. direct access to the i-th
  * RNG stream.
  */
-template <typename T = dust::random::xoroshiro128plus,
-          typename Vector = thrust::device_vector<typename T::int_type>>
-struct device_random {
-  // TODO: add a requires / static_assert that vector is actually a container
-  // of T::int_type and not something else (or make Vector template template
-  // parameter).
+template <template <typename> typename Vector,
+          typename T = dust::random::xoroshiro128plus>
+struct parallel_random {
   using rng_state = T;
-  using vector_type = Vector;
+  using vector_type = Vector<typename rng_state::int_type>;
 
   static constexpr size_t width = rng_state::size();
 
-  device_random(size_t capacity, int seed = 0)
+  parallel_random(size_t capacity, int seed = 0)
       : data(capacity * width), capacity(capacity) {
     dust::random::prng<rng_state> states(capacity, seed);
 
@@ -133,5 +133,11 @@ private:
   vector_type data;
   size_t capacity;
 };
+
+template <typename T = dust::random::xoroshiro128plus>
+using device_random = parallel_random<thrust::device_vector, T>;
+
+template <typename T = dust::random::xoroshiro128plus>
+using host_random = parallel_random<thrust::host_vector, T>;
 
 } // namespace mob

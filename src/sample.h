@@ -1,7 +1,9 @@
 #pragma once
 
+#include "iterator.h"
 #include <dust/random/binomial.hpp>
 #include <dust/random/gamma.hpp>
+#include <thrust/iterator/counting_iterator.h>
 
 namespace mob {
 
@@ -144,6 +146,17 @@ __host__ __device__ OutputIt bernouilli_sampler(rng_state_type &rng_state,
     *(output++) = *(input_start++);
   }
   return output;
+}
+
+template <typename int_type, typename real_type, typename rng_state_type>
+__host__ __device__ int_type bernouilli_sampler_count(rng_state_type &rng_state,
+                                                      int_type n, real_type p) {
+  auto it = mob::bernouilli_sampler(rng_state,
+                                    thrust::make_counting_iterator<int_type>(0),
+                                    thrust::make_counting_iterator<int_type>(n),
+                                    counting_output_iterator<int_type>(), p);
+
+  return it.offset();
 }
 
 } // namespace mob

@@ -20,5 +20,5 @@ Rcpp::NumericVector selection_sampler_wrapper(Rcpp::NumericVector data,
 std::vector<double> bernouilli_sampler_wrapper(Rcpp::NumericVector data,
                                                double p, int seed);
 
-// [[Rcpp::export("bernoulli_sampler_simulate")]]
-size_t bernouilli_sampler_simulate(size_t n, double p, int seed);
+// [[Rcpp::export("bernoulli_sampler_count")]]
+size_t bernouilli_sampler_count_wrapper(size_t n, double p, int seed);
