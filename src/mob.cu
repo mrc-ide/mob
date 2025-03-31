@@ -1,6 +1,7 @@
 #include "device_random.h"
 #include "iterator.h"
 #include "mob.h"
+#include "roaring.h"
 #include "sample.h"
 
 #include <dust/random/binomial.hpp>
