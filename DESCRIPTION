@@ -19,14 +19,14 @@ LinkingTo:
     dust
 Imports:
     Rcpp,
-    dust,
-    testthat
+    dust
 Remotes:
     mrc-ide/dust
 Suggests:
     testthat (>= 3.0.0),
+    withr,
     xml2
 Config/build/extra-sources:
-    src/Makevars
+    src/Makevars,
     src/*.cu
 Config/testthat/edition: 3

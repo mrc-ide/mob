@@ -44,7 +44,7 @@ template <typename Container>
 void container_properties(std::optional<size_t> maxSize) {
   rc::prop("An empty container contains no value", [=] {
     Container container;
-    RC_ASSERT(container.size() == 0);
+    RC_ASSERT(container.size() == 0U);
     RC_ASSERT(container.find(*rc::gen::arbitrary<uint16_t>()) == false);
   });
 
@@ -53,7 +53,7 @@ void container_properties(std::optional<size_t> maxSize) {
     Container container;
     container.insert(x);
     RC_ASSERT(container.find(x) == true);
-    RC_ASSERT(container.size() == 1);
+    RC_ASSERT(container.size() == 1U);
   });
 
   rc::prop("Adding a value multiple times is idempotent", [=](uint16_t index) {
@@ -63,7 +63,7 @@ void container_properties(std::optional<size_t> maxSize) {
     container.insert(x);
     container.insert(x);
     RC_ASSERT(container.find(x) == true);
-    RC_ASSERT(container.size() == 1);
+    RC_ASSERT(container.size() == 1U);
   });
 
   rc::prop("If one value is added, finding a different one returns false", [=] {
@@ -126,7 +126,7 @@ TEST_CASE("roaring::container_array") {
       RC_ASSERT(container.insert(*it) == true);
     }
 
-    RC_ASSERT(container.size() == 4096);
+    RC_ASSERT(container.size() == 4096U);
     RC_ASSERT(container.insert(values.back()) == false);
 
     for (auto it = values.begin(); it != values.end() - 1; it++) {
