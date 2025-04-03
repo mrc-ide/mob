@@ -1,5 +1,6 @@
 #pragma once
 #include "bits.h"
+#include "iterator.h"
 #include <algorithm>
 #include <cinttypes>
 #include <stdexcept>
@@ -19,47 +20,57 @@ struct arrow_proxy {
   }
 };
 
+template <typename KeyIt, typename... ValueIt>
+struct map_of_arrays_iterator {
+  KeyIt key;
+  std::tuple<ValueIt...> values;
+
+  using iterator_category = std::forward_iterator_tag;
+  using difference_type = typename KeyIt::difference_type;
+  using value_type =
+      std::tuple<typename KeyIt::value_type, typename ValueIt::value_type...>;
+  using reference =
+      std::tuple<typename KeyIt::reference, typename ValueIt::reference...>;
+  using pointer = arrow_proxy<reference>;
+
+  bool operator==(const map_of_arrays_iterator &other) const {
+    return key == other.key;
+  }
+
+  bool operator!=(const map_of_arrays_iterator &other) const {
+    return key != other.key;
+  }
+
+  difference_type operator-(const map_of_arrays_iterator &other) const {
+    return key - other.key;
+  }
+
+  reference operator*() const {
+    return std::apply(
+        [this](auto &...values) { return std::tie(*key, *values...); }, values);
+  }
+
+  pointer operator->() const {
+    return pointer{**this};
+  }
+
+  map_of_arrays_iterator &operator++() {
+    key++;
+    std::apply([this](auto &...values) { ((values++), ...); }, values);
+    return *this;
+  }
+};
+
 template <typename Key, typename... Ts>
 struct map_of_arrays {
-  struct iterator {
-    typename std::vector<Key>::iterator key;
-    std::tuple<typename std::vector<Ts>::iterator...> values;
 
-    using iterator_category = std::forward_iterator_tag;
-    using difference_type =
-        typename std::vector<Key>::iterator::difference_type;
-    using value_type = std::tuple<Key, Ts...>;
-    using reference = std::tuple<Key &, Ts &...>;
-    using pointer = arrow_proxy<reference>;
+  using iterator =
+      map_of_arrays_iterator<typename std::vector<Key>::iterator,
+                             typename std::vector<Ts>::iterator...>;
 
-    bool operator==(const iterator &other) const {
-      return key == other.key;
-    }
-
-    bool operator!=(const iterator &other) const {
-      return key != other.key;
-    }
-
-    difference_type operator-(const iterator &other) const {
-      return key - other.key;
-    }
-
-    reference operator*() const {
-      return std::apply(
-          [this](auto &...values) { return std::tie(*key, *values...); },
-          values);
-    }
-
-    pointer operator->() const {
-      return pointer{**this};
-    }
-
-    iterator &operator++() {
-      key++;
-      std::apply([this](auto &...values) { ((values++), ...); }, values);
-      return *this;
-    }
-  };
+  using const_iterator =
+      map_of_arrays_iterator<typename std::vector<Key>::const_iterator,
+                             typename std::vector<Ts>::const_iterator...>;
 
   iterator begin() {
     return apply([this](auto &...values) {
@@ -90,6 +101,35 @@ struct map_of_arrays {
     }
   }
 
+  const_iterator begin() const {
+    return apply([this](const auto &...values) {
+      return const_iterator{keys_.begin(), std::make_tuple(values.begin()...)};
+    });
+  }
+
+  const_iterator end() const {
+    return apply([this](const auto &...values) {
+      return const_iterator{keys_.end(), std::make_tuple(values.end()...)};
+    });
+  }
+
+  const_iterator lower_bound(const Key &key) const {
+    return apply([this, &key](const auto &...values) {
+      auto it = std::lower_bound(keys_.begin(), keys_.end(), key);
+      std::ptrdiff_t diff = std::distance(keys_.begin(), it);
+      return const_iterator{it, std::make_tuple((values.begin() + diff)...)};
+    });
+  }
+
+  const_iterator find(const Key &key) const {
+    auto it = lower_bound(key);
+    if (it != end() && std::get<0>(*it) == key) {
+      return it;
+    } else {
+      return end();
+    }
+  }
+
   template <std::size_t... I>
   void insert(std::index_sequence<I...>, iterator position, Key key,
               std::tuple<Ts...> values) {
@@ -107,6 +147,11 @@ struct map_of_arrays {
 private:
   template <typename Fn>
   auto apply(Fn &&fn) {
+    return std::apply(std::forward<Fn>(fn), values_);
+  }
+
+  template <typename Fn>
+  auto apply(Fn &&fn) const {
     return std::apply(std::forward<Fn>(fn), values_);
   }
 
@@ -142,10 +187,11 @@ struct container_array {
     return true;
   }
 
-  iterator begin() {
+  iterator begin() const {
     return values.cbegin();
   }
-  iterator end() {
+
+  iterator end() const {
     return values.cend();
   }
 
@@ -189,7 +235,7 @@ struct container_bitmap {
       return position;
     }
 
-    container_bitmap *parent;
+    const container_bitmap *parent;
     uint32_t position;
   };
 
@@ -217,11 +263,11 @@ struct container_bitmap {
     data[bucket] |= mask;
   }
 
-  iterator begin() {
+  iterator begin() const {
     return iterator{this, next_position(0, 0)};
   }
 
-  iterator end() {
+  iterator end() const {
     return iterator{this, capacity};
   }
 
@@ -233,7 +279,7 @@ struct container_bitmap {
     return sum;
   }
 
-  uint32_t next_position(uint16_t p, uint16_t n) {
+  uint32_t next_position(uint16_t p, uint16_t n) const {
     uint16_t bucket = p / word_size;
     uint16_t excess = p % word_size;
 
@@ -254,6 +300,8 @@ public:
 };
 
 struct bitset {
+  using value_type = uint32_t;
+
   bitset() = default;
 
   template <typename Iterator>
@@ -278,6 +326,9 @@ struct bitset {
 
   bitset(const bitset &) = delete;
   bitset &operator=(const bitset &) = delete;
+
+  bitset(bitset &&) = default;
+  bitset &operator=(bitset &&) = default;
 
   bool find(uint32_t index) {
     uint16_t high = index >> 16;
@@ -318,12 +369,12 @@ struct bitset {
 
   struct iterator {
     using iterator_category = std::forward_iterator_tag;
-    using value_type = uint16_t;
+    using value_type = uint32_t;
     using reference = value_type;
     using pointer = const value_type *;
     using difference_type = ptrdiff_t;
 
-    map_of_arrays<uint16_t, container_kind, void *>::iterator toplevel;
+    map_of_arrays<uint16_t, container_kind, void *>::const_iterator toplevel;
 
     // std::monostate is a placeholder for `toplevel->container.begin()`, but
     // it works even in cases where toplevel is the `end()` of the
@@ -354,14 +405,15 @@ struct bitset {
 
     uint32_t operator*() const {
       uint16_t high = std::get<0>(*toplevel);
-      uint16_t low = dispatch(
-          *toplevel, [this](auto &container) { return *downcast(container); });
+      uint16_t low = dispatch(*toplevel, [this](const auto &container) {
+        return *downcast(container);
+      });
 
       return (static_cast<uint32_t>(high) << 16) | low;
     }
 
     iterator &operator++() {
-      dispatch(*toplevel, [this](auto &container) {
+      dispatch(*toplevel, [this](const auto &container) {
         auto &it = downcast(container);
         if (++it == container.end()) {
           ++toplevel;
@@ -375,6 +427,16 @@ struct bitset {
       iterator temp = *this;
       ++(*this);
       return temp;
+    }
+
+    iterator &operator+=(size_t n) {
+      // TODO: this could definitely be sped up, both container types can
+      // support faster skips. The issue comes up when you hit the end of
+      // one container and need to break n into parts.
+      for (size_t i = 0; i < n; i++) {
+        (*this)++;
+      }
+      return *this;
     }
 
     bool operator==(const iterator &other) const {
@@ -399,13 +461,21 @@ struct bitset {
     }
   };
 
-  iterator begin() {
+  iterator begin() const {
     // Containers are never empty so using the first one is always valid
     return iterator{containers_.begin(), std::monostate()};
   }
 
-  iterator end() {
+  iterator end() const {
     return iterator{containers_.end(), std::monostate()};
+  }
+
+  uint64_t size() const {
+    uint64_t sum = 0;
+    for (auto entry : containers_) {
+      dispatch(entry, [&](const auto &container) { sum += container.size(); });
+    }
+    return sum;
   }
 
 private:
@@ -427,11 +497,54 @@ private:
     throw std::logic_error("unreachable");
   }
 
+  template <typename Fn>
+  static std::common_type_t<std::invoke_result_t<Fn, const container_array &>,
+                            std::invoke_result_t<Fn, const container_bitmap &>>
+  dispatch(
+      std::tuple<const uint16_t &, const container_kind &, void *const &> it,
+      Fn &&fn) {
+    switch (std::get<1>(it)) {
+    case container_kind::ARRAY: {
+      auto *ptr = static_cast<container_array *>(std::get<2>(it));
+      return std::forward<Fn>(fn)(*ptr);
+    }
+    case container_kind::BITMAP: {
+      auto *ptr = static_cast<container_bitmap *>(std::get<2>(it));
+      return std::forward<Fn>(fn)(*ptr);
+    }
+    }
+
+    throw std::logic_error("unreachable");
+  }
+
 private:
+  // TODO: Replace the void* with a `union { container_array, container_bitmap
+  // }`, maybe?
   map_of_arrays<uint16_t, container_kind, void *> containers_;
 
   std::iterator_traits<iterator>::value_type x;
 };
+
+// These intersection implementations don't take advantage of the bitset
+// implementation at all and will obviously be quite slow.
+template <typename OutputIt>
+OutputIt intersection(const bitset &left, const bitset &right,
+                      OutputIt output) {
+  return std::set_intersection(left.begin(), left.end(), right.begin(),
+                               right.end(), output);
+}
+
+inline bitset intersection(const bitset &left, const bitset &right) {
+  bitset result;
+  intersection(left, right, default_inserter(result));
+  return result;
+}
+
+inline uint64_t intersection_size(const bitset &left, const bitset &right) {
+  auto result =
+      intersection(left, right, counting_output_iterator<uint32_t>(0));
+  return result.offset();
+}
 
 } // namespace roaring
 } // namespace mob

@@ -1,4 +1,4 @@
-OBJECTS=RcppExports.o mob.o test-runner.o test-roaring.o
+OBJECTS=RcppExports.o mob.o infection.o test-runner.o test-roaring.o test-infection.o
 
 PKG_LIBS=-lcudart
 
@@ -12,7 +12,7 @@ NVCCFLAGS=-Xcompiler -fPIC -arch=sm_86 --extended-lambda
 # The R build system picks up the first target defined. Usually its own
 # makefiles set that as $(SHLIB) already, but because we define new targets we
 # don't want these to risk going first.
-all: install-deps $(SHLIB)
+all: $(SHLIB)
 
 # Add a rule to compile our Cuda files. The R build system has all kinds of
 # these rules for C/C++/Obj-C/Fortran already.

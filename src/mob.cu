@@ -1,6 +1,6 @@
-#include "device_random.h"
 #include "iterator.h"
 #include "mob.h"
+#include "parallel_random.h"
 #include "roaring.h"
 #include "sample.h"
 
@@ -71,12 +71,8 @@ std::vector<double> bernouilli_sampler_wrapper(Rcpp::NumericVector data,
   return result;
 }
 
-size_t bernouilli_sampler_simulate(size_t n, double p, int seed) {
+size_t bernouilli_sampler_count_wrapper(size_t n, double p, int seed) {
   auto rng = dust::random::seed<dust::random::xoroshiro128plus>(seed);
 
-  auto it = mob::bernouilli_sampler(
-      rng, thrust::make_counting_iterator<size_t>(0),
-      thrust::make_counting_iterator<size_t>(n), counting_output_iterator(), p);
-
-  return it.offset();
+  return mob::bernouilli_sampler_count<size_t, double>(rng, n, p);
 }
