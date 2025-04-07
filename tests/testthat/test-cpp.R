@@ -21,7 +21,7 @@ local({
   # existing reporter which supports streaming (eg. TAP).
 
   output <- withr::local_tempfile()
-  success <- run_catch_tests(c("--reporter=junit", "--out", output))
+  success <- run_catch(c("--reporter=junit", "--out", output))
 
   document <- xml2::read_xml(output)
 

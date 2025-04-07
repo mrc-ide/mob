@@ -77,7 +77,7 @@ struct parallel_random {
     __host__ __device__ proxy(typename vector_type::pointer ptr, size_t stride)
         : ptr(ptr), stride(stride) {}
 
-    __host__ __device__ rng_state get() {
+    __host__ __device__ rng_state get() const {
       rng_state state;
       for (size_t j = 0; j < width; j++) {
         state[j] = ptr[j * stride];
@@ -134,10 +134,10 @@ private:
   size_t capacity;
 };
 
-template <typename T = dust::random::xoroshiro128plus>
-using device_random = parallel_random<thrust::device_vector, T>;
+using device_random =
+    parallel_random<thrust::device_vector, dust::random::xoroshiro128plus>;
 
-template <typename T = dust::random::xoroshiro128plus>
-using host_random = parallel_random<thrust::host_vector, T>;
+using host_random =
+    parallel_random<thrust::host_vector, dust::random::xoroshiro128plus>;
 
 } // namespace mob
