@@ -1,13 +1,15 @@
-OBJECTS=RcppExports.o mob.o infection.o test-runner.o test-roaring.o test-infection.o
+OBJECTS=RcppExports.o mob.o infection.o \
+	test-runner.o test-roaring.o test-infection.o test-roaring-gpu.o
 
 PKG_LIBS=-lcudart
+PKG_CXXFLAGS=-I../inst/include
 
 # We assume the nvidia-toolkit is available in the environment.
 # TODO: Use CUDA_PATH to find nvcc, if available
 # TODO: handle NDEBUG / optimization flags.
 
 NVCC=nvcc
-NVCCFLAGS=-Xcompiler -fPIC -arch=sm_86 --extended-lambda
+NVCCFLAGS=-Xcompiler -fPIC -arch=sm_86 --extended-lambda -Xcompiler -fdiagnostics-color=always -I../inst/include
 
 # The R build system picks up the first target defined. Usually its own
 # makefiles set that as $(SHLIB) already, but because we define new targets we
@@ -43,6 +45,7 @@ install-dep-%:
 	cmake \
 		-DCMAKE_INSTALL_PREFIX=$(PWD)/.libs \
 		-DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+		-DCMAKE_BUILD_TYPE=Release \
 		-S cmake/$* \
 		-B .deps/$*
 
@@ -57,3 +60,5 @@ PKG_LIBS+=-L$(PWD)/.libs/lib -lCatch2 -lrapidcheck
 $(OBJECTS): install-deps
 
 .PHONY: install-deps
+
+PKG_CXXFLAGS+=-fmax-errors=1

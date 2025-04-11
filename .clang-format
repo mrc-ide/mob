@@ -3,3 +3,8 @@ BasedOnStyle: LLVM
 Language: Cpp
 AlwaysBreakTemplateDeclarations: Yes
 AllowShortFunctionsOnASingleLine: Empty
+IncludeCategories:
+  - Regex:           '^((<|")(mob))'
+    Priority:        1
+
+IncludeBlocks: Regroup

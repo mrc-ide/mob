@@ -10,20 +10,6 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// homogeneous_infection_process_wrapper
-Rcpp::DataFrame homogeneous_infection_process_wrapper(Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected, double infection_probability, int seed);
-RcppExport SEXP _mob_homogeneous_infection_process_wrapper(SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP infection_probabilitySEXP, SEXP seedSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type susceptible(susceptibleSEXP);
-    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type infected(infectedSEXP);
-    Rcpp::traits::input_parameter< double >::type infection_probability(infection_probabilitySEXP);
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(homogeneous_infection_process_wrapper(susceptible, infected, infection_probability, seed));
-    return rcpp_result_gen;
-END_RCPP
-}
 // parallel_runif
 Rcpp::NumericVector parallel_runif(size_t n, double min, double max, int seed);
 RcppExport SEXP _mob_parallel_runif(SEXP nSEXP, SEXP minSEXP, SEXP maxSEXP, SEXP seedSEXP) {
@@ -104,28 +90,85 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// run_catch_tests
-bool run_catch_tests(Rcpp::Nullable<Rcpp::StringVector> args, bool fork);
-RcppExport SEXP _mob_run_catch_tests(SEXP argsSEXP, SEXP forkSEXP) {
+// bernouilli_sampler_gpu_wrapper
+Rcpp::NumericVector bernouilli_sampler_gpu_wrapper(Rcpp::NumericVector data, double p, int seed);
+RcppExport SEXP _mob_bernouilli_sampler_gpu_wrapper(SEXP dataSEXP, SEXP pSEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< double >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(bernouilli_sampler_gpu_wrapper(data, p, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bernouilli_sampler_count_gpu_wrapper
+size_t bernouilli_sampler_count_gpu_wrapper(size_t n, double p, int seed);
+RcppExport SEXP _mob_bernouilli_sampler_count_gpu_wrapper(SEXP nSEXP, SEXP pSEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(bernouilli_sampler_count_gpu_wrapper(n, p, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
+// homogeneous_infection_process_wrapper
+Rcpp::DataFrame homogeneous_infection_process_wrapper(Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected, double infection_probability, int seed);
+RcppExport SEXP _mob_homogeneous_infection_process_wrapper(SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP infection_probabilitySEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type susceptible(susceptibleSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type infected(infectedSEXP);
+    Rcpp::traits::input_parameter< double >::type infection_probability(infection_probabilitySEXP);
+    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(homogeneous_infection_process_wrapper(susceptible, infected, infection_probability, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
+// homogeneous_infection_process_gpu_wrapper
+Rcpp::DataFrame homogeneous_infection_process_gpu_wrapper(Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected, double infection_probability, int seed);
+RcppExport SEXP _mob_homogeneous_infection_process_gpu_wrapper(SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP infection_probabilitySEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type susceptible(susceptibleSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type infected(infectedSEXP);
+    Rcpp::traits::input_parameter< double >::type infection_probability(infection_probabilitySEXP);
+    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(homogeneous_infection_process_gpu_wrapper(susceptible, infected, infection_probability, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
+// run_catch
+bool run_catch(Rcpp::Nullable<Rcpp::StringVector> args, bool fork);
+RcppExport SEXP _mob_run_catch(SEXP argsSEXP, SEXP forkSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type args(argsSEXP);
     Rcpp::traits::input_parameter< bool >::type fork(forkSEXP);
-    rcpp_result_gen = Rcpp::wrap(run_catch_tests(args, fork));
+    rcpp_result_gen = Rcpp::wrap(run_catch(args, fork));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_mob_homogeneous_infection_process_wrapper", (DL_FUNC) &_mob_homogeneous_infection_process_wrapper, 4},
     {"_mob_parallel_runif", (DL_FUNC) &_mob_parallel_runif, 4},
     {"_mob_parallel_rbinom", (DL_FUNC) &_mob_parallel_rbinom, 4},
     {"_mob_betabinomial_sampler_wrapper", (DL_FUNC) &_mob_betabinomial_sampler_wrapper, 3},
     {"_mob_selection_sampler_wrapper", (DL_FUNC) &_mob_selection_sampler_wrapper, 3},
     {"_mob_bernouilli_sampler_wrapper", (DL_FUNC) &_mob_bernouilli_sampler_wrapper, 3},
     {"_mob_bernouilli_sampler_count_wrapper", (DL_FUNC) &_mob_bernouilli_sampler_count_wrapper, 3},
-    {"_mob_run_catch_tests", (DL_FUNC) &_mob_run_catch_tests, 2},
+    {"_mob_bernouilli_sampler_gpu_wrapper", (DL_FUNC) &_mob_bernouilli_sampler_gpu_wrapper, 3},
+    {"_mob_bernouilli_sampler_count_gpu_wrapper", (DL_FUNC) &_mob_bernouilli_sampler_count_gpu_wrapper, 3},
+    {"_mob_homogeneous_infection_process_wrapper", (DL_FUNC) &_mob_homogeneous_infection_process_wrapper, 4},
+    {"_mob_homogeneous_infection_process_gpu_wrapper", (DL_FUNC) &_mob_homogeneous_infection_process_gpu_wrapper, 4},
+    {"_mob_run_catch", (DL_FUNC) &_mob_run_catch, 2},
     {NULL, NULL, 0}
 };
 

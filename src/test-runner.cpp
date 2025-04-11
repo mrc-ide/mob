@@ -5,7 +5,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-static int run_catch_tests_internal(Rcpp::Nullable<Rcpp::StringVector> args) {
+static int run_catch_internal(Rcpp::Nullable<Rcpp::StringVector> args) {
   std::vector<const char *> argv;
   argv.push_back("catch");
 
@@ -90,14 +90,18 @@ static bool run_test_process(Fn &&fn) {
 }
 
 // [[Rcpp::export(invisible = true)]]
-bool run_catch_tests(Rcpp::Nullable<Rcpp::StringVector> args = R_NilValue,
-                     bool fork = true) {
+bool run_catch(Rcpp::Nullable<Rcpp::StringVector> args = R_NilValue,
+               bool fork = true) {
   if (fork) {
     // Forking here helps protect the R session from buggy tests that would
     // crash the process. It can however make running a debugger a little more
     // difficult, so we have a parameter to skip it.
-    return run_test_process([&] { return run_catch_tests_internal(args); });
+    //
+    // Doing useful work in a forked process (as opposed to just calling
+    // execve) is often frowned upon especially if the parent process is
+    // multithreaded, but thankfully R is hopelessly single threaded.
+    return run_test_process([&] { return run_catch_internal(args); });
   } else {
-    return run_catch_tests_internal(args) == 0;
+    return run_catch_internal(args) == 0;
   }
 }

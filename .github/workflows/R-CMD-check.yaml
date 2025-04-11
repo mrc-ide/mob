@@ -59,3 +59,10 @@ jobs:
           # By default, the action fails on warnings. Unfortunately the R build
           # system throws a warning at the `.cu` files in the `src` directory.
           error-on: '"error"'
+
+      # The default check logs don't include the C++ build process and any
+      # potential errors.
+      - name: "Show install logs"
+        if: always()
+        run: |
+          find check -name '00install.out' -exec cat '{}' \; || true

@@ -1,39 +1,37 @@
-#include "iterator.h"
-#include "mob.h"
-#include "parallel_random.h"
-#include "roaring.h"
-#include "sample.h"
+#include "interface.h"
+#include <mob/infection.h>
+#include <mob/iterator.h>
+#include <mob/parallel_random.h>
+#include <mob/roaring/bitset.h>
+#include <mob/sample.h>
 
+#include <Rcpp.h>
 #include <dust/random/binomial.hpp>
 #include <dust/random/uniform.hpp>
 
 Rcpp::NumericVector parallel_runif(size_t n, double min, double max, int seed) {
-  mob::device_random<> rng(n, seed);
-  thrust::device_vector<double> dv(n);
+  mob::device_random rng(n, seed);
+  thrust::device_vector<double> result(n);
 
-  thrust::transform(rng.begin(), rng.end(), dv.begin(),
+  thrust::transform(rng.begin(), rng.end(), result.begin(),
                     [min, max] __device__(auto &rng) {
                       return dust::random::uniform<double>(rng, min, max);
                     });
 
-  Rcpp::NumericVector result(dv.size());
-  thrust::copy(dv.begin(), dv.end(), result.begin());
-  return result;
+  return {result.begin(), result.end()};
 }
 
 Rcpp::NumericVector parallel_rbinom(size_t n, size_t size, double prob,
                                     int seed) {
-  mob::device_random<> rng(n, seed);
-  thrust::device_vector<double> dv(n);
+  mob::device_random rng(n, seed);
+  thrust::device_vector<double> result(n);
 
-  thrust::transform(rng.begin(), rng.end(), dv.begin(),
+  thrust::transform(rng.begin(), rng.end(), result.begin(),
                     [size, prob] __device__(auto &rng) -> double {
                       return dust::random::binomial<double>(rng, size, prob);
                     });
 
-  Rcpp::NumericVector result(dv.size());
-  thrust::copy(dv.begin(), dv.end(), result.begin());
-  return result;
+  return {result.begin(), result.end()};
 }
 
 Rcpp::NumericVector betabinomial_sampler_wrapper(Rcpp::NumericVector data,
@@ -56,6 +54,11 @@ Rcpp::NumericVector selection_sampler_wrapper(Rcpp::NumericVector data,
   return result;
 }
 
+size_t bernouilli_sampler_count_wrapper(size_t n, double p, int seed) {
+  auto rng = dust::random::seed<dust::random::xoroshiro128plus>(seed);
+  return mob::bernouilli_sampler_count(rng, n, p);
+}
+
 std::vector<double> bernouilli_sampler_wrapper(Rcpp::NumericVector data,
                                                double p, int seed) {
   auto rng = dust::random::seed<dust::random::xoroshiro128plus>(seed);
@@ -71,8 +74,42 @@ std::vector<double> bernouilli_sampler_wrapper(Rcpp::NumericVector data,
   return result;
 }
 
-size_t bernouilli_sampler_count_wrapper(size_t n, double p, int seed) {
-  auto rng = dust::random::seed<dust::random::xoroshiro128plus>(seed);
+size_t bernouilli_sampler_count_gpu_wrapper(size_t n, double p, int seed) {
+  mob::device_random rngs(1, seed);
+  thrust::device_vector<size_t> result(1);
 
-  return mob::bernouilli_sampler_count<size_t, double>(rng, n, p);
+  thrust::transform(rngs.begin(), rngs.end(), result.begin(),
+                    [n, p] __device__(auto &rng) {
+                      return mob::bernouilli_sampler_count(rng, n, p);
+                    });
+
+  return result.front();
+}
+
+Rcpp::NumericVector bernouilli_sampler_gpu_wrapper(Rcpp::NumericVector data,
+                                                   double p, int seed) {
+  mob::device_random rngs(1, seed);
+  thrust::device_vector<size_t> count(1);
+
+  size_t n = data.size();
+  thrust::transform(rngs.begin(), rngs.end(), count.begin(),
+                    [n, p] __device__(const auto &rng) {
+                      auto rng_copy = rng.get();
+                      return mob::bernouilli_sampler_count(rng_copy, n, p);
+                    });
+
+  thrust::device_vector<double> input(data.begin(), data.end());
+  thrust::device_vector<double> result(count.back());
+
+  auto input_begin = result.begin();
+  auto input_end = result.end();
+  auto result_begin = result.begin();
+
+  thrust::for_each(
+      rngs.begin(), rngs.end(),
+      [n, p, input_begin, input_end, result_begin] __device__(auto &rng) {
+        mob::bernouilli_sampler(rng, input_begin, input_end, result_begin, p);
+      });
+
+  return {result.begin(), result.end()};
 }
