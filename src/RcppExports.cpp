@@ -144,6 +144,36 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// household_infection_process_wrapper
+Rcpp::DataFrame household_infection_process_wrapper(Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected, Rcpp::IntegerVector households, double infection_probability, int seed);
+RcppExport SEXP _mob_household_infection_process_wrapper(SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP householdsSEXP, SEXP infection_probabilitySEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type susceptible(susceptibleSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type infected(infectedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type households(householdsSEXP);
+    Rcpp::traits::input_parameter< double >::type infection_probability(infection_probabilitySEXP);
+    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(household_infection_process_wrapper(susceptible, infected, households, infection_probability, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
+// household_infection_process_gpu_wrapper
+Rcpp::DataFrame household_infection_process_gpu_wrapper(Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected, Rcpp::IntegerVector households, double infection_probability, int seed);
+RcppExport SEXP _mob_household_infection_process_gpu_wrapper(SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP householdsSEXP, SEXP infection_probabilitySEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type susceptible(susceptibleSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type infected(infectedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type households(householdsSEXP);
+    Rcpp::traits::input_parameter< double >::type infection_probability(infection_probabilitySEXP);
+    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(household_infection_process_gpu_wrapper(susceptible, infected, households, infection_probability, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
 // run_catch
 bool run_catch(Rcpp::Nullable<Rcpp::StringVector> args, bool fork);
 RcppExport SEXP _mob_run_catch(SEXP argsSEXP, SEXP forkSEXP) {
@@ -168,6 +198,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_bernouilli_sampler_count_gpu_wrapper", (DL_FUNC) &_mob_bernouilli_sampler_count_gpu_wrapper, 3},
     {"_mob_homogeneous_infection_process_wrapper", (DL_FUNC) &_mob_homogeneous_infection_process_wrapper, 4},
     {"_mob_homogeneous_infection_process_gpu_wrapper", (DL_FUNC) &_mob_homogeneous_infection_process_gpu_wrapper, 4},
+    {"_mob_household_infection_process_wrapper", (DL_FUNC) &_mob_household_infection_process_wrapper, 5},
+    {"_mob_household_infection_process_gpu_wrapper", (DL_FUNC) &_mob_household_infection_process_gpu_wrapper, 5},
     {"_mob_run_catch", (DL_FUNC) &_mob_run_catch, 2},
     {NULL, NULL, 0}
 };

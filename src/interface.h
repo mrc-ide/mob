@@ -43,3 +43,13 @@ Rcpp::DataFrame homogeneous_infection_process_wrapper(
 Rcpp::DataFrame homogeneous_infection_process_gpu_wrapper(
     Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected,
     double infection_probability, int seed = 0);
+
+// [[Rcpp::export("household_infection_process")]]
+Rcpp::DataFrame household_infection_process_wrapper(
+    Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected,
+    Rcpp::IntegerVector households, double infection_probability, int seed = 0);
+
+// [[Rcpp::export("household_infection_process_gpu")]]
+Rcpp::DataFrame household_infection_process_gpu_wrapper(
+    Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected,
+    Rcpp::IntegerVector households, double infection_probability, int seed = 0);

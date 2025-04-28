@@ -8,22 +8,37 @@ namespace mob {
 namespace compat {
 
 // cuda::std::distance behaves in weird ways, especially when used with
-// Thrust iterators. We only care about the random access iterators anyway
-// which makes this easy enough to implement.
-__nv_exec_check_disable__ template <typename RandomIt>
-__host__ __device__
-    typename cuda::std::iterator_traits<RandomIt>::difference_type
-    distance(RandomIt start, RandomIt end) {
-  return end - start;
+// Thrust iterators.
+__nv_exec_check_disable__ template <typename I, typename S>
+__host__ __device__ cuda::std::iter_difference_t<I> distance(I start, S end) {
+  if constexpr (cuda::std::sized_sentinel_for<S, I>) {
+    return end - start;
+  } else {
+    cuda::std::iter_difference_t<I> count = 0;
+    for (auto it = start; it != end; ++it) {
+      count++;
+    }
+    return count;
+  }
 }
 
+// range version of distance
+template <typename R>
+__host__ __device__ auto distance(R &&r) {
+  return mob::compat::distance(r.begin(), r.end());
+}
+
+// Supposedly cccl has a lower_bound implementation, but it doesn't seem to be
+// exposed. `#include <cuda/std/algorithm>` doesn't work.
+//
 // From https://en.cppreference.com/w/cpp/algorithm/lower_bound
 // https://en.cppreference.com/w/cpp/algorithm/binary_search
-template <class ForwardIt,
-          class T = typename cuda::std::iterator_traits<ForwardIt>::value_type,
-          class Compare>
-ForwardIt lower_bound(ForwardIt first, ForwardIt last, const T &value,
-                      Compare comp) {
+__nv_exec_check_disable__ template <
+    class ForwardIt,
+    class T = typename cuda::std::iterator_traits<ForwardIt>::value_type,
+    class Compare>
+__host__ __device__ ForwardIt lower_bound(ForwardIt first, ForwardIt last,
+                                          const T &value, Compare comp) {
   ForwardIt it;
   typename cuda::std::iterator_traits<ForwardIt>::difference_type count, step;
   count = mob::compat::distance(first, last);
@@ -43,9 +58,11 @@ ForwardIt lower_bound(ForwardIt first, ForwardIt last, const T &value,
   return first;
 }
 
-template <class ForwardIt,
-          class T = typename cuda::std::iterator_traits<ForwardIt>::value_type>
-ForwardIt lower_bound(ForwardIt first, ForwardIt last, const T &value) {
+__nv_exec_check_disable__ template <
+    class ForwardIt,
+    class T = typename cuda::std::iterator_traits<ForwardIt>::value_type>
+__host__ __device__ ForwardIt lower_bound(ForwardIt first, ForwardIt last,
+                                          const T &value) {
   return mob::compat::lower_bound(first, last, value, cuda::std::less{});
 }
 
@@ -62,6 +79,14 @@ template <class ForwardIt,
           class T = typename cuda::std::iterator_traits<ForwardIt>::value_type>
 bool binary_search(ForwardIt first, ForwardIt last, const T &value) {
   return mob::compat::binary_search(first, last, value, cuda::std::less{});
+}
+
+// https://en.cppreference.com/w/cpp/algorithm/fill
+template <class ForwardIt,
+          class T = typename cuda::std::iterator_traits<ForwardIt>::value_type>
+__host__ __device__ void fill(ForwardIt first, ForwardIt last, const T &value) {
+  for (; first != last; ++first)
+    *first = value;
 }
 
 } // namespace compat

@@ -9,7 +9,7 @@ parallel_rbinom <- function(n, size, prob, seed = 0L) {
     .Call(`_mob_parallel_rbinom`, n, size, prob, seed)
 }
 
-betabinomial_sampler <- function(data, k, seed) {
+betabinomial_sampler <- function(data, k, seed = 0L) {
     .Call(`_mob_betabinomial_sampler_wrapper`, data, k, seed)
 }
 
@@ -39,6 +39,14 @@ homogeneous_infection_process <- function(susceptible, infected, infection_proba
 
 homogeneous_infection_process_gpu <- function(susceptible, infected, infection_probability, seed = 0L) {
     .Call(`_mob_homogeneous_infection_process_gpu_wrapper`, susceptible, infected, infection_probability, seed)
+}
+
+household_infection_process <- function(susceptible, infected, households, infection_probability, seed = 0L) {
+    .Call(`_mob_household_infection_process_wrapper`, susceptible, infected, households, infection_probability, seed)
+}
+
+household_infection_process_gpu <- function(susceptible, infected, households, infection_probability, seed = 0L) {
+    .Call(`_mob_household_infection_process_gpu_wrapper`, susceptible, infected, households, infection_probability, seed)
 }
 
 run_catch <- function(args = NULL, fork = TRUE) {

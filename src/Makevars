@@ -1,15 +1,16 @@
-OBJECTS=RcppExports.o mob.o infection.o \
-	test-runner.o test-roaring.o test-infection.o test-roaring-gpu.o
+OBJECTS=infection.o mob.o \
+	test-runner.o test-roaring.o test-infection.o test-roaring-gpu.o \
+	RcppExports.o
 
-PKG_LIBS=-lcudart
-PKG_CXXFLAGS=-I../inst/include
+PKG_LIBS=-lcudart -g
+PKG_CXXFLAGS=-I../inst/include -g
 
 # We assume the nvidia-toolkit is available in the environment.
 # TODO: Use CUDA_PATH to find nvcc, if available
 # TODO: handle NDEBUG / optimization flags.
 
 NVCC=nvcc
-NVCCFLAGS=-Xcompiler -fPIC -arch=sm_86 --extended-lambda -Xcompiler -fdiagnostics-color=always -I../inst/include
+NVCCFLAGS=-Xcompiler -fPIC -arch=sm_86 --extended-lambda -Xcompiler -fdiagnostics-color=always -I../inst/include -g
 
 # The R build system picks up the first target defined. Usually its own
 # makefiles set that as $(SHLIB) already, but because we define new targets we

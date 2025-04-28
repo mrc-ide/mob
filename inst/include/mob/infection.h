@@ -1,4 +1,7 @@
 #pragma once
+#include <mob/ds/intersection.h>
+#include <mob/ds/partition.h>
+#include <mob/ds/view.h>
 #include <mob/parallel_random.h>
 #include <mob/roaring/bitset.h>
 #include <mob/sample.h>
@@ -63,28 +66,18 @@ random_select_by_key(mob::host_random &rngs, KeyIt first, KeyIt last,
   return {keys_last, values_last};
 }
 
-// TODO: bitset to device_vector should have a GPU-based specialization
-// TODO: in some cases we should be able to move instead
-template <typename System, typename Input>
-typename System::vector<uint32_t> to_population_vector(const Input &values) {
-  return typename System::vector<uint32_t>(values.begin(), values.end());
-}
-
-template <typename System = system::host, typename Infected,
-          typename CandidatesSize, typename CandidatesFn>
+template <typename System = system::host, typename CandidatesSize,
+          typename CandidatesFn>
 std::pair<typename System::vector<uint32_t>, typename System::vector<uint32_t>>
-infection_process(typename System::random &rngs, Infected &&infected,
+infection_process(typename System::random &rngs,
+                  const typename System::vector<uint32_t> &infected,
                   double infection_probability, CandidatesSize candidates_size,
                   CandidatesFn candidates_fn) {
-
-  auto infectors =
-      to_population_vector<System>(std::forward<Infected>(infected));
-
   // Figure out how many people each I infects - don't store the actual targets
   // anywhere yet since we have nowhere to put the result.
-  typename System::vector<uint32_t> victim_count(infectors.size());
+  typename System::vector<uint32_t> victim_count(infected.size());
   thrust::transform(
-      infectors.begin(), infectors.end(), rngs.begin(), victim_count.begin(),
+      infected.begin(), infected.end(), rngs.begin(), victim_count.begin(),
       [candidates_size, infection_probability] __host__ __device__(
           uint32_t i, typename System::random::proxy rng) -> uint32_t {
         size_t n = candidates_size(i);
@@ -96,12 +89,12 @@ infection_process(typename System::random &rngs, Infected &&infected,
   // Prepare some space in which to store the infection victims.
   // The cumulative sum of the victim count gives us the offset at which each I
   // should store its victims.
-  typename System::vector<size_t> offsets(infectors.size());
+  typename System::vector<size_t> offsets(infected.size());
   thrust::exclusive_scan(victim_count.begin(), victim_count.end(),
                          offsets.begin());
 
   size_t total_infections;
-  if (infectors.size() > 0) {
+  if (infected.size() > 0) {
     total_infections = offsets.back() + victim_count.back();
   } else {
     total_infections = 0;
@@ -119,75 +112,86 @@ infection_process(typename System::random &rngs, Infected &&infected,
   auto infection_source_begin = infection_source.begin();
 
   thrust::for_each(
-      thrust::make_zip_iterator(infectors.begin(), offsets.begin(),
+      thrust::make_zip_iterator(infected.begin(), offsets.begin(),
                                 rngs.begin()),
-      thrust::make_zip_iterator(infectors.end(), offsets.end(),
-                                rngs.begin() + infectors.size()),
+      thrust::make_zip_iterator(infected.end(), offsets.end(),
+                                rngs.begin() + infected.size()),
       thrust::make_zip_function(
-          [candidates_fn, infection_probability, infection_victim_begin,
-           infection_source_begin] __host__
-              __device__(uint32_t i, size_t offset,
-                         typename System::random::proxy rng) {
-                auto candidates = candidates_fn(i);
+          [=] __host__ __device__(uint32_t i, size_t offset,
+                                  typename System::random::proxy rng) {
+            auto candidates = candidates_fn(i);
 
-                auto victim_first = infection_victim_begin + offset;
-                auto victim_last = mob::bernouilli_sampler<double>(
-                    rng, candidates.first, candidates.second, victim_first,
-                    infection_probability);
+            auto victim_first = infection_victim_begin + offset;
 
-                auto source_first = infection_source_begin + offset;
-                auto source_last = infection_source_begin +
-                                   (victim_last - infection_victim_begin);
+            // TODO: might be beneficial to cache candidates_size, which is
+            // needed by the sampler.
+            auto victim_last = mob::bernouilli_sampler<double>(
+                rng, candidates.begin(), candidates.end(), victim_first,
+                infection_probability);
 
-                // TODO: use std::fill
-                for (auto it = source_first; it != source_last; it++) {
-                  *it = i;
-                }
-              }));
+            auto source_first = infection_source_begin + offset;
+            auto source_last =
+                infection_source_begin + (victim_last - infection_victim_begin);
+
+            compat::fill(source_first, source_last, i);
+          }));
 
   return {infection_source, infection_victim};
 }
 
-template <typename System = system::host, typename Infected,
-          typename Susceptible>
+template <typename System = system::host, typename CandidatesFn>
 std::pair<typename System::vector<uint32_t>, typename System::vector<uint32_t>>
-homogeneous_infection_process(typename System::random &rngs,
-                              Infected &&infected, Susceptible &&susceptible,
-                              double infection_probability) {
+infection_process(typename System::random &rngs,
+                  const typename System::vector<uint32_t> &infected,
+                  double infection_probability, CandidatesFn candidates_fn) {
+  return infection_process<System>(
+      rngs, infected, infection_probability,
+      [=] __host__ __device__(uint32_t i) {
+        return compat::distance(candidates_fn(i));
+      },
+      [=] __host__ __device__(uint32_t i) { return candidates_fn(i); });
+}
 
-  auto susceptible_data =
-      to_population_vector<System>(std::forward<Susceptible>(susceptible));
+template <typename System = system::host>
+std::pair<typename System::vector<uint32_t>, typename System::vector<uint32_t>>
+homogeneous_infection_process(
+    typename System::random &rngs,
+    const typename System::vector<uint32_t> &infected,
+    const typename System::vector<uint32_t> &susceptible,
+    double infection_probability) {
 
-  auto susceptible_size = susceptible_data.size();
-  auto susceptible_begin = susceptible_data.begin();
-  auto susceptible_end = susceptible_data.end();
+  auto susceptible_view = ds::view(susceptible);
 
   return infection_process<System>(
-      rngs, std::forward<Infected>(infected), infection_probability,
-      [=] __host__ __device__(uint32_t) { return susceptible_size; },
-      [=] __host__ __device__(uint32_t) {
-        // TODO: use spans or ranges
-        return thrust::make_pair(susceptible_begin, susceptible_end);
-      });
+      rngs, infected, infection_probability,
+      [=] __host__ __device__(uint32_t) { return susceptible_view; });
 }
 
-/*
-std::
-    pair<std::vector<uint32_t>, std::vector<uint32_t>> static inline
-household_infection_process( mob::host_random &rngs, const
-mob::roaring::bitset &infected, const mob::roaring::bitset &susceptible, double
-infection_probability, const std::vector<uint32_t> &individual_household, const
-std::vector<mob::roaring::bitset> &household_members) { return
-infection_process( rngs, infected, infection_probability,
-      [&](uint32_t i) {
-        return mob::roaring::intersection_size(
-            household_members[individual_household[i]], susceptible);
-      },
-      [&](uint32_t i) {
-        return mob::roaring::intersection(
-            household_members[individual_household[i]], susceptible);
-      });
+template <typename System = system::host>
+std::pair<typename System::vector<uint32_t>, typename System::vector<uint32_t>>
+household_infection_process(
+    typename System::random &rngs,
+    const typename System::vector<uint32_t> &infected,
+    const typename System::vector<uint32_t> &susceptible,
+    const ds::partition<System> &partition, double infection_probability) {
+
+  auto susceptible_view = ds::view(susceptible);
+  auto partition_view = ds::view(partition);
+
+  // TODO: this applies the S filter first, and then applies the bernouilli
+  // sampler. It may be easier / faster to do the bernouilli sample first and
+  // apply the filter second.
+  //
+  // refactor `infection_process` to not do the bernouilli sampler and instead
+  // make it the responsibility of the callbacks.
+  //
+  // Make bernouilli_sampler a range and use std::range::distance on it.
+  return infection_process<System>(rngs, infected, infection_probability,
+                                   [=] __host__ __device__(uint32_t i) {
+                                     return lazy_intersection(
+                                         partition_view.neighbours(i),
+                                         susceptible_view);
+                                   });
 }
-*/
 
 } // namespace mob

@@ -154,24 +154,26 @@ private:
 };
 
 template <typename real_type, typename rng_state_type, typename InputIt,
-          typename OutputIt>
+          typename Sentinel, typename OutputIt>
 __host__ __device__ OutputIt bernouilli_sampler(rng_state_type &rng_state,
                                                 InputIt input_start,
-                                                InputIt input_end,
+                                                Sentinel input_end,
                                                 OutputIt output, real_type p) {
   if (p < 0 || p > 1) {
     dust::utils::fatal_error("Invalid sampler input");
   }
 
+  size_t count = mob::compat::distance(input_start, input_end);
   fast_bernouilli<real_type> bernoulli(p);
   while (true) {
     size_t skip = bernoulli.next(rng_state);
-    size_t d = mob::compat::distance(input_start, input_end);
-    if (skip >= d) {
+    if (skip >= count) {
       break;
     }
     input_start += skip;
-    *(output++) = *(input_start++);
+    count -= skip;
+    ++output;
+    ++input_start;
   }
   return output;
 }

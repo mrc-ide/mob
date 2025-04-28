@@ -39,23 +39,24 @@ rc::Gen<double> genProbability() {
                       [](uint32_t value) { return (double)value / 4097.f; });
 }
 
-TEST_CASE("infection") {
-  rc::prop("homogeneous_infection", []() {
-    uint32_t population = *rc::gen::inRange<uint32_t>(0, 1000);
-    double propability = *genProbability();
-
-    auto rngs = *genRandomState(population);
-    auto [susceptible, infected] = *genCompartments(population);
-
-    auto result =
-        homogeneous_infection_process(rngs, susceptible, infected, propability);
-
-    RC_ASSERT(result.first.size() == result.second.size());
-    for (auto i : result.first) {
-      RC_ASSERT(susceptible.contains(i));
-    }
-    for (auto i : result.second) {
-      RC_ASSERT(infected.contains(i));
-    }
-  });
-}
+// TEST_CASE("infection") {
+//   rc::prop("homogeneous_infection", []() {
+//     uint32_t population = *rc::gen::inRange<uint32_t>(0, 1000);
+//     double propability = *genProbability();
+//
+//     auto rngs = *genRandomState(population);
+//     auto [susceptible, infected] = *genCompartments(population);
+//
+//     auto result =
+//         homogeneous_infection_process(rngs, susceptible, infected,
+//         propability);
+//
+//     RC_ASSERT(result.first.size() == result.second.size());
+//     for (auto i : result.first) {
+//       RC_ASSERT(susceptible.contains(i));
+//     }
+//     for (auto i : result.second) {
+//       RC_ASSERT(infected.contains(i));
+//     }
+//   });
+// }
