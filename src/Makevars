@@ -1,6 +1,8 @@
-OBJECTS=infection.o mob.o \
-	test-runner.o test-roaring.o test-infection.o test-roaring-gpu.o \
+OBJECTS=infection.o sampler.o random.o \
+	test-runner.o \
 	RcppExports.o
+
+# test-roaring.o test-infection.o test-roaring-gpu.o
 
 PKG_LIBS=-lcudart -g
 PKG_CXXFLAGS=-I../inst/include -g

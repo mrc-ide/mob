@@ -1,7 +1,7 @@
 #pragma once
 #include <mob/ds/intersection.h>
 #include <mob/ds/partition.h>
-#include <mob/ds/view.h>
+#include <mob/ds/span.h>
 #include <mob/parallel_random.h>
 #include <mob/roaring/bitset.h>
 #include <mob/sample.h>
@@ -70,7 +70,7 @@ template <typename System = system::host, typename CandidatesSize,
           typename CandidatesFn>
 std::pair<typename System::vector<uint32_t>, typename System::vector<uint32_t>>
 infection_process(typename System::random &rngs,
-                  const typename System::vector<uint32_t> &infected,
+                  typename System::span<uint32_t> infected,
                   double infection_probability, CandidatesSize candidates_size,
                   CandidatesFn candidates_fn) {
   // Figure out how many people each I infects - don't store the actual targets
@@ -122,9 +122,6 @@ infection_process(typename System::random &rngs,
             auto candidates = candidates_fn(i);
 
             auto victim_first = infection_victim_begin + offset;
-
-            // TODO: might be beneficial to cache candidates_size, which is
-            // needed by the sampler.
             auto victim_last = mob::bernouilli_sampler<double>(
                 rng, candidates.begin(), candidates.end(), victim_first,
                 infection_probability);
@@ -142,7 +139,7 @@ infection_process(typename System::random &rngs,
 template <typename System = system::host, typename CandidatesFn>
 std::pair<typename System::vector<uint32_t>, typename System::vector<uint32_t>>
 infection_process(typename System::random &rngs,
-                  const typename System::vector<uint32_t> &infected,
+                  typename System::span<uint32_t> infected,
                   double infection_probability, CandidatesFn candidates_fn) {
   return infection_process<System>(
       rngs, infected, infection_probability,
@@ -154,29 +151,23 @@ infection_process(typename System::random &rngs,
 
 template <typename System = system::host>
 std::pair<typename System::vector<uint32_t>, typename System::vector<uint32_t>>
-homogeneous_infection_process(
-    typename System::random &rngs,
-    const typename System::vector<uint32_t> &infected,
-    const typename System::vector<uint32_t> &susceptible,
-    double infection_probability) {
-
-  auto susceptible_view = ds::view(susceptible);
+homogeneous_infection_process(typename System::random &rngs,
+                              typename System::span<uint32_t> infected,
+                              typename System::span<uint32_t> susceptible,
+                              double infection_probability) {
 
   return infection_process<System>(
       rngs, infected, infection_probability,
-      [=] __host__ __device__(uint32_t) { return susceptible_view; });
+      [=] __host__ __device__(uint32_t i) { return susceptible; });
 }
 
 template <typename System = system::host>
 std::pair<typename System::vector<uint32_t>, typename System::vector<uint32_t>>
-household_infection_process(
-    typename System::random &rngs,
-    const typename System::vector<uint32_t> &infected,
-    const typename System::vector<uint32_t> &susceptible,
-    const ds::partition<System> &partition, double infection_probability) {
-
-  auto susceptible_view = ds::view(susceptible);
-  auto partition_view = ds::view(partition);
+household_infection_process(typename System::random &rngs,
+                            ds::span<System, uint32_t> infected,
+                            ds::span<System, uint32_t> susceptible,
+                            ds::partition_view<System> partition,
+                            double infection_probability) {
 
   // TODO: this applies the S filter first, and then applies the bernouilli
   // sampler. It may be easier / faster to do the bernouilli sample first and
@@ -189,8 +180,7 @@ household_infection_process(
   return infection_process<System>(rngs, infected, infection_probability,
                                    [=] __host__ __device__(uint32_t i) {
                                      return lazy_intersection(
-                                         partition_view.neighbours(i),
-                                         susceptible_view);
+                                         partition.neighbours(i), susceptible);
                                    });
 }
 

@@ -9,31 +9,6 @@
 #include <dust/random/binomial.hpp>
 #include <dust/random/uniform.hpp>
 
-Rcpp::NumericVector parallel_runif(size_t n, double min, double max, int seed) {
-  mob::device_random rng(n, seed);
-  thrust::device_vector<double> result(n);
-
-  thrust::transform(rng.begin(), rng.end(), result.begin(),
-                    [min, max] __device__(auto &rng) {
-                      return dust::random::uniform<double>(rng, min, max);
-                    });
-
-  return {result.begin(), result.end()};
-}
-
-Rcpp::NumericVector parallel_rbinom(size_t n, size_t size, double prob,
-                                    int seed) {
-  mob::device_random rng(n, seed);
-  thrust::device_vector<double> result(n);
-
-  thrust::transform(rng.begin(), rng.end(), result.begin(),
-                    [size, prob] __device__(auto &rng) -> double {
-                      return dust::random::binomial<double>(rng, size, prob);
-                    });
-
-  return {result.begin(), result.end()};
-}
-
 Rcpp::NumericVector betabinomial_sampler_wrapper(Rcpp::NumericVector data,
                                                  size_t k, int seed) {
   auto rng = dust::random::seed<dust::random::xoroshiro128plus>(seed);

@@ -1,5 +1,4 @@
 #include <mob/compat.h>
-#include <mob/ds/view.h>
 
 namespace mob {
 namespace ds {
@@ -22,40 +21,21 @@ private:
   Sentinel end_;
 };
 
-// This assumes left is much smaller than right
-template <typename Pointer>
-__host__ __device__ size_t intersection_size(ds::span<Pointer> left,
-                                             ds::span<Pointer> right) {
-  size_t count = 0;
-  auto low = right.begin();
-  for (auto v : left) {
-    low = mob::compat::lower_bound(low, right.end(), v);
-    if (low == right.end()) {
-      break;
-    } else if (*low == v) {
-      count++;
-    }
-  }
-  return count;
-}
-
-template <typename LeftIt, typename RightIt>
+template <typename LeftRange, typename RightRange>
 struct intersection_iterator {
-  using reference = cuda::std::iter_reference_t<LeftIt>;
-  using value_type = cuda::std::iter_value_t<LeftIt>;
+  using reference = compat::range_reference_t<LeftRange>;
+  using value_type = compat::range_value_t<LeftRange>;
   using difference_type = ptrdiff_t;
 
-  LeftIt left;
-  LeftIt left_end;
+  compat::iterator_t<LeftRange> left;
+  compat::sentinel_t<LeftRange> left_end;
 
-  RightIt right;
-  RightIt right_end;
+  compat::iterator_t<RightRange> right;
+  compat::sentinel_t<RightRange> right_end;
 
-  __host__ __device__ intersection_iterator(LeftIt left_start, LeftIt left_end,
-                                            RightIt right_start,
-                                            RightIt right_end)
-      : left(left_start), left_end(left_end), right(right_start),
-        right_end(right_end) {
+  __host__ __device__ intersection_iterator(LeftRange left, RightRange right)
+      : left(cuda::std::begin(left)), left_end(cuda::std::end(left)),
+        right(cuda::std::begin(right)), right_end(cuda::std::end(right)) {
     skip();
   }
 
@@ -65,19 +45,25 @@ struct intersection_iterator {
     return *this;
   }
 
-  __host__ __device__ intersection_iterator &operator+=(size_t n) {
-    for (; n > 0; n--) {
-      ++(*this);
-    }
-    return *this;
+  __host__ __device__ intersection_iterator operator++(int) {
+    auto old = *this;
+    ++(*this);
+    return old;
   }
 
-  __host__ __device__ bool operator==(cuda::std::default_sentinel_t) {
+  __host__ __device__ bool operator==(cuda::std::default_sentinel_t) const {
     return left == left_end;
   }
-
-  __host__ __device__ bool operator!=(cuda::std::default_sentinel_t) {
+  __host__ __device__ bool operator!=(cuda::std::default_sentinel_t) const {
     return left != left_end;
+  }
+  friend __host__ __device__ bool
+  operator==(cuda::std::default_sentinel_t, const intersection_iterator &self) {
+    return self.left == self.left_end;
+  }
+  friend __host__ __device__ bool
+  operator!=(cuda::std::default_sentinel_t, const intersection_iterator &self) {
+    return self.left != self.left_end;
   }
 
   __host__ __device__ reference operator*() const {
@@ -97,15 +83,15 @@ struct intersection_iterator {
   }
 };
 
-template <typename LeftIt, typename RightIt>
-using intersection_range = subrange<intersection_iterator<LeftIt, RightIt>,
-                                    cuda::std::default_sentinel_t>;
+template <typename LeftRange, typename RightRange>
+using intersection_range =
+    subrange<intersection_iterator<LeftRange, RightRange>,
+             cuda::std::default_sentinel_t>;
 
-template <typename Pointer>
-__host__ __device__ intersection_range<Pointer, Pointer>
-lazy_intersection(ds::span<Pointer> left, ds::span<Pointer> right) {
-  return subrange(intersection_iterator(left.begin(), left.end(), right.begin(),
-                                        right.end()),
+template <typename LeftRange, typename RightRange>
+__host__ __device__ intersection_range<LeftRange, RightRange>
+lazy_intersection(LeftRange left, RightRange right) {
+  return subrange(intersection_iterator(left, right),
                   cuda::std::default_sentinel_t{});
 }
 

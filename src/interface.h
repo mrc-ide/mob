@@ -1,3 +1,5 @@
+#include "mob_types.h"
+
 #include <Rcpp.h>
 
 // Rcpp's compileAttributes doesn't scan `.cu` files for the Rcpp::export
@@ -5,12 +7,28 @@
 // prototypes in here.
 
 // [[Rcpp::export]]
-Rcpp::NumericVector parallel_runif(size_t n, double min, double max,
-                                   int seed = 0);
+random_ptr
+device_random_create(size_t size,
+                     Rcpp::Nullable<Rcpp::NumericVector> seed = R_NilValue);
 
 // [[Rcpp::export]]
-Rcpp::NumericVector parallel_rbinom(size_t n, size_t size, double prob,
-                                    int seed = 0);
+Rcpp::NumericVector parallel_runif(random_ptr rngs, size_t n, double min,
+                                   double max);
+
+// [[Rcpp::export]]
+Rcpp::NumericVector parallel_rbinom(random_ptr rngs, size_t n, size_t size,
+                                    double prob);
+
+// [[Rcpp::export("homogeneous_infection_process")]]
+Rcpp::DataFrame homogeneous_infection_process_wrapper(
+    random_ptr rngs, Rcpp::IntegerVector susceptible,
+    Rcpp::IntegerVector infected, double infection_probability);
+
+// [[Rcpp::export("household_infection_process")]]
+Rcpp::DataFrame household_infection_process_wrapper(
+    random_ptr rngs, Rcpp::IntegerVector susceptible,
+    Rcpp::IntegerVector infected, Rcpp::IntegerVector households,
+    double infection_probability);
 
 // [[Rcpp::export("betabinomial_sampler")]]
 Rcpp::NumericVector betabinomial_sampler_wrapper(Rcpp::NumericVector data,
@@ -33,23 +51,3 @@ Rcpp::NumericVector bernouilli_sampler_gpu_wrapper(Rcpp::NumericVector data,
 
 // [[Rcpp::export("bernouilli_sampler_count_gpu")]]
 size_t bernouilli_sampler_count_gpu_wrapper(size_t n, double p, int seed = 0);
-
-// [[Rcpp::export("homogeneous_infection_process")]]
-Rcpp::DataFrame homogeneous_infection_process_wrapper(
-    Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected,
-    double infection_probability, int seed = 0);
-
-// [[Rcpp::export("homogeneous_infection_process_gpu")]]
-Rcpp::DataFrame homogeneous_infection_process_gpu_wrapper(
-    Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected,
-    double infection_probability, int seed = 0);
-
-// [[Rcpp::export("household_infection_process")]]
-Rcpp::DataFrame household_infection_process_wrapper(
-    Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected,
-    Rcpp::IntegerVector households, double infection_probability, int seed = 0);
-
-// [[Rcpp::export("household_infection_process_gpu")]]
-Rcpp::DataFrame household_infection_process_gpu_wrapper(
-    Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected,
-    Rcpp::IntegerVector households, double infection_probability, int seed = 0);

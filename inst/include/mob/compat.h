@@ -89,5 +89,17 @@ __host__ __device__ void fill(ForwardIt first, ForwardIt last, const T &value) {
     *first = value;
 }
 
+template <class T>
+using iterator_t = decltype(cuda::std::begin(std::declval<T &>()));
+
+template <class T>
+using sentinel_t = decltype(cuda::std::end(std::declval<T &>()));
+
+template <typename R>
+using range_reference_t = cuda::std::iter_reference_t<iterator_t<R>>;
+
+template <typename R>
+using range_value_t = cuda::std::iter_value_t<iterator_t<R>>;
+
 } // namespace compat
 } // namespace mob

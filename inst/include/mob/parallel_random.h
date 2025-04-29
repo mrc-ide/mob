@@ -45,16 +45,15 @@ struct parallel_random {
 
   static constexpr size_t width = rng_state::size();
 
-  parallel_random(size_t capacity, int seed = 0)
-      : data(capacity * width), capacity(capacity) {
-    dust::random::prng<rng_state> states(capacity, seed);
+  parallel_random(size_t size, int seed = 0) : data(size * width), size_(size) {
+    dust::random::prng<rng_state> states(size, seed);
 
     // TODO: use something like cudamemcpy2d, which should be able to do strided
     // copies.
-    for (size_t i = 0; i < capacity; i++) {
+    for (size_t i = 0; i < size; i++) {
       rng_state rng = states.state(i);
       for (size_t j = 0; j < width; j++) {
-        data[i + j * capacity] = rng.state[j];
+        data[i + j * size] = rng.state[j];
       }
     }
   }
@@ -63,11 +62,11 @@ struct parallel_random {
   struct iterator;
 
   iterator begin() {
-    return iterator(data.begin(), capacity);
+    return iterator(data.begin(), size_);
   }
 
   iterator end() {
-    return iterator(data.begin() + capacity, capacity);
+    return iterator(data.begin() + size_, size_);
   }
 
   struct proxy {
@@ -129,9 +128,13 @@ struct parallel_random {
     size_t stride;
   };
 
+  size_t size() {
+    return size_;
+  }
+
 private:
   vector_type data;
-  size_t capacity;
+  size_t size_;
 };
 
 using device_random =

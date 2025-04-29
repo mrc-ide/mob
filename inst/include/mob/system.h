@@ -1,5 +1,5 @@
 #pragma once
-#include <mob/ds/view.h>
+#include <mob/ds/span.h>
 #include <mob/parallel_random.h>
 
 #include <thrust/device_ptr.h>
@@ -16,7 +16,7 @@ struct host {
   using pointer = T *;
 
   template <typename T>
-  using span = ds::host_span<T>;
+  using span = ds::span<host, T>;
 
   using random = host_random;
 };
@@ -29,7 +29,7 @@ struct device {
   using pointer = thrust::device_ptr<T>;
 
   template <typename T>
-  using span = ds::device_span<T>;
+  using span = ds::span<device, T>;
 
   using random = device_random;
 };

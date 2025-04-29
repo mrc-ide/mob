@@ -156,24 +156,28 @@ private:
 template <typename real_type, typename rng_state_type, typename InputIt,
           typename Sentinel, typename OutputIt>
 __host__ __device__ OutputIt bernouilli_sampler(rng_state_type &rng_state,
-                                                InputIt input_start,
+                                                InputIt input,
                                                 Sentinel input_end,
                                                 OutputIt output, real_type p) {
+  static_assert(cuda::std::semiregular<Sentinel>);
+  static_assert(cuda::std::input_or_output_iterator<InputIt>);
+  static_assert(cuda::std::sentinel_for<Sentinel, InputIt>);
+
   if (p < 0 || p > 1) {
     dust::utils::fatal_error("Invalid sampler input");
   }
 
-  size_t count = mob::compat::distance(input_start, input_end);
   fast_bernouilli<real_type> bernoulli(p);
   while (true) {
     size_t skip = bernoulli.next(rng_state);
-    if (skip >= count) {
+    if (cuda::std::ranges::advance(input, skip, input_end) > 0) {
       break;
     }
-    input_start += skip;
-    count -= skip;
+
+    *output = *input;
+
     ++output;
-    ++input_start;
+    ++input;
   }
   return output;
 }

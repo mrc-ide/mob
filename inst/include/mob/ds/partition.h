@@ -1,10 +1,23 @@
 #pragma once
-#include <mob/ds/view.h>
+#include <mob/ds/span.h>
 
 #include <vector>
 
 namespace mob {
 namespace ds {
+
+/**
+ * This represents a partition of the population into disjoint sets, eg. into
+ * households. It allows quick look ups from one individual to all members in
+ * the same subset.
+ *
+ * It is represented as two structures, once mapping from individuals to subset
+ * index, and the other mapping from a subset index to a list of members.
+ *
+ * Rather than store the latter as a vector<vector<int>>, we use a flat
+ * vector<int> and separately store the offset and length of each subset.
+ * This makes it easier to copy and reference the data from the GPU.
+ */
 
 template <typename System>
 struct partition {
@@ -51,10 +64,9 @@ struct partition_view {
   typename System::span<const uint32_t> partitions_size_;
 
   partition_view(const partition<System> &p)
-      : members_(ds::view(p.members_)),
-        partitions_data_(ds::view(p.partitions_data_)),
-        partitions_offset_(ds::view(p.partitions_offset_)),
-        partitions_size_(ds::view(p.partitions_size_)) {}
+      : members_(p.members_), partitions_data_(p.partitions_data_),
+        partitions_offset_(p.partitions_offset_),
+        partitions_size_(p.partitions_size_) {}
 
   __host__ __device__ typename System::span<const uint32_t>
   get(uint32_t i) const {
@@ -67,11 +79,6 @@ struct partition_view {
     return get(members_[i]);
   }
 };
-
-template <typename System>
-partition_view<System> view(const partition<System> &p) {
-  return p;
-}
 
 } // namespace ds
 } // namespace mob
