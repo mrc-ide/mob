@@ -6,11 +6,11 @@
 Rcpp::DataFrame homogeneous_infection_process_wrapper(
     random_ptr rngs, Rcpp::IntegerVector susceptible,
     Rcpp::IntegerVector infected, double infection_probability) {
-  if ((*rngs)->size() < susceptible.size()) {
+  if ((*rngs)->size() < size_t(susceptible.size())) {
     Rcpp::stop("RNG state is too small: %d < %d", (*rngs)->size(),
                susceptible.size());
   }
-  if ((*rngs)->size() < infected.size()) {
+  if ((*rngs)->size() < size_t(infected.size())) {
     Rcpp::stop("RNG state is too small: %d < %d", (*rngs)->size(),
                infected.size());
   }
@@ -31,11 +31,11 @@ Rcpp::DataFrame household_infection_process_wrapper(
     random_ptr rngs, Rcpp::IntegerVector susceptible,
     Rcpp::IntegerVector infected, Rcpp::IntegerVector households,
     double infection_probability) {
-  if ((*rngs)->size() < susceptible.size()) {
+  if ((*rngs)->size() < size_t(susceptible.size())) {
     Rcpp::stop("RNG state is too small: %d < %d", (*rngs)->size(),
                susceptible.size());
   }
-  if ((*rngs)->size() < infected.size()) {
+  if ((*rngs)->size() < size_t(infected.size())) {
     Rcpp::stop("RNG state is too small: %d < %d", (*rngs)->size(),
                susceptible.size());
   }
