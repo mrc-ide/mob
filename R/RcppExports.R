@@ -21,27 +21,27 @@ household_infection_process <- function(rngs, susceptible, infected, households,
     .Call(`_mob_household_infection_process_wrapper`, rngs, susceptible, infected, households, infection_probability)
 }
 
-betabinomial_sampler <- function(data, k, seed = 0L) {
+betabinomial_sampler <- function(data, k, seed = NULL) {
     .Call(`_mob_betabinomial_sampler_wrapper`, data, k, seed)
 }
 
-selection_sampler <- function(data, k, seed = 0L) {
+selection_sampler <- function(data, k, seed = NULL) {
     .Call(`_mob_selection_sampler_wrapper`, data, k, seed)
 }
 
-bernoulli_sampler <- function(data, p, seed = 0L) {
+bernoulli_sampler <- function(data, p, seed = NULL) {
     .Call(`_mob_bernouilli_sampler_wrapper`, data, p, seed)
 }
 
-bernoulli_sampler_count <- function(n, p, seed = 0L) {
+bernoulli_sampler_count <- function(n, p, seed = NULL) {
     .Call(`_mob_bernouilli_sampler_count_wrapper`, n, p, seed)
 }
 
-bernoulli_sampler_gpu <- function(data, p, seed = 0L) {
+bernoulli_sampler_gpu <- function(data, p, seed = NULL) {
     .Call(`_mob_bernouilli_sampler_gpu_wrapper`, data, p, seed)
 }
 
-bernouilli_sampler_count_gpu <- function(n, p, seed = 0L) {
+bernouilli_sampler_count_gpu <- function(n, p, seed = NULL) {
     .Call(`_mob_bernouilli_sampler_count_gpu_wrapper`, n, p, seed)
 }
 

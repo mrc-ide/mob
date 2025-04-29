@@ -9,9 +9,11 @@
 #include <dust/random/binomial.hpp>
 #include <dust/random/uniform.hpp>
 
-Rcpp::NumericVector betabinomial_sampler_wrapper(Rcpp::NumericVector data,
-                                                 size_t k, int seed) {
-  auto rng = dust::random::seed<dust::random::xoroshiro128plus>(seed);
+Rcpp::NumericVector
+betabinomial_sampler_wrapper(Rcpp::NumericVector data, size_t k,
+                             Rcpp::Nullable<Rcpp::NumericVector> seed) {
+  auto rng =
+      dust::random::seed<dust::random::xoroshiro128plus>(from_seed(seed));
 
   Rcpp::NumericVector result(k);
   mob::betabinomial_sampler(rng, data.cbegin(), data.cend(), result.begin(),
@@ -19,9 +21,11 @@ Rcpp::NumericVector betabinomial_sampler_wrapper(Rcpp::NumericVector data,
   return result;
 }
 
-Rcpp::NumericVector selection_sampler_wrapper(Rcpp::NumericVector data,
-                                              size_t k, int seed) {
-  auto rng = dust::random::seed<dust::random::xoroshiro128plus>(seed);
+Rcpp::NumericVector
+selection_sampler_wrapper(Rcpp::NumericVector data, size_t k,
+                          Rcpp::Nullable<Rcpp::NumericVector> seed) {
+  auto rng =
+      dust::random::seed<dust::random::xoroshiro128plus>(from_seed(seed));
 
   Rcpp::NumericVector result(k);
   mob::selection_sampler(rng, data.cbegin(), data.cend(), result.begin(),
@@ -29,14 +33,19 @@ Rcpp::NumericVector selection_sampler_wrapper(Rcpp::NumericVector data,
   return result;
 }
 
-size_t bernouilli_sampler_count_wrapper(size_t n, double p, int seed) {
-  auto rng = dust::random::seed<dust::random::xoroshiro128plus>(seed);
+size_t
+bernouilli_sampler_count_wrapper(size_t n, double p,
+                                 Rcpp::Nullable<Rcpp::NumericVector> seed) {
+  auto rng =
+      dust::random::seed<dust::random::xoroshiro128plus>(from_seed(seed));
   return mob::bernouilli_sampler_count(rng, n, p);
 }
 
-std::vector<double> bernouilli_sampler_wrapper(Rcpp::NumericVector data,
-                                               double p, int seed) {
-  auto rng = dust::random::seed<dust::random::xoroshiro128plus>(seed);
+std::vector<double>
+bernouilli_sampler_wrapper(Rcpp::NumericVector data, double p,
+                           Rcpp::Nullable<Rcpp::NumericVector> seed) {
+  auto rng =
+      dust::random::seed<dust::random::xoroshiro128plus>(from_seed(seed));
 
   // Ideally we'd use a NumericVector type here, but it is unfortunately
   // incompatible with std::back_inserter. NumericVector::value_type is a
@@ -49,8 +58,10 @@ std::vector<double> bernouilli_sampler_wrapper(Rcpp::NumericVector data,
   return result;
 }
 
-size_t bernouilli_sampler_count_gpu_wrapper(size_t n, double p, int seed) {
-  mob::device_random rngs(1, seed);
+size_t
+bernouilli_sampler_count_gpu_wrapper(size_t n, double p,
+                                     Rcpp::Nullable<Rcpp::NumericVector> seed) {
+  mob::device_random rngs(1, from_seed(seed));
   thrust::device_vector<size_t> result(1);
 
   thrust::transform(rngs.begin(), rngs.end(), result.begin(),
@@ -61,9 +72,10 @@ size_t bernouilli_sampler_count_gpu_wrapper(size_t n, double p, int seed) {
   return result.front();
 }
 
-Rcpp::NumericVector bernouilli_sampler_gpu_wrapper(Rcpp::NumericVector data,
-                                                   double p, int seed) {
-  mob::device_random rngs(1, seed);
+Rcpp::NumericVector
+bernouilli_sampler_gpu_wrapper(Rcpp::NumericVector data, double p,
+                               Rcpp::Nullable<Rcpp::NumericVector> seed) {
+  mob::device_random rngs(1, from_seed(seed));
   thrust::device_vector<size_t> count(1);
 
   size_t n = data.size();

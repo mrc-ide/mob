@@ -81,79 +81,79 @@ BEGIN_RCPP
 END_RCPP
 }
 // betabinomial_sampler_wrapper
-Rcpp::NumericVector betabinomial_sampler_wrapper(Rcpp::NumericVector data, size_t k, int seed);
+Rcpp::NumericVector betabinomial_sampler_wrapper(Rcpp::NumericVector data, size_t k, Rcpp::Nullable<Rcpp::NumericVector> seed);
 RcppExport SEXP _mob_betabinomial_sampler_wrapper(SEXP dataSEXP, SEXP kSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
     Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
     rcpp_result_gen = Rcpp::wrap(betabinomial_sampler_wrapper(data, k, seed));
     return rcpp_result_gen;
 END_RCPP
 }
 // selection_sampler_wrapper
-Rcpp::NumericVector selection_sampler_wrapper(Rcpp::NumericVector data, size_t k, int seed);
+Rcpp::NumericVector selection_sampler_wrapper(Rcpp::NumericVector data, size_t k, Rcpp::Nullable<Rcpp::NumericVector> seed);
 RcppExport SEXP _mob_selection_sampler_wrapper(SEXP dataSEXP, SEXP kSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
     Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
     rcpp_result_gen = Rcpp::wrap(selection_sampler_wrapper(data, k, seed));
     return rcpp_result_gen;
 END_RCPP
 }
 // bernouilli_sampler_wrapper
-std::vector<double> bernouilli_sampler_wrapper(Rcpp::NumericVector data, double p, int seed);
+std::vector<double> bernouilli_sampler_wrapper(Rcpp::NumericVector data, double p, Rcpp::Nullable<Rcpp::NumericVector> seed);
 RcppExport SEXP _mob_bernouilli_sampler_wrapper(SEXP dataSEXP, SEXP pSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
     Rcpp::traits::input_parameter< double >::type p(pSEXP);
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
     rcpp_result_gen = Rcpp::wrap(bernouilli_sampler_wrapper(data, p, seed));
     return rcpp_result_gen;
 END_RCPP
 }
 // bernouilli_sampler_count_wrapper
-size_t bernouilli_sampler_count_wrapper(size_t n, double p, int seed);
+size_t bernouilli_sampler_count_wrapper(size_t n, double p, Rcpp::Nullable<Rcpp::NumericVector> seed);
 RcppExport SEXP _mob_bernouilli_sampler_count_wrapper(SEXP nSEXP, SEXP pSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< double >::type p(pSEXP);
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
     rcpp_result_gen = Rcpp::wrap(bernouilli_sampler_count_wrapper(n, p, seed));
     return rcpp_result_gen;
 END_RCPP
 }
 // bernouilli_sampler_gpu_wrapper
-Rcpp::NumericVector bernouilli_sampler_gpu_wrapper(Rcpp::NumericVector data, double p, int seed);
+Rcpp::NumericVector bernouilli_sampler_gpu_wrapper(Rcpp::NumericVector data, double p, Rcpp::Nullable<Rcpp::NumericVector> seed);
 RcppExport SEXP _mob_bernouilli_sampler_gpu_wrapper(SEXP dataSEXP, SEXP pSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
     Rcpp::traits::input_parameter< double >::type p(pSEXP);
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
     rcpp_result_gen = Rcpp::wrap(bernouilli_sampler_gpu_wrapper(data, p, seed));
     return rcpp_result_gen;
 END_RCPP
 }
 // bernouilli_sampler_count_gpu_wrapper
-size_t bernouilli_sampler_count_gpu_wrapper(size_t n, double p, int seed);
+size_t bernouilli_sampler_count_gpu_wrapper(size_t n, double p, Rcpp::Nullable<Rcpp::NumericVector> seed);
 RcppExport SEXP _mob_bernouilli_sampler_count_gpu_wrapper(SEXP nSEXP, SEXP pSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< double >::type p(pSEXP);
-    Rcpp::traits::input_parameter< int >::type seed(seedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
     rcpp_result_gen = Rcpp::wrap(bernouilli_sampler_count_gpu_wrapper(n, p, seed));
     return rcpp_result_gen;
 END_RCPP

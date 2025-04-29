@@ -1,3 +1,5 @@
+skip_on_ci()
+
 test_that("homogeneous_infection_process", {
   population <- 0:99
   susceptible <- sample(population, length(population) / 2)

@@ -10,15 +10,7 @@ void random_wrapper_delete(random_wrapper *p) {
 
 random_ptr device_random_create(size_t size,
                                 Rcpp::Nullable<Rcpp::NumericVector> seed) {
-  size_t seed_value;
-  if (seed.isNotNull()) {
-    seed_value = Rcpp::as<size_t>(seed);
-  } else {
-    seed_value = std::ceil(std::abs(R::unif_rand()) *
-                           std::numeric_limits<size_t>::max());
-  }
-
-  return random_ptr(new random_wrapper(size, seed_value));
+  return random_ptr(new random_wrapper(size, from_seed(seed)));
 }
 
 Rcpp::NumericVector parallel_runif(random_ptr rngs, size_t n, double min,

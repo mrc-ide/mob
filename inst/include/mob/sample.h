@@ -170,7 +170,8 @@ __host__ __device__ OutputIt bernouilli_sampler(rng_state_type &rng_state,
   fast_bernouilli<real_type> bernoulli(p);
   while (true) {
     size_t skip = bernoulli.next(rng_state);
-    if (cuda::std::ranges::advance(input, skip, input_end) > 0) {
+    cuda::std::ranges::advance(input, skip, input_end);
+    if (input == input_end) {
       break;
     }
 
