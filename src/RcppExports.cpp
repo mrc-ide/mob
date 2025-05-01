@@ -12,7 +12,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // device_random_create
-random_ptr device_random_create(size_t size, Rcpp::Nullable<Rcpp::NumericVector> seed);
+Rcpp::XPtr<RSystem::random> device_random_create(size_t size, Rcpp::Nullable<Rcpp::NumericVector> seed);
 RcppExport SEXP _mob_device_random_create(SEXP sizeSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -24,12 +24,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // parallel_runif
-Rcpp::NumericVector parallel_runif(random_ptr rngs, size_t n, double min, double max);
+Rcpp::NumericVector parallel_runif(Rcpp::XPtr<RSystem::random> rngs, size_t n, double min, double max);
 RcppExport SEXP _mob_parallel_runif(SEXP rngsSEXP, SEXP nSEXP, SEXP minSEXP, SEXP maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< random_ptr >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<RSystem::random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< double >::type min(minSEXP);
     Rcpp::traits::input_parameter< double >::type max(maxSEXP);
@@ -38,12 +38,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // parallel_rbinom
-Rcpp::NumericVector parallel_rbinom(random_ptr rngs, size_t n, size_t size, double prob);
+Rcpp::NumericVector parallel_rbinom(Rcpp::XPtr<RSystem::random> rngs, size_t n, size_t size, double prob);
 RcppExport SEXP _mob_parallel_rbinom(SEXP rngsSEXP, SEXP nSEXP, SEXP sizeSEXP, SEXP probSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< random_ptr >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<RSystem::random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< size_t >::type size(sizeSEXP);
     Rcpp::traits::input_parameter< double >::type prob(probSEXP);
@@ -52,12 +52,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // homogeneous_infection_process_wrapper
-Rcpp::DataFrame homogeneous_infection_process_wrapper(random_ptr rngs, Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected, double infection_probability);
+Rcpp::DataFrame homogeneous_infection_process_wrapper(Rcpp::XPtr<RSystem::random> rngs, Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected, double infection_probability);
 RcppExport SEXP _mob_homogeneous_infection_process_wrapper(SEXP rngsSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP infection_probabilitySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< random_ptr >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<RSystem::random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type susceptible(susceptibleSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type infected(infectedSEXP);
     Rcpp::traits::input_parameter< double >::type infection_probability(infection_probabilitySEXP);
@@ -65,17 +65,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// create_partition
+Rcpp::XPtr<mob::ds::partition<RSystem>> create_partition(std::vector<uint32_t> population);
+RcppExport SEXP _mob_create_partition(SEXP populationSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<uint32_t> >::type population(populationSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_partition(population));
+    return rcpp_result_gen;
+END_RCPP
+}
 // household_infection_process_wrapper
-Rcpp::DataFrame household_infection_process_wrapper(random_ptr rngs, Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected, Rcpp::IntegerVector households, double infection_probability);
+Rcpp::DataFrame household_infection_process_wrapper(Rcpp::XPtr<RSystem::random> rngs, Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected, Rcpp::XPtr<mob::ds::partition<RSystem>> households, Rcpp::DoubleVector infection_probability);
 RcppExport SEXP _mob_household_infection_process_wrapper(SEXP rngsSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP householdsSEXP, SEXP infection_probabilitySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< random_ptr >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<RSystem::random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type susceptible(susceptibleSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type infected(infectedSEXP);
-    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type households(householdsSEXP);
-    Rcpp::traits::input_parameter< double >::type infection_probability(infection_probabilitySEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::ds::partition<RSystem>> >::type households(householdsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::DoubleVector >::type infection_probability(infection_probabilitySEXP);
     rcpp_result_gen = Rcpp::wrap(household_infection_process_wrapper(rngs, susceptible, infected, households, infection_probability));
     return rcpp_result_gen;
 END_RCPP
@@ -176,6 +187,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_parallel_runif", (DL_FUNC) &_mob_parallel_runif, 4},
     {"_mob_parallel_rbinom", (DL_FUNC) &_mob_parallel_rbinom, 4},
     {"_mob_homogeneous_infection_process_wrapper", (DL_FUNC) &_mob_homogeneous_infection_process_wrapper, 4},
+    {"_mob_create_partition", (DL_FUNC) &_mob_create_partition, 1},
     {"_mob_household_infection_process_wrapper", (DL_FUNC) &_mob_household_infection_process_wrapper, 5},
     {"_mob_betabinomial_sampler_wrapper", (DL_FUNC) &_mob_betabinomial_sampler_wrapper, 3},
     {"_mob_selection_sampler_wrapper", (DL_FUNC) &_mob_selection_sampler_wrapper, 3},

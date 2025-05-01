@@ -129,22 +129,22 @@ struct fast_bernouilli {
     }
   }
 
-  template <typename rng_state_type>
-  __host__ __device__ size_t next(rng_state_type &rng_state) {
+  template <typename int_type = size_t, typename rng_state_type>
+  __host__ __device__ int_type next(rng_state_type &rng_state) {
     if (probability == 1) {
       return 0;
     } else if (probability == 0) {
-      return SIZE_MAX;
+      return cuda::std::numeric_limits<int_type>::max();
     }
 
     // For very small probability, the skip count can end up being very large
     // and exceeding SIZE_MAX. Returning the double directly would be UB.
     real_type x = dust::random::random_real<real_type>(rng_state);
     real_type skip = cuda::std::floor(cuda::std::log(x) * inverse_log);
-    if (skip < real_type(SIZE_MAX)) {
+    if (skip < real_type(cuda::std::numeric_limits<int_type>::max())) {
       return skip;
     } else {
-      return SIZE_MAX;
+      return cuda::std::numeric_limits<int_type>::max();
     }
   }
 
@@ -169,7 +169,8 @@ __host__ __device__ OutputIt bernouilli_sampler(rng_state_type &rng_state,
 
   fast_bernouilli<real_type> bernoulli(p);
   while (true) {
-    size_t skip = bernoulli.next(rng_state);
+    auto skip = bernoulli.template next<cuda::std::iter_difference_t<InputIt>>(
+        rng_state);
     cuda::std::ranges::advance(input, skip, input_end);
     if (input == input_end) {
       break;

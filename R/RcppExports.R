@@ -17,6 +17,10 @@ homogeneous_infection_process <- function(rngs, susceptible, infected, infection
     .Call(`_mob_homogeneous_infection_process_wrapper`, rngs, susceptible, infected, infection_probability)
 }
 
+create_partition <- function(population) {
+    .Call(`_mob_create_partition`, population)
+}
+
 household_infection_process <- function(rngs, susceptible, infected, households, infection_probability) {
     .Call(`_mob_household_infection_process_wrapper`, rngs, susceptible, infected, households, infection_probability)
 }

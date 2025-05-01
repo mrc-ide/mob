@@ -61,7 +61,7 @@ bernouilli_sampler_wrapper(Rcpp::NumericVector data, double p,
 size_t
 bernouilli_sampler_count_gpu_wrapper(size_t n, double p,
                                      Rcpp::Nullable<Rcpp::NumericVector> seed) {
-  mob::device_random rngs(1, from_seed(seed));
+  RSystem::random rngs(1, from_seed(seed));
   thrust::device_vector<size_t> result(1);
 
   thrust::transform(rngs.begin(), rngs.end(), result.begin(),
@@ -75,7 +75,7 @@ bernouilli_sampler_count_gpu_wrapper(size_t n, double p,
 Rcpp::NumericVector
 bernouilli_sampler_gpu_wrapper(Rcpp::NumericVector data, double p,
                                Rcpp::Nullable<Rcpp::NumericVector> seed) {
-  mob::device_random rngs(1, from_seed(seed));
+  RSystem::random rngs(1, from_seed(seed));
   thrust::device_vector<size_t> count(1);
 
   size_t n = data.size();

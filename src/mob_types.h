@@ -4,10 +4,8 @@
 
 #pragma once
 
-#include <Rcpp.h>
+#include <mob/ds/partition.h>
+#include <mob/parallel_random.h>
+#include <mob/system.h>
 
-struct random_wrapper;
-
-void random_wrapper_delete(random_wrapper *);
-using random_ptr =
-    Rcpp::XPtr<random_wrapper, Rcpp::PreserveStorage, random_wrapper_delete>;
+using RSystem = mob::system::device;

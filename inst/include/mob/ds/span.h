@@ -1,5 +1,6 @@
 #pragma once
-#include <Rcpp.h>
+#include <mob/compat.h>
+
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
 #include <vector>
@@ -50,30 +51,69 @@ private:
   pointer last;
 };
 
-// template <typename T>
-// using host_span = span<T *>;
-//
-// template <typename T>
-// using device_span = span<thrust::device_ptr<T>>;
+template <typename R, std::enable_if_t<std::is_object_v<R>, int> = 0>
+struct ref_view {
+  ref_view(R &range) : underlying(&range) {};
+  compat::iterator_t<R> begin() const {
+    return cuda::std::begin(*underlying);
+  }
+  compat::iterator_t<R> end() const {
+    return cuda::std::end(*underlying);
+  }
 
-// template <typename T>
-// host_span<const T> view(const std::vector<T> &data) {
-//   return {data.data(), data.size()};
-// }
-//
-// inline host_span<const int> view(const Rcpp::IntegerVector &data) {
-//   return {data.begin(), static_cast<size_t>(data.size())};
-// }
-//
-// template <typename T>
-// host_span<const T> view(const thrust::host_vector<T> &data) {
-//   return {data.data(), data.size()};
-// }
-//
-// template <typename T>
-// device_span<const T> view(const thrust::device_vector<T> &data) {
-//   return {data.data(), data.size()};
-// }
+private:
+  R *underlying;
+};
+
+template <typename R, std::enable_if_t<std::is_object_v<R>, int> = 0>
+struct owning_view {
+  owning_view(R &&range) : underlying(std::move(range)) {};
+
+  owning_view(owning_view &&) = default;
+  owning_view &operator=(owning_view &&other) = default;
+
+  compat::iterator_t<const R> begin() const {
+    return cuda::std::begin(underlying);
+  }
+  compat::iterator_t<const R> end() const {
+    return cuda::std::end(underlying);
+  }
+  compat::iterator_t<R> begin() {
+    return cuda::std::begin(underlying);
+  }
+  compat::iterator_t<R> end() {
+    return cuda::std::end(underlying);
+  }
+
+private:
+  R underlying;
+};
+
+template <typename T>
+constexpr bool enable_view = false;
+
+template <typename System, typename T>
+constexpr bool enable_view<span<System, T>> = true;
+
+template <typename T>
+constexpr bool enable_view<ref_view<T>> = true;
+
+template <typename T>
+constexpr bool enable_view<owning_view<T>> = true;
+
+template <typename R>
+auto all(R &&r) {
+  if constexpr (enable_view<std::decay_t<R>>) {
+    return std::decay_t<R>(std::forward<R>(r));
+  } else if constexpr (std::is_lvalue_reference_v<R>) {
+    return ref_view(std::forward<R>(r));
+  } else {
+    return owning_view(std::forward<R>(r));
+  }
+}
+
+template <typename R>
+using all_t = decltype(ds::all(std::declval<R>()));
 
 } // namespace ds
 } // namespace mob

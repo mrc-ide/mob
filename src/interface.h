@@ -16,28 +16,33 @@ inline size_t from_seed(Rcpp::Nullable<Rcpp::NumericVector> seed) {
 // prototypes in here.
 
 // [[Rcpp::export]]
-random_ptr
+Rcpp::XPtr<RSystem::random>
 device_random_create(size_t size,
                      Rcpp::Nullable<Rcpp::NumericVector> seed = R_NilValue);
 
 // [[Rcpp::export]]
-Rcpp::NumericVector parallel_runif(random_ptr rngs, size_t n, double min,
-                                   double max);
+Rcpp::NumericVector parallel_runif(Rcpp::XPtr<RSystem::random> rngs, size_t n,
+                                   double min, double max);
 
 // [[Rcpp::export]]
-Rcpp::NumericVector parallel_rbinom(random_ptr rngs, size_t n, size_t size,
-                                    double prob);
+Rcpp::NumericVector parallel_rbinom(Rcpp::XPtr<RSystem::random> rngs, size_t n,
+                                    size_t size, double prob);
 
 // [[Rcpp::export("homogeneous_infection_process")]]
 Rcpp::DataFrame homogeneous_infection_process_wrapper(
-    random_ptr rngs, Rcpp::IntegerVector susceptible,
+    Rcpp::XPtr<RSystem::random> rngs, Rcpp::IntegerVector susceptible,
     Rcpp::IntegerVector infected, double infection_probability);
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::ds::partition<RSystem>>
+create_partition(std::vector<uint32_t> population);
 
 // [[Rcpp::export("household_infection_process")]]
 Rcpp::DataFrame household_infection_process_wrapper(
-    random_ptr rngs, Rcpp::IntegerVector susceptible,
-    Rcpp::IntegerVector infected, Rcpp::IntegerVector households,
-    double infection_probability);
+    Rcpp::XPtr<RSystem::random> rngs, Rcpp::IntegerVector susceptible,
+    Rcpp::IntegerVector infected,
+    Rcpp::XPtr<mob::ds::partition<RSystem>> households,
+    Rcpp::DoubleVector infection_probability);
 
 // [[Rcpp::export("betabinomial_sampler")]]
 Rcpp::NumericVector betabinomial_sampler_wrapper(
