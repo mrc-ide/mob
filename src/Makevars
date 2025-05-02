@@ -1,6 +1,8 @@
-OBJECTS=infection.o sampler.o random.o \
-	test-runner.o test-intersection.o \
-	RcppExports.cuda.o
+CXX_STD=CXX20
+
+OBJECTS= \
+  RcppExports.cuda.o \
+  test-runner.o test-intersection.o
 
 # test-roaring.o test-infection.o test-roaring-gpu.o
 
@@ -10,11 +12,11 @@ PKG_CXXFLAGS=-I../inst/include -g
 # We assume the nvidia-toolkit is available in the environment.
 # TODO: Use CUDA_PATH to find nvcc, if available
 
-NVCC=nvcc
+NVCC=nvcc -std=c++20
 
 # -pendantic is added automatically by the R build system, but it causes errors
 # on CUDA's generated C++ code.
-NVCCFLAGS=-arch=sm_86 --extended-lambda -Wno-pedantic
+NVCCFLAGS=-arch=sm_86 --extended-lambda -Wno-pedantic -diag-suppress 3189
 
 # The R build system picks up the first target defined. Usually its own
 # makefiles set that as $(SHLIB) already, but because we define new targets we

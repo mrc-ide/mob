@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mob/random.h>
+
 #include <dust/random/prng.hpp>
 #include <dust/random/xoroshiro128.hpp>
 #include <thrust/device_vector.h>
@@ -38,7 +40,7 @@ namespace mob {
  * RNG stream.
  */
 template <template <typename> typename Vector,
-          typename T = dust::random::xoroshiro128plus>
+          random_state_storage T = dust::random::xoroshiro128plus>
 struct parallel_random {
   using rng_state = T;
   using vector_type = Vector<typename rng_state::int_type>;
@@ -99,8 +101,8 @@ struct parallel_random {
     }
 
   private:
-    size_t stride;
     typename vector_type::pointer ptr;
+    size_t stride;
   };
 
   struct iterator : public thrust::iterator_adaptor<
@@ -115,6 +117,7 @@ struct parallel_random {
                                  proxy, thrust::use_default,
                                  thrust::use_default, proxy>;
 
+    iterator() = default;
     iterator(typename vector_type::iterator underlying, size_t stride)
         : super_t(underlying), stride(stride) {}
 
@@ -125,8 +128,10 @@ struct parallel_random {
       return proxy(this->base().base(), stride);
     }
 
-    size_t stride;
+    size_t stride = 0;
   };
+
+  static_assert(std::random_access_iterator<iterator>);
 
   size_t size() {
     return size_;
@@ -142,5 +147,8 @@ using device_random =
 
 using host_random =
     parallel_random<thrust::host_vector, dust::random::xoroshiro128plus>;
+
+static_assert(std::ranges::random_access_range<device_random>);
+static_assert(std::ranges::random_access_range<host_random>);
 
 } // namespace mob

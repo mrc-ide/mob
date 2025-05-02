@@ -1,12 +1,10 @@
 #pragma once
 
 #include "iterator.h"
-#include <mob/bernoulli.h>
 
 #include <cuda/std/cmath>
 #include <dust/random/binomial.hpp>
 #include <dust/random/gamma.hpp>
-#include <thrust/iterator/counting_iterator.h>
 
 namespace mob {
 
@@ -17,7 +15,12 @@ __host__ __device__ void sampler_check(InputIt input_start, InputIt input_end,
   size_t n = mob::compat::distance(input_start, input_end);
   size_t k = mob::compat::distance(output_start, output_end);
   if (k > n) {
+#ifdef __CUDA_ARCH__
     dust::utils::fatal_error("Invalid sampler input");
+#else
+    auto s = std::format("Invalid sampler input: n={} k={}", n, k);
+    dust::utils::fatal_error(s.c_str());
+#endif
   }
 }
 
@@ -69,14 +72,15 @@ selection_sampler(rng_state_type &rng_state, InputIt input_start,
 // Beta(α = 1, β) ~ 1 - pow(U, 1 / β)
 //
 template <typename real_type, typename rng_state_type>
-__host__ real_type beta_alpha1(rng_state_type &rng_state, real_type beta) {
+__host__ __device__ real_type beta_alpha1(rng_state_type &rng_state,
+                                          real_type beta) {
   real_type u = dust::random::random_real<real_type>(rng_state);
   return 1. - dust::math::pow(u, 1. / beta);
 }
 
 template <typename real_type, typename rng_state_type>
-__host__ real_type betabinomial_alpha1(rng_state_type &rng_state, real_type b,
-                                       size_t n) {
+__host__ __device__ real_type betabinomial_alpha1(rng_state_type &rng_state,
+                                                  real_type b, size_t n) {
   real_type p = beta_alpha1(rng_state, b);
   return dust::random::binomial<real_type>(rng_state, n, p);
 }
@@ -97,18 +101,22 @@ __host__ real_type betabinomial_alpha1(rng_state_type &rng_state, real_type b,
  * ordered in the same way as they were in the input.
  */
 template <typename rng_state_type, typename InputIt, typename OutputIt>
-__host__ void betabinomial_sampler(rng_state_type &rng_state,
-                                   InputIt input_start, InputIt input_end,
-                                   OutputIt output_start, OutputIt output_end) {
+__host__ __device__ void
+betabinomial_sampler(rng_state_type &rng_state, InputIt input_start,
+                     InputIt input_end, OutputIt output_start,
+                     OutputIt output_end) {
   sampler_check(input_start, input_end, output_start, output_end);
-  for (; output_start != output_end; output_start++) {
-    size_t n = cuda::std::distance(input_start, input_end);
-    size_t k = cuda::std::distance(output_start, output_end);
 
+  auto n = compat::distance(input_start, input_end);
+  auto k = compat::distance(output_start, output_end);
+  for (; output_start != output_end; output_start++) {
     size_t skip = betabinomial_alpha1<double>(rng_state, k, n - k);
     input_start += skip;
+    n -= skip;
 
     *output_start = *(input_start++);
+    n -= 1;
+    k -= 1;
   }
 }
 

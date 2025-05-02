@@ -19,7 +19,8 @@ LinkingTo:
     dust
 Imports:
     Rcpp,
-    dust
+    dust,
+    cli
 Remotes:
     mrc-ide/dust
 Suggests:
@@ -30,3 +31,4 @@ Config/build/extra-sources:
     src/Makevars,
     src/*.cu
 Config/testthat/edition: 3
+SystemRequirements: C++20

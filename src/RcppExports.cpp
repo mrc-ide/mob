@@ -11,135 +11,241 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// device_random_create
-Rcpp::XPtr<RSystem::random> device_random_create(size_t size, Rcpp::Nullable<Rcpp::NumericVector> seed);
-RcppExport SEXP _mob_device_random_create(SEXP sizeSEXP, SEXP seedSEXP) {
+// random_create_device
+inline Rcpp::XPtr<mob::system::device::random> random_create_device(size_t size, Rcpp::Nullable<Rcpp::NumericVector> seed);
+RcppExport SEXP _mob_random_create_device(SEXP sizeSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< size_t >::type size(sizeSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(device_random_create(size, seed));
+    rcpp_result_gen = Rcpp::wrap(random_create_device(size, seed));
     return rcpp_result_gen;
 END_RCPP
 }
-// parallel_runif
-Rcpp::NumericVector parallel_runif(Rcpp::XPtr<RSystem::random> rngs, size_t n, double min, double max);
-RcppExport SEXP _mob_parallel_runif(SEXP rngsSEXP, SEXP nSEXP, SEXP minSEXP, SEXP maxSEXP) {
+// runif_device
+inline Rcpp::NumericVector runif_device(Rcpp::XPtr<mob::system::device::random> rngs, size_t n, double min, double max);
+RcppExport SEXP _mob_runif_device(SEXP rngsSEXP, SEXP nSEXP, SEXP minSEXP, SEXP maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<RSystem::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::device::random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< double >::type min(minSEXP);
     Rcpp::traits::input_parameter< double >::type max(maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(parallel_runif(rngs, n, min, max));
+    rcpp_result_gen = Rcpp::wrap(runif_device(rngs, n, min, max));
     return rcpp_result_gen;
 END_RCPP
 }
-// parallel_rbinom
-Rcpp::NumericVector parallel_rbinom(Rcpp::XPtr<RSystem::random> rngs, size_t n, size_t size, double prob);
-RcppExport SEXP _mob_parallel_rbinom(SEXP rngsSEXP, SEXP nSEXP, SEXP sizeSEXP, SEXP probSEXP) {
+// rbinom_device
+inline Rcpp::NumericVector rbinom_device(Rcpp::XPtr<mob::system::device::random> rngs, size_t n, size_t size, double prob);
+RcppExport SEXP _mob_rbinom_device(SEXP rngsSEXP, SEXP nSEXP, SEXP sizeSEXP, SEXP probSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<RSystem::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::device::random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< size_t >::type size(sizeSEXP);
     Rcpp::traits::input_parameter< double >::type prob(probSEXP);
-    rcpp_result_gen = Rcpp::wrap(parallel_rbinom(rngs, n, size, prob));
+    rcpp_result_gen = Rcpp::wrap(rbinom_device(rngs, n, size, prob));
     return rcpp_result_gen;
 END_RCPP
 }
-// homogeneous_infection_process_wrapper
-Rcpp::DataFrame homogeneous_infection_process_wrapper(Rcpp::XPtr<RSystem::random> rngs, Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected, double infection_probability);
-RcppExport SEXP _mob_homogeneous_infection_process_wrapper(SEXP rngsSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP infection_probabilitySEXP) {
+// bernoulli_sampler_device
+inline Rcpp::NumericVector bernoulli_sampler_device(Rcpp::NumericVector data, double p, Rcpp::Nullable<Rcpp::NumericVector> seed);
+RcppExport SEXP _mob_bernoulli_sampler_device(SEXP dataSEXP, SEXP pSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<RSystem::random> >::type rngs(rngsSEXP);
-    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type susceptible(susceptibleSEXP);
-    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type infected(infectedSEXP);
-    Rcpp::traits::input_parameter< double >::type infection_probability(infection_probabilitySEXP);
-    rcpp_result_gen = Rcpp::wrap(homogeneous_infection_process_wrapper(rngs, susceptible, infected, infection_probability));
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< double >::type p(pSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(bernoulli_sampler_device(data, p, seed));
     return rcpp_result_gen;
 END_RCPP
 }
-// create_partition
-Rcpp::XPtr<mob::ds::partition<RSystem>> create_partition(std::vector<uint32_t> population);
-RcppExport SEXP _mob_create_partition(SEXP populationSEXP) {
+// homogeneous_infection_process_device
+inline Rcpp::DataFrame homogeneous_infection_process_device(Rcpp::XPtr<mob::system::device::random> rngs, Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected, double infection_probability);
+RcppExport SEXP _mob_homogeneous_infection_process_device(SEXP rngsSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP infection_probabilitySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::device::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type susceptible(susceptibleSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type infected(infectedSEXP);
+    Rcpp::traits::input_parameter< double >::type infection_probability(infection_probabilitySEXP);
+    rcpp_result_gen = Rcpp::wrap(homogeneous_infection_process_device(rngs, susceptible, infected, infection_probability));
+    return rcpp_result_gen;
+END_RCPP
+}
+// partition_create_device
+inline Rcpp::XPtr<mob::ds::partition<mob::system::device>> partition_create_device(std::vector<uint32_t> population);
+RcppExport SEXP _mob_partition_create_device(SEXP populationSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::vector<uint32_t> >::type population(populationSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_partition(population));
+    rcpp_result_gen = Rcpp::wrap(partition_create_device(population));
     return rcpp_result_gen;
 END_RCPP
 }
-// household_infection_process_wrapper
-Rcpp::DataFrame household_infection_process_wrapper(Rcpp::XPtr<RSystem::random> rngs, Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected, Rcpp::XPtr<mob::ds::partition<RSystem>> households, Rcpp::DoubleVector infection_probability);
-RcppExport SEXP _mob_household_infection_process_wrapper(SEXP rngsSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP householdsSEXP, SEXP infection_probabilitySEXP) {
+// household_infection_process_device
+inline Rcpp::DataFrame household_infection_process_device(Rcpp::XPtr<mob::system::device::random> rngs, Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected, Rcpp::XPtr<mob::ds::partition<mob::system::device>> households, Rcpp::DoubleVector infection_probability);
+RcppExport SEXP _mob_household_infection_process_device(SEXP rngsSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP householdsSEXP, SEXP infection_probabilitySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<RSystem::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::device::random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type susceptible(susceptibleSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type infected(infectedSEXP);
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::ds::partition<RSystem>> >::type households(householdsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::ds::partition<mob::system::device>> >::type households(householdsSEXP);
     Rcpp::traits::input_parameter< Rcpp::DoubleVector >::type infection_probability(infection_probabilitySEXP);
-    rcpp_result_gen = Rcpp::wrap(household_infection_process_wrapper(rngs, susceptible, infected, households, infection_probability));
+    rcpp_result_gen = Rcpp::wrap(household_infection_process_device(rngs, susceptible, infected, households, infection_probability));
     return rcpp_result_gen;
 END_RCPP
 }
-// betabinomial_sampler_wrapper
-Rcpp::NumericVector betabinomial_sampler_wrapper(Rcpp::NumericVector data, size_t k, Rcpp::Nullable<Rcpp::NumericVector> seed);
-RcppExport SEXP _mob_betabinomial_sampler_wrapper(SEXP dataSEXP, SEXP kSEXP, SEXP seedSEXP) {
+// random_create_host
+inline Rcpp::XPtr<mob::system::host::random> random_create_host(size_t size, Rcpp::Nullable<Rcpp::NumericVector> seed);
+RcppExport SEXP _mob_random_create_host(SEXP sizeSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
+    Rcpp::traits::input_parameter< size_t >::type size(sizeSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(betabinomial_sampler_wrapper(data, k, seed));
+    rcpp_result_gen = Rcpp::wrap(random_create_host(size, seed));
     return rcpp_result_gen;
 END_RCPP
 }
-// selection_sampler_wrapper
-Rcpp::NumericVector selection_sampler_wrapper(Rcpp::NumericVector data, size_t k, Rcpp::Nullable<Rcpp::NumericVector> seed);
-RcppExport SEXP _mob_selection_sampler_wrapper(SEXP dataSEXP, SEXP kSEXP, SEXP seedSEXP) {
+// runif_host
+inline Rcpp::NumericVector runif_host(Rcpp::XPtr<mob::system::host::random> rngs, size_t n, double min, double max);
+RcppExport SEXP _mob_runif_host(SEXP rngsSEXP, SEXP nSEXP, SEXP minSEXP, SEXP maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(selection_sampler_wrapper(data, k, seed));
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::host::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type min(minSEXP);
+    Rcpp::traits::input_parameter< double >::type max(maxSEXP);
+    rcpp_result_gen = Rcpp::wrap(runif_host(rngs, n, min, max));
     return rcpp_result_gen;
 END_RCPP
 }
-// bernoulli_sampler_wrapper
-Rcpp::NumericVector bernoulli_sampler_wrapper(Rcpp::NumericVector data, double p, Rcpp::Nullable<Rcpp::NumericVector> seed);
-RcppExport SEXP _mob_bernoulli_sampler_wrapper(SEXP dataSEXP, SEXP pSEXP, SEXP seedSEXP) {
+// rbinom_host
+inline Rcpp::NumericVector rbinom_host(Rcpp::XPtr<mob::system::host::random> rngs, size_t n, size_t size, double prob);
+RcppExport SEXP _mob_rbinom_host(SEXP rngsSEXP, SEXP nSEXP, SEXP sizeSEXP, SEXP probSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::host::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
+    Rcpp::traits::input_parameter< size_t >::type size(sizeSEXP);
+    Rcpp::traits::input_parameter< double >::type prob(probSEXP);
+    rcpp_result_gen = Rcpp::wrap(rbinom_host(rngs, n, size, prob));
+    return rcpp_result_gen;
+END_RCPP
+}
+// homogeneous_infection_process_host
+inline Rcpp::DataFrame homogeneous_infection_process_host(Rcpp::XPtr<mob::system::host::random> rngs, Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected, double infection_probability);
+RcppExport SEXP _mob_homogeneous_infection_process_host(SEXP rngsSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP infection_probabilitySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::host::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type susceptible(susceptibleSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type infected(infectedSEXP);
+    Rcpp::traits::input_parameter< double >::type infection_probability(infection_probabilitySEXP);
+    rcpp_result_gen = Rcpp::wrap(homogeneous_infection_process_host(rngs, susceptible, infected, infection_probability));
+    return rcpp_result_gen;
+END_RCPP
+}
+// partition_create_host
+inline Rcpp::XPtr<mob::ds::partition<mob::system::host>> partition_create_host(std::vector<uint32_t> population);
+RcppExport SEXP _mob_partition_create_host(SEXP populationSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::vector<uint32_t> >::type population(populationSEXP);
+    rcpp_result_gen = Rcpp::wrap(partition_create_host(population));
+    return rcpp_result_gen;
+END_RCPP
+}
+// household_infection_process_host
+inline Rcpp::DataFrame household_infection_process_host(Rcpp::XPtr<mob::system::host::random> rngs, Rcpp::IntegerVector susceptible, Rcpp::IntegerVector infected, Rcpp::XPtr<mob::ds::partition<mob::system::host>> households, Rcpp::DoubleVector infection_probability);
+RcppExport SEXP _mob_household_infection_process_host(SEXP rngsSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP householdsSEXP, SEXP infection_probabilitySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::host::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type susceptible(susceptibleSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type infected(infectedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::ds::partition<mob::system::host>> >::type households(householdsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::DoubleVector >::type infection_probability(infection_probabilitySEXP);
+    rcpp_result_gen = Rcpp::wrap(household_infection_process_host(rngs, susceptible, infected, households, infection_probability));
+    return rcpp_result_gen;
+END_RCPP
+}
+// bernoulli_sampler_host
+inline Rcpp::NumericVector bernoulli_sampler_host(Rcpp::NumericVector data, double p, Rcpp::Nullable<Rcpp::NumericVector> seed);
+RcppExport SEXP _mob_bernoulli_sampler_host(SEXP dataSEXP, SEXP pSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
     Rcpp::traits::input_parameter< double >::type p(pSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(bernoulli_sampler_wrapper(data, p, seed));
+    rcpp_result_gen = Rcpp::wrap(bernoulli_sampler_host(data, p, seed));
     return rcpp_result_gen;
 END_RCPP
 }
-// bernoulli_sampler_gpu_wrapper
-Rcpp::NumericVector bernoulli_sampler_gpu_wrapper(Rcpp::NumericVector data, double p, Rcpp::Nullable<Rcpp::NumericVector> seed);
-RcppExport SEXP _mob_bernoulli_sampler_gpu_wrapper(SEXP dataSEXP, SEXP pSEXP, SEXP seedSEXP) {
+// selection_sampler_host
+inline Rcpp::NumericVector selection_sampler_host(Rcpp::NumericVector data, size_t k, Rcpp::Nullable<Rcpp::NumericVector> seed);
+RcppExport SEXP _mob_selection_sampler_host(SEXP dataSEXP, SEXP kSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< double >::type p(pSEXP);
+    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(bernoulli_sampler_gpu_wrapper(data, p, seed));
+    rcpp_result_gen = Rcpp::wrap(selection_sampler_host(data, k, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
+// selection_sampler_device
+inline Rcpp::NumericVector selection_sampler_device(Rcpp::NumericVector data, size_t k, Rcpp::Nullable<Rcpp::NumericVector> seed);
+RcppExport SEXP _mob_selection_sampler_device(SEXP dataSEXP, SEXP kSEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(selection_sampler_device(data, k, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
+// betabinomial_sampler_host
+inline Rcpp::NumericVector betabinomial_sampler_host(Rcpp::NumericVector data, size_t k, Rcpp::Nullable<Rcpp::NumericVector> seed);
+RcppExport SEXP _mob_betabinomial_sampler_host(SEXP dataSEXP, SEXP kSEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(betabinomial_sampler_host(data, k, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
+// betabinomial_sampler_device
+inline Rcpp::NumericVector betabinomial_sampler_device(Rcpp::NumericVector data, size_t k, Rcpp::Nullable<Rcpp::NumericVector> seed);
+RcppExport SEXP _mob_betabinomial_sampler_device(SEXP dataSEXP, SEXP kSEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(betabinomial_sampler_device(data, k, seed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -157,16 +263,24 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_mob_device_random_create", (DL_FUNC) &_mob_device_random_create, 2},
-    {"_mob_parallel_runif", (DL_FUNC) &_mob_parallel_runif, 4},
-    {"_mob_parallel_rbinom", (DL_FUNC) &_mob_parallel_rbinom, 4},
-    {"_mob_homogeneous_infection_process_wrapper", (DL_FUNC) &_mob_homogeneous_infection_process_wrapper, 4},
-    {"_mob_create_partition", (DL_FUNC) &_mob_create_partition, 1},
-    {"_mob_household_infection_process_wrapper", (DL_FUNC) &_mob_household_infection_process_wrapper, 5},
-    {"_mob_betabinomial_sampler_wrapper", (DL_FUNC) &_mob_betabinomial_sampler_wrapper, 3},
-    {"_mob_selection_sampler_wrapper", (DL_FUNC) &_mob_selection_sampler_wrapper, 3},
-    {"_mob_bernoulli_sampler_wrapper", (DL_FUNC) &_mob_bernoulli_sampler_wrapper, 3},
-    {"_mob_bernoulli_sampler_gpu_wrapper", (DL_FUNC) &_mob_bernoulli_sampler_gpu_wrapper, 3},
+    {"_mob_random_create_device", (DL_FUNC) &_mob_random_create_device, 2},
+    {"_mob_runif_device", (DL_FUNC) &_mob_runif_device, 4},
+    {"_mob_rbinom_device", (DL_FUNC) &_mob_rbinom_device, 4},
+    {"_mob_bernoulli_sampler_device", (DL_FUNC) &_mob_bernoulli_sampler_device, 3},
+    {"_mob_homogeneous_infection_process_device", (DL_FUNC) &_mob_homogeneous_infection_process_device, 4},
+    {"_mob_partition_create_device", (DL_FUNC) &_mob_partition_create_device, 1},
+    {"_mob_household_infection_process_device", (DL_FUNC) &_mob_household_infection_process_device, 5},
+    {"_mob_random_create_host", (DL_FUNC) &_mob_random_create_host, 2},
+    {"_mob_runif_host", (DL_FUNC) &_mob_runif_host, 4},
+    {"_mob_rbinom_host", (DL_FUNC) &_mob_rbinom_host, 4},
+    {"_mob_homogeneous_infection_process_host", (DL_FUNC) &_mob_homogeneous_infection_process_host, 4},
+    {"_mob_partition_create_host", (DL_FUNC) &_mob_partition_create_host, 1},
+    {"_mob_household_infection_process_host", (DL_FUNC) &_mob_household_infection_process_host, 5},
+    {"_mob_bernoulli_sampler_host", (DL_FUNC) &_mob_bernoulli_sampler_host, 3},
+    {"_mob_selection_sampler_host", (DL_FUNC) &_mob_selection_sampler_host, 3},
+    {"_mob_selection_sampler_device", (DL_FUNC) &_mob_selection_sampler_device, 3},
+    {"_mob_betabinomial_sampler_host", (DL_FUNC) &_mob_betabinomial_sampler_host, 3},
+    {"_mob_betabinomial_sampler_device", (DL_FUNC) &_mob_betabinomial_sampler_device, 3},
     {"_mob_run_catch", (DL_FUNC) &_mob_run_catch, 2},
     {NULL, NULL, 0}
 };

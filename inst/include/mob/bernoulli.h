@@ -1,7 +1,9 @@
 #pragma once
 #include <mob/compat.h>
+#include <mob/random.h>
 
 #include <cuda/std/cmath>
+#include <dust/random/random.hpp>
 
 namespace mob {
 
@@ -49,8 +51,9 @@ private:
   real_type probability;
 };
 
-template <typename Range, typename real_type, typename rng_state_type,
-          typename std::enable_if_t<compat::enable_view<Range>, int> = 0>
+template <std::ranges::input_range Range, typename real_type,
+          random_state rng_state_type>
+  requires(std::ranges::enable_view<Range>)
 struct bernoulli_view {
   using sentinel = cuda::std::default_sentinel_t;
 
@@ -58,9 +61,10 @@ struct bernoulli_view {
     using reference = compat::range_reference_t<const Range>;
     using value_type = compat::range_value_t<const Range>;
     using difference_type = ptrdiff_t;
+    using iterator_category = std::input_iterator_tag;
 
     __host__ __device__ iterator(const Range &range, real_type p,
-                                 rng_state_type &rng_state)
+                                 rng_state_type *rng_state)
         : it(cuda::std::begin(range)), end(cuda::std::end(range)),
           rng_state(rng_state), bernoulli(p) {
       skip();
@@ -72,54 +76,37 @@ struct bernoulli_view {
       return *this;
     }
 
-    __host__ __device__ iterator operator++(int) {
-      auto old = *this;
+    __host__ __device__ void operator++(int) {
       ++(*this);
-      return old;
     }
 
     __host__ __device__ bool operator==(sentinel) const {
       return it == end;
     }
 
-    __host__ __device__ bool operator!=(sentinel) const {
-      return it != end;
-    }
-
-    friend __host__ __device__ bool operator==(sentinel, const iterator &self) {
-      return self.it == self.end;
-    }
-
-    friend __host__ __device__ bool operator!=(sentinel, const iterator &self) {
-      return self.it != self.end;
-    }
-
     __host__ __device__ reference operator*() const {
       return *it;
     }
 
+  private:
     __host__ __device__ void skip() {
-      auto n =
-          bernoulli.template next<compat::range_difference_t<Range>>(rng_state);
+      auto n = bernoulli.template next<compat::range_difference_t<Range>>(
+          *rng_state);
       cuda::std::ranges::advance(it, n, end);
     }
 
-  private:
-    static_assert(cuda::std::semiregular<compat::sentinel_t<const Range>>);
-    static_assert(
-        cuda::std::input_or_output_iterator<compat::iterator_t<const Range>>);
-    static_assert(cuda::std::sentinel_for<compat::sentinel_t<const Range>,
-                                          compat::iterator_t<const Range>>);
-
     compat::iterator_t<const Range> it;
     compat::sentinel_t<const Range> end;
-    rng_state_type &rng_state;
+    rng_state_type *rng_state;
     fast_bernoulli<real_type> bernoulli;
   };
 
+  static_assert(std::input_iterator<iterator>);
+  static_assert(std::sentinel_for<sentinel, iterator>);
+
   __host__ __device__ bernoulli_view(Range range, real_type probability,
                                      rng_state_type &rng)
-      : range(std::move(range)), probability(probability), rng(rng) {}
+      : range(std::move(range)), probability(probability), rng(&rng) {}
 
   __host__ __device__ iterator begin() const {
     return iterator(range, probability, rng);
@@ -132,14 +119,16 @@ struct bernoulli_view {
 private:
   Range range;
   real_type probability;
-  rng_state_type &rng;
+  rng_state_type *rng;
 };
 
-template <typename Range, typename real_type, typename rng_state_type>
+template <std::ranges::input_range Range, typename real_type,
+          random_state rng_state_type>
 bernoulli_view(Range &&, real_type, rng_state_type &)
     -> bernoulli_view<compat::all_t<Range>, real_type, rng_state_type>;
 
-template <typename real_type, typename rng_state_type, typename Range>
+template <typename real_type, random_state rng_state_type,
+          std::ranges::input_range Range>
 __host__ __device__ auto bernoulli(Range &&range, real_type probability,
                                    rng_state_type &rng) {
   return bernoulli_view(std::forward<Range>(range), probability, rng);

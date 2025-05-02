@@ -66,7 +66,7 @@ random_select_by_key(mob::host_random &rngs, KeyIt first, KeyIt last,
   return {keys_last, values_last};
 }
 
-template <typename System = system::host, typename VictimsFn>
+template <typename System, typename VictimsFn>
 std::pair<typename System::vector<uint32_t>, typename System::vector<uint32_t>>
 infection_process(typename System::random &rngs,
                   typename System::span<uint32_t> infected,
@@ -136,7 +136,7 @@ infection_process(typename System::random &rngs,
   return {infection_source, infection_victim};
 }
 
-template <typename System = system::host>
+template <typename System>
 std::pair<typename System::vector<uint32_t>, typename System::vector<uint32_t>>
 homogeneous_infection_process(typename System::random &rngs,
                               typename System::span<uint32_t> infected,
@@ -150,7 +150,7 @@ homogeneous_infection_process(typename System::random &rngs,
       });
 }
 
-template <typename System = system::host>
+template <typename System>
 std::pair<typename System::vector<uint32_t>, typename System::vector<uint32_t>>
 household_infection_process(typename System::random &rngs,
                             ds::span<System, uint32_t> infected,

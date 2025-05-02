@@ -1,6 +1,7 @@
 #pragma once
 #include <mob/ds/span.h>
 
+#include <algorithm>
 #include <vector>
 
 namespace mob {

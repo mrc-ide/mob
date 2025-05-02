@@ -52,10 +52,11 @@ private:
 };
 
 } // namespace ds
+} // namespace mob
 
-namespace compat {
+namespace std::ranges {
+
 template <typename System, typename T>
 constexpr bool enable_view<mob::ds::span<System, T>> = true;
-}
 
-} // namespace mob
+}

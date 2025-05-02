@@ -4,9 +4,10 @@
 
 namespace mob {
 
-template <typename LeftRange, typename RightRange,
-          typename std::enable_if_t<compat::enable_view<LeftRange>, int> = 0,
-          typename std::enable_if_t<compat::enable_view<RightRange>, int> = 0>
+template <std::ranges::input_range LeftRange,
+          std::ranges::input_range RightRange>
+  requires std::ranges::enable_view<LeftRange> &&
+           std::ranges::enable_view<RightRange>
 struct intersection_view {
   using sentinel = cuda::std::default_sentinel_t;
 
@@ -27,26 +28,12 @@ struct intersection_view {
       return *this;
     }
 
-    __host__ __device__ iterator operator++(int) {
-      auto old = *this;
+    __host__ __device__ void operator++(int) {
       ++(*this);
-      return old;
     }
 
     __host__ __device__ bool operator==(sentinel) const {
       return left == left_end;
-    }
-
-    __host__ __device__ bool operator!=(sentinel) const {
-      return left != left_end;
-    }
-
-    friend __host__ __device__ bool operator==(sentinel, const iterator &self) {
-      return self.left == self.left_end;
-    }
-
-    friend __host__ __device__ bool operator!=(sentinel, const iterator &self) {
-      return self.left != self.left_end;
     }
 
     __host__ __device__ reference operator*() const {
@@ -73,6 +60,9 @@ struct intersection_view {
     compat::sentinel_t<const RightRange> right_end;
   };
 
+  static_assert(std::input_iterator<iterator>);
+  static_assert(std::sentinel_for<sentinel, iterator>);
+
   __host__ __device__ intersection_view(LeftRange left, RightRange right)
       : left(std::move(left)), right(std::move(right)) {}
 
@@ -89,19 +79,23 @@ private:
   RightRange right;
 };
 
-template <typename LeftRange, typename RightRange>
+template <std::ranges::input_range LeftRange,
+          std::ranges::input_range RightRange>
 intersection_view(LeftRange &&, RightRange &&)
     -> intersection_view<compat::all_t<LeftRange>, compat::all_t<RightRange>>;
 
-template <typename LeftRange, typename RightRange>
+template <std::ranges::input_range LeftRange,
+          std::ranges::input_range RightRange>
 __host__ __device__ auto intersection(LeftRange &&left, RightRange &&right) {
   return intersection_view(std::forward<LeftRange>(left),
                            std::forward<RightRange>(right));
 }
 
-namespace compat {
+} // namespace mob
+
+namespace std::ranges {
+
 template <typename L, typename R>
 constexpr bool enable_view<mob::intersection_view<L, R>> = true;
-}
 
-} // namespace mob
+}
