@@ -1,3 +1,6 @@
+// This doesn't actually have any CUDA code. It is in a .cu file so that CCCL
+// can be found.
+
 #include <mob/intersection.h>
 
 #include <algorithm>

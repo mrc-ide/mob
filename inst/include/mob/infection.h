@@ -79,10 +79,11 @@ infection_process(typename System::random &rngs,
       [=] __host__ __device__(uint32_t i,
                               typename System::random::proxy rng) -> uint32_t {
         // Ideally we'd pass rng_copy directly to victims_fn. Unfortunately
-        // CUDA doesn't support generic lambdas, which mean victims_fn can only
-        // support one type of RNG state and rng and rng_copy have different
-        // types. We workaround this by doing a get / put, and hope the
-        // compiler is clever enough to remove the superfluous stores.
+        // CUDA doesn't support generic lambdas, which, assuming it is a lambda,
+        // means victims_fn can only support one type of RNG state and rng and
+        // rng_copy have different types. We workaround this by doing a get /
+        // put, and hope the compiler is clever enough to remove the superfluous
+        // stores.
         auto rng_copy = rng.get();
         auto result = cuda::std::ranges::distance(victims_fn(i, rng));
         rng.put(rng_copy);

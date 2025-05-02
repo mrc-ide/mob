@@ -49,7 +49,7 @@ template <std::weakly_incrementable W,
           std::semiregular Bound = cuda::std::unreachable_sentinel_t>
 struct iota_view : cuda::std::ranges::view_interface<iota_view<W, Bound>> {
   struct sentinel {
-    __host__ __device__ sentinel() = default;
+    sentinel() = default;
     __host__ __device__ sentinel(Bound value) : value(std::move(value)) {}
 
     Bound value = Bound();
