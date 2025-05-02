@@ -1,9 +1,9 @@
 #pragma once
-#include <mob/ds/intersection.h>
+#include <mob/bernoulli.h>
 #include <mob/ds/partition.h>
 #include <mob/ds/span.h>
+#include <mob/intersection.h>
 #include <mob/parallel_random.h>
-#include <mob/roaring/bitset.h>
 #include <mob/sample.h>
 
 #include <Rcpp.h>
@@ -66,12 +66,11 @@ random_select_by_key(mob::host_random &rngs, KeyIt first, KeyIt last,
   return {keys_last, values_last};
 }
 
-template <typename System = system::host, typename CandidatesFn,
-          typename ProbabilityFn>
+template <typename System = system::host, typename VictimsFn>
 std::pair<typename System::vector<uint32_t>, typename System::vector<uint32_t>>
 infection_process(typename System::random &rngs,
                   typename System::span<uint32_t> infected,
-                  CandidatesFn candidates_fn, ProbabilityFn probability_fn) {
+                  VictimsFn victims_fn) {
   // Figure out how many people each I infects - don't store the actual targets
   // anywhere yet since we have nowhere to put the result.
   typename System::vector<uint32_t> victim_count(infected.size());
@@ -79,10 +78,15 @@ infection_process(typename System::random &rngs,
       infected.begin(), infected.end(), rngs.begin(), victim_count.begin(),
       [=] __host__ __device__(uint32_t i,
                               typename System::random::proxy rng) -> uint32_t {
-        size_t n = compat::distance(candidates_fn(i));
-        double p = probability_fn(i);
+        // Ideally we'd pass rng_copy directly to victims_fn. Unfortunately
+        // CUDA doesn't support generic lambdas, which mean victims_fn can only
+        // support one type of RNG state and rng and rng_copy have different
+        // types. We workaround this by doing a get / put, and hope the
+        // compiler is clever enough to remove the superfluous stores.
         auto rng_copy = rng.get();
-        return mob::bernouilli_sampler_count(rng_copy, n, p);
+        auto result = compat::distance(victims_fn(i, rng));
+        rng.put(rng_copy);
+        return result;
       });
 
   // Prepare some space in which to store the infection victims.
@@ -118,12 +122,9 @@ infection_process(typename System::random &rngs,
       thrust::make_zip_function(
           [=] __host__ __device__(uint32_t i, size_t offset,
                                   typename System::random::proxy rng) {
-            auto candidates = candidates_fn(i);
-            double p = probability_fn(i);
-
+            auto victims = victims_fn(i, rng);
             auto victim_first = infection_victim_begin + offset;
-            auto victim_last = mob::bernouilli_sampler<double>(
-                rng, candidates.begin(), candidates.end(), victim_first, p);
+            auto victim_last = compat::copy(victims, victim_first);
 
             auto source_first = infection_source_begin + offset;
             auto source_last =
@@ -143,8 +144,10 @@ homogeneous_infection_process(typename System::random &rngs,
                               double infection_probability) {
 
   return infection_process<System>(
-      rngs, infected, [=] __host__ __device__(uint32_t) { return susceptible; },
-      [=] __host__ __device__(uint32_t) { return infection_probability; });
+      rngs, infected,
+      [=] __host__ __device__(uint32_t, typename System::random::proxy &rng) {
+        return bernoulli(susceptible, infection_probability, rng);
+      });
 }
 
 template <typename System = system::host>
@@ -154,25 +157,20 @@ household_infection_process(typename System::random &rngs,
                             ds::span<System, uint32_t> susceptible,
                             ds::partition_view<System> partition,
                             ds::span<System, double> infection_probability) {
-  // TODO: this applies the S filter first, and then applies the bernouilli
-  // sampler. It may be easier / faster to do the bernouilli sample first and
-  // apply the filter second.
-  //
-  // refactor `infection_process` to not do the bernouilli sampler and instead
-  // make it the responsibility of the callbacks
-  //
-  // Make bernouilli_sampler a range and use std::range::distance on it.
+  // TODO: this applies the S filter first, and then applies the bernoulli
+  // sampler. It may be faster to do the bernoulli sample first and apply
+  // the filter second.
   return infection_process<System>(
       rngs, infected,
-      [=] __host__ __device__(uint32_t i) {
-        return lazy_intersection(partition.neighbours(i), susceptible);
-      },
-      [=] __host__ __device__(uint32_t i) {
+      [=] __host__ __device__(uint32_t i, typename System::random::proxy &rng) {
+        double p;
         if (infection_probability.size() == 1) {
-          return infection_probability[0];
+          p = infection_probability[0];
         } else {
-          return infection_probability[partition.get_partition(i)];
+          p = infection_probability[partition.get_partition(i)];
         }
+        auto candidates = intersection(partition.neighbours(i), susceptible);
+        return bernoulli(candidates, p, rng);
       });
 }
 

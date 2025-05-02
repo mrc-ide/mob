@@ -1,6 +1,7 @@
 #pragma once
 
 #include "iterator.h"
+#include <mob/bernoulli.h>
 
 #include <cuda/std/cmath>
 #include <dust/random/binomial.hpp>
@@ -109,90 +110,6 @@ __host__ void betabinomial_sampler(rng_state_type &rng_state,
 
     *output_start = *(input_start++);
   }
-}
-
-template <typename real_type>
-struct fast_bernouilli {
-  __host__ __device__ fast_bernouilli(real_type probability)
-      : probability(probability) {
-    // The maths below don't work for probability = 0 or probability = 1
-    if (0 < probability && probability < 1) {
-      real_type probability_log = log(1 - probability);
-      // Probabilities smaller than 2^-53 could end up with a `probability_log`
-      // rounded to zero, which we can't inverse. Treat these probabilties the
-      // same as 0.
-      if (probability_log == 0.0) {
-        probability = 0.;
-      } else {
-        inverse_log = 1 / log(1 - probability);
-      }
-    }
-  }
-
-  template <typename int_type = size_t, typename rng_state_type>
-  __host__ __device__ int_type next(rng_state_type &rng_state) {
-    if (probability == 1) {
-      return 0;
-    } else if (probability == 0) {
-      return cuda::std::numeric_limits<int_type>::max();
-    }
-
-    // For very small probability, the skip count can end up being very large
-    // and exceeding SIZE_MAX. Returning the double directly would be UB.
-    real_type x = dust::random::random_real<real_type>(rng_state);
-    real_type skip = cuda::std::floor(cuda::std::log(x) * inverse_log);
-    if (skip < real_type(cuda::std::numeric_limits<int_type>::max())) {
-      return skip;
-    } else {
-      return cuda::std::numeric_limits<int_type>::max();
-    }
-  }
-
-private:
-  real_type inverse_log;
-  real_type probability;
-};
-
-template <typename real_type, typename rng_state_type, typename InputIt,
-          typename Sentinel, typename OutputIt>
-__host__ __device__ OutputIt bernouilli_sampler(rng_state_type &rng_state,
-                                                InputIt input,
-                                                Sentinel input_end,
-                                                OutputIt output, real_type p) {
-  static_assert(cuda::std::semiregular<Sentinel>);
-  static_assert(cuda::std::input_or_output_iterator<InputIt>);
-  static_assert(cuda::std::sentinel_for<Sentinel, InputIt>);
-
-  if (p < 0 || p > 1) {
-    dust::utils::fatal_error("Invalid sampler input");
-  }
-
-  fast_bernouilli<real_type> bernoulli(p);
-  while (true) {
-    auto skip = bernoulli.template next<cuda::std::iter_difference_t<InputIt>>(
-        rng_state);
-    cuda::std::ranges::advance(input, skip, input_end);
-    if (input == input_end) {
-      break;
-    }
-
-    *output = *input;
-
-    ++output;
-    ++input;
-  }
-  return output;
-}
-
-template <typename int_type, typename real_type, typename rng_state_type>
-__host__ __device__ int_type bernouilli_sampler_count(rng_state_type &rng_state,
-                                                      int_type n, real_type p) {
-  auto it = mob::bernouilli_sampler(rng_state,
-                                    thrust::make_counting_iterator<int_type>(0),
-                                    thrust::make_counting_iterator<int_type>(n),
-                                    counting_output_iterator<int_type>(), p);
-
-  return it.offset();
 }
 
 } // namespace mob

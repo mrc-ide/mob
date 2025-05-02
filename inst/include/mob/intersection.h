@@ -1,13 +1,12 @@
+#pragma once
 #include <mob/compat.h>
 #include <mob/ds/span.h>
 
 namespace mob {
-namespace ds {
 
 template <typename LeftRange, typename RightRange,
-          typename std::enable_if_t<
-              ds::enable_view<LeftRange> && ds::enable_view<RightRange>, int> =
-              0>
+          typename std::enable_if_t<compat::enable_view<LeftRange>, int> = 0,
+          typename std::enable_if_t<compat::enable_view<RightRange>, int> = 0>
 struct intersection_view {
   using sentinel = cuda::std::default_sentinel_t;
 
@@ -92,14 +91,17 @@ private:
 
 template <typename LeftRange, typename RightRange>
 intersection_view(LeftRange &&, RightRange &&)
-    -> intersection_view<ds::all_t<LeftRange>, ds::all_t<RightRange>>;
+    -> intersection_view<compat::all_t<LeftRange>, compat::all_t<RightRange>>;
 
 template <typename LeftRange, typename RightRange>
-__host__ __device__ auto lazy_intersection(LeftRange &&left,
-                                           RightRange &&right) {
+__host__ __device__ auto intersection(LeftRange &&left, RightRange &&right) {
   return intersection_view(std::forward<LeftRange>(left),
                            std::forward<RightRange>(right));
 }
 
-} // namespace ds
+namespace compat {
+template <typename L, typename R>
+constexpr bool enable_view<mob::intersection_view<L, R>> = true;
+}
+
 } // namespace mob

@@ -202,26 +202,5 @@ private:
   container_storage containers_;
 };
 
-// These intersection implementations don't take advantage of the bitset
-// implementation at all and will obviously be quite slow.
-template <typename OutputIt>
-OutputIt intersection(const bitset &left, const bitset &right,
-                      OutputIt output) {
-  return std::set_intersection(left.begin(), left.end(), right.begin(),
-                               right.end(), output);
-}
-
-inline bitset intersection(const bitset &left, const bitset &right) {
-  bitset result;
-  intersection(left, right, default_inserter(result));
-  return result;
-}
-
-inline uint64_t intersection_size(const bitset &left, const bitset &right) {
-  auto result =
-      intersection(left, right, counting_output_iterator<uint32_t>(0));
-  return result.offset();
-}
-
 } // namespace roaring
 } // namespace mob

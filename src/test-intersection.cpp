@@ -1,4 +1,4 @@
-#include <mob/ds/intersection.h>
+#include <mob/intersection.h>
 
 #include <algorithm>
 #include <catch2/catch_test_macros.hpp>
@@ -7,17 +7,19 @@
 #include <rapidcheck/catch.h>
 
 TEST_CASE("intersection") {
-  rc::prop("lazy_intersection",
-           [](std::vector<uint32_t> x, std::vector<uint32_t> y) {
-             std::vector<uint32_t> result;
-             for (auto i : mob::ds::lazy_intersection(x, y)) {
-               result.push_back(i);
-             }
+  rc::prop("lazy_intersection", [](std::set<uint32_t> x, std::set<uint32_t> y) {
+    std::vector<uint32_t> xvec(x.begin(), x.end());
+    std::vector<uint32_t> yvec(y.begin(), y.end());
 
-             std::vector<uint32_t> expected;
-             std::set_intersection(x.begin(), x.end(), y.begin(), y.end(),
-                                   std::back_inserter(expected));
+    std::vector<uint32_t> result;
+    for (auto i : mob::intersection(xvec, yvec)) {
+      result.push_back(i);
+    }
 
-             RC_ASSERT(expected == result);
-           });
+    std::vector<uint32_t> expected;
+    std::set_intersection(x.begin(), x.end(), y.begin(), y.end(),
+                          std::back_inserter(expected));
+
+    RC_ASSERT(expected == result);
+  });
 }

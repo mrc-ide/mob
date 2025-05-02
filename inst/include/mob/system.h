@@ -34,4 +34,17 @@ struct device {
   using random = device_random;
 };
 } // namespace system
+
+namespace ds {
+
+template <typename T>
+span(thrust::device_vector<T>) -> span<system::device, T>;
+
+template <typename T>
+span(thrust::host_vector<T>) -> span<system::host, T>;
+
+template <typename T>
+span(std::vector<T>) -> span<system::host, T>;
+
+} // namespace ds
 }; // namespace mob

@@ -117,55 +117,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// bernouilli_sampler_wrapper
-std::vector<double> bernouilli_sampler_wrapper(Rcpp::NumericVector data, double p, Rcpp::Nullable<Rcpp::NumericVector> seed);
-RcppExport SEXP _mob_bernouilli_sampler_wrapper(SEXP dataSEXP, SEXP pSEXP, SEXP seedSEXP) {
+// bernoulli_sampler_wrapper
+Rcpp::NumericVector bernoulli_sampler_wrapper(Rcpp::NumericVector data, double p, Rcpp::Nullable<Rcpp::NumericVector> seed);
+RcppExport SEXP _mob_bernoulli_sampler_wrapper(SEXP dataSEXP, SEXP pSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
     Rcpp::traits::input_parameter< double >::type p(pSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(bernouilli_sampler_wrapper(data, p, seed));
+    rcpp_result_gen = Rcpp::wrap(bernoulli_sampler_wrapper(data, p, seed));
     return rcpp_result_gen;
 END_RCPP
 }
-// bernouilli_sampler_count_wrapper
-size_t bernouilli_sampler_count_wrapper(size_t n, double p, Rcpp::Nullable<Rcpp::NumericVector> seed);
-RcppExport SEXP _mob_bernouilli_sampler_count_wrapper(SEXP nSEXP, SEXP pSEXP, SEXP seedSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type p(pSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(bernouilli_sampler_count_wrapper(n, p, seed));
-    return rcpp_result_gen;
-END_RCPP
-}
-// bernouilli_sampler_gpu_wrapper
-Rcpp::NumericVector bernouilli_sampler_gpu_wrapper(Rcpp::NumericVector data, double p, Rcpp::Nullable<Rcpp::NumericVector> seed);
-RcppExport SEXP _mob_bernouilli_sampler_gpu_wrapper(SEXP dataSEXP, SEXP pSEXP, SEXP seedSEXP) {
+// bernoulli_sampler_gpu_wrapper
+Rcpp::NumericVector bernoulli_sampler_gpu_wrapper(Rcpp::NumericVector data, double p, Rcpp::Nullable<Rcpp::NumericVector> seed);
+RcppExport SEXP _mob_bernoulli_sampler_gpu_wrapper(SEXP dataSEXP, SEXP pSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
     Rcpp::traits::input_parameter< double >::type p(pSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(bernouilli_sampler_gpu_wrapper(data, p, seed));
-    return rcpp_result_gen;
-END_RCPP
-}
-// bernouilli_sampler_count_gpu_wrapper
-size_t bernouilli_sampler_count_gpu_wrapper(size_t n, double p, Rcpp::Nullable<Rcpp::NumericVector> seed);
-RcppExport SEXP _mob_bernouilli_sampler_count_gpu_wrapper(SEXP nSEXP, SEXP pSEXP, SEXP seedSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
-    Rcpp::traits::input_parameter< double >::type p(pSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(bernouilli_sampler_count_gpu_wrapper(n, p, seed));
+    rcpp_result_gen = Rcpp::wrap(bernoulli_sampler_gpu_wrapper(data, p, seed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -191,10 +165,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_household_infection_process_wrapper", (DL_FUNC) &_mob_household_infection_process_wrapper, 5},
     {"_mob_betabinomial_sampler_wrapper", (DL_FUNC) &_mob_betabinomial_sampler_wrapper, 3},
     {"_mob_selection_sampler_wrapper", (DL_FUNC) &_mob_selection_sampler_wrapper, 3},
-    {"_mob_bernouilli_sampler_wrapper", (DL_FUNC) &_mob_bernouilli_sampler_wrapper, 3},
-    {"_mob_bernouilli_sampler_count_wrapper", (DL_FUNC) &_mob_bernouilli_sampler_count_wrapper, 3},
-    {"_mob_bernouilli_sampler_gpu_wrapper", (DL_FUNC) &_mob_bernouilli_sampler_gpu_wrapper, 3},
-    {"_mob_bernouilli_sampler_count_gpu_wrapper", (DL_FUNC) &_mob_bernouilli_sampler_count_gpu_wrapper, 3},
+    {"_mob_bernoulli_sampler_wrapper", (DL_FUNC) &_mob_bernoulli_sampler_wrapper, 3},
+    {"_mob_bernoulli_sampler_gpu_wrapper", (DL_FUNC) &_mob_bernoulli_sampler_gpu_wrapper, 3},
     {"_mob_run_catch", (DL_FUNC) &_mob_run_catch, 2},
     {NULL, NULL, 0}
 };

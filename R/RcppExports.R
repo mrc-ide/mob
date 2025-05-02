@@ -34,19 +34,11 @@ selection_sampler <- function(data, k, seed = NULL) {
 }
 
 bernoulli_sampler <- function(data, p, seed = NULL) {
-    .Call(`_mob_bernouilli_sampler_wrapper`, data, p, seed)
-}
-
-bernoulli_sampler_count <- function(n, p, seed = NULL) {
-    .Call(`_mob_bernouilli_sampler_count_wrapper`, n, p, seed)
+    .Call(`_mob_bernoulli_sampler_wrapper`, data, p, seed)
 }
 
 bernoulli_sampler_gpu <- function(data, p, seed = NULL) {
-    .Call(`_mob_bernouilli_sampler_gpu_wrapper`, data, p, seed)
-}
-
-bernouilli_sampler_count_gpu <- function(n, p, seed = NULL) {
-    .Call(`_mob_bernouilli_sampler_count_gpu_wrapper`, n, p, seed)
+    .Call(`_mob_bernoulli_sampler_gpu_wrapper`, data, p, seed)
 }
 
 run_catch <- function(args = NULL, fork = TRUE) {

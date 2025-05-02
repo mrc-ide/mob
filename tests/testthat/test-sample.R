@@ -23,24 +23,14 @@ test_that("bernoulli_sampler returns a subset", {
   }
 })
 
-test_that("bernoulli_sampler returns predictable size", {
+test_that("bernoulli_sampler with p=0 returns an empty set", {
   data <- runif(100)
-
-  for (p in c(0, 0.01, 0.1, 0.5, 0.9, 0.99, 1)) {
-    expected <- bernoulli_sampler_count(length(data), p, seed=1)
-    sample <- bernoulli_sampler(data, p, seed=1)
-    expect_length(sample, expected)
-  }
-})
-
-test_that("bernoulli_sampler with p=0 returns an empty subset", {
-  data <- runif(100)
-  sample <- bernoulli_sampler(data, p = 0, seed = 1)
+  sample <- bernoulli_sampler(data, p = 0)
   expect_length(sample, 0)
 })
 
 test_that("bernoulli_sampler with p=1 returns entire dataset", {
   data <- runif(100)
-  sample <- bernoulli_sampler(data, p = 1, seed = 1)
+  sample <- bernoulli_sampler(data, p = 1)
   expect_equal(sample, data)
 })

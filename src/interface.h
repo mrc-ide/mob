@@ -55,19 +55,11 @@ Rcpp::NumericVector selection_sampler_wrapper(
     Rcpp::Nullable<Rcpp::NumericVector> seed = R_NilValue);
 
 // [[Rcpp::export("bernoulli_sampler")]]
-std::vector<double> bernouilli_sampler_wrapper(
+Rcpp::NumericVector bernoulli_sampler_wrapper(
     Rcpp::NumericVector data, double p,
     Rcpp::Nullable<Rcpp::NumericVector> seed = R_NilValue);
-
-// [[Rcpp::export("bernoulli_sampler_count")]]
-size_t bernouilli_sampler_count_wrapper(
-    size_t n, double p, Rcpp::Nullable<Rcpp::NumericVector> seed = R_NilValue);
 
 // [[Rcpp::export("bernoulli_sampler_gpu")]]
-Rcpp::NumericVector bernouilli_sampler_gpu_wrapper(
+Rcpp::NumericVector bernoulli_sampler_gpu_wrapper(
     Rcpp::NumericVector data, double p,
     Rcpp::Nullable<Rcpp::NumericVector> seed = R_NilValue);
-
-// [[Rcpp::export("bernouilli_sampler_count_gpu")]]
-size_t bernouilli_sampler_count_gpu_wrapper(
-    size_t n, double p, Rcpp::Nullable<Rcpp::NumericVector> seed = R_NilValue);
