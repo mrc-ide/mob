@@ -5,6 +5,7 @@
 #include <cuda/std/cmath>
 #include <dust/random/binomial.hpp>
 #include <dust/random/gamma.hpp>
+#include <format>
 
 namespace mob {
 
@@ -12,8 +13,8 @@ template <typename InputIt, typename OutputIt>
 __host__ __device__ void sampler_check(InputIt input_start, InputIt input_end,
                                        OutputIt output_start,
                                        OutputIt output_end) {
-  size_t n = mob::compat::distance(input_start, input_end);
-  size_t k = mob::compat::distance(output_start, output_end);
+  size_t n = cuda::std::distance(input_start, input_end);
+  size_t k = cuda::std::distance(output_start, output_end);
   if (k > n) {
 #ifdef __CUDA_ARCH__
     dust::utils::fatal_error("Invalid sampler input");
@@ -38,8 +39,8 @@ selection_sampler(rng_state_type &rng_state, InputIt input_start,
                   OutputIt output_end) {
   sampler_check(input_start, input_end, output_start, output_end);
   for (; output_start != output_end; input_start++) {
-    size_t n = compat::distance(input_start, input_end);
-    size_t k = compat::distance(output_start, output_end);
+    size_t n = cuda::std::distance(input_start, input_end);
+    size_t k = cuda::std::distance(output_start, output_end);
     double u = dust::random::random_real<double>(rng_state);
     if (n * u < k) {
       *(output_start++) = *input_start;
@@ -107,8 +108,8 @@ betabinomial_sampler(rng_state_type &rng_state, InputIt input_start,
                      OutputIt output_end) {
   sampler_check(input_start, input_end, output_start, output_end);
 
-  auto n = compat::distance(input_start, input_end);
-  auto k = compat::distance(output_start, output_end);
+  auto n = cuda::std::distance(input_start, input_end);
+  auto k = cuda::std::distance(output_start, output_end);
   for (; output_start != output_end; output_start++) {
     size_t skip = betabinomial_alpha1<double>(rng_state, k, n - k);
     input_start += skip;

@@ -71,6 +71,20 @@ inline Rcpp::DataFrame household_infection_process_device(
       rngs, susceptible, infected, households, infection_probability);
 }
 
+// [[Rcpp::export]]
+inline Rcpp::NumericVector selection_sampler_device(
+    Rcpp::NumericVector data, size_t k,
+    Rcpp::Nullable<Rcpp::NumericVector> seed = R_NilValue) {
+  return selection_sampler_wrapper<mob::system::device>(data, k, seed);
+}
+
+// [[Rcpp::export]]
+inline Rcpp::NumericVector betabinomial_sampler_device(
+    Rcpp::NumericVector data, size_t k,
+    Rcpp::Nullable<Rcpp::NumericVector> seed = R_NilValue) {
+  return betabinomial_sampler_wrapper<mob::system::device>(data, k, seed);
+}
+
 #endif // __NVCC__
 
 // [[Rcpp::export]]
@@ -133,22 +147,8 @@ selection_sampler_host(Rcpp::NumericVector data, size_t k,
 }
 
 // [[Rcpp::export]]
-inline Rcpp::NumericVector selection_sampler_device(
-    Rcpp::NumericVector data, size_t k,
-    Rcpp::Nullable<Rcpp::NumericVector> seed = R_NilValue) {
-  return selection_sampler_wrapper<mob::system::device>(data, k, seed);
-}
-
-// [[Rcpp::export]]
 inline Rcpp::NumericVector betabinomial_sampler_host(
     Rcpp::NumericVector data, size_t k,
     Rcpp::Nullable<Rcpp::NumericVector> seed = R_NilValue) {
   return betabinomial_sampler_wrapper<mob::system::host>(data, k, seed);
-}
-
-// [[Rcpp::export]]
-inline Rcpp::NumericVector betabinomial_sampler_device(
-    Rcpp::NumericVector data, size_t k,
-    Rcpp::Nullable<Rcpp::NumericVector> seed = R_NilValue) {
-  return betabinomial_sampler_wrapper<mob::system::device>(data, k, seed);
 }

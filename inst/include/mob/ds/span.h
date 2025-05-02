@@ -1,6 +1,5 @@
 #pragma once
-#include <mob/compat.h>
-
+#include <dust/random/cuda_compatibility.hpp>
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
 #include <vector>
@@ -54,9 +53,12 @@ private:
 } // namespace ds
 } // namespace mob
 
-namespace std::ranges {
+namespace cuda::std::ranges {
 
 template <typename System, typename T>
 constexpr bool enable_view<mob::ds::span<System, T>> = true;
 
-}
+template <typename System, typename T>
+constexpr bool enable_borrowed_range<mob::ds::span<System, T>> = true;
+
+} // namespace cuda::std::ranges

@@ -1,5 +1,5 @@
 #pragma once
-#include <mob/compat.h>
+#include <mob/compat/views.h>
 #include <mob/random.h>
 
 #include <cuda/std/cmath>
@@ -51,15 +51,15 @@ private:
   real_type probability;
 };
 
-template <std::ranges::input_range Range, typename real_type,
+template <cuda::std::ranges::input_range Range, typename real_type,
           random_state rng_state_type>
-  requires(std::ranges::enable_view<Range>)
+  requires(cuda::std::ranges::enable_view<Range>)
 struct bernoulli_view {
   using sentinel = cuda::std::default_sentinel_t;
 
   struct iterator {
-    using reference = compat::range_reference_t<const Range>;
-    using value_type = compat::range_value_t<const Range>;
+    using reference = cuda::std::ranges::range_reference_t<const Range>;
+    using value_type = cuda::std::ranges::range_value_t<const Range>;
     using difference_type = ptrdiff_t;
     using iterator_category = std::input_iterator_tag;
 
@@ -90,13 +90,14 @@ struct bernoulli_view {
 
   private:
     __host__ __device__ void skip() {
-      auto n = bernoulli.template next<compat::range_difference_t<Range>>(
-          *rng_state);
+      auto n =
+          bernoulli.template next<cuda::std::ranges::range_difference_t<Range>>(
+              *rng_state);
       cuda::std::ranges::advance(it, n, end);
     }
 
-    compat::iterator_t<const Range> it;
-    compat::sentinel_t<const Range> end;
+    cuda::std::ranges::iterator_t<const Range> it;
+    cuda::std::ranges::sentinel_t<const Range> end;
     rng_state_type *rng_state;
     fast_bernoulli<real_type> bernoulli;
   };
@@ -122,13 +123,13 @@ private:
   rng_state_type *rng;
 };
 
-template <std::ranges::input_range Range, typename real_type,
+template <cuda::std::ranges::input_range Range, typename real_type,
           random_state rng_state_type>
 bernoulli_view(Range &&, real_type, rng_state_type &)
     -> bernoulli_view<compat::all_t<Range>, real_type, rng_state_type>;
 
 template <typename real_type, random_state rng_state_type,
-          std::ranges::input_range Range>
+          cuda::std::ranges::input_range Range>
 __host__ __device__ auto bernoulli(Range &&range, real_type probability,
                                    rng_state_type &rng) {
   return bernoulli_view(std::forward<Range>(range), probability, rng);

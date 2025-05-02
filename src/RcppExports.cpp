@@ -104,6 +104,32 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// selection_sampler_device
+inline Rcpp::NumericVector selection_sampler_device(Rcpp::NumericVector data, size_t k, Rcpp::Nullable<Rcpp::NumericVector> seed);
+RcppExport SEXP _mob_selection_sampler_device(SEXP dataSEXP, SEXP kSEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(selection_sampler_device(data, k, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
+// betabinomial_sampler_device
+inline Rcpp::NumericVector betabinomial_sampler_device(Rcpp::NumericVector data, size_t k, Rcpp::Nullable<Rcpp::NumericVector> seed);
+RcppExport SEXP _mob_betabinomial_sampler_device(SEXP dataSEXP, SEXP kSEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(betabinomial_sampler_device(data, k, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
 // random_create_host
 inline Rcpp::XPtr<mob::system::host::random> random_create_host(size_t size, Rcpp::Nullable<Rcpp::NumericVector> seed);
 RcppExport SEXP _mob_random_create_host(SEXP sizeSEXP, SEXP seedSEXP) {
@@ -210,19 +236,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// selection_sampler_device
-inline Rcpp::NumericVector selection_sampler_device(Rcpp::NumericVector data, size_t k, Rcpp::Nullable<Rcpp::NumericVector> seed);
-RcppExport SEXP _mob_selection_sampler_device(SEXP dataSEXP, SEXP kSEXP, SEXP seedSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(selection_sampler_device(data, k, seed));
-    return rcpp_result_gen;
-END_RCPP
-}
 // betabinomial_sampler_host
 inline Rcpp::NumericVector betabinomial_sampler_host(Rcpp::NumericVector data, size_t k, Rcpp::Nullable<Rcpp::NumericVector> seed);
 RcppExport SEXP _mob_betabinomial_sampler_host(SEXP dataSEXP, SEXP kSEXP, SEXP seedSEXP) {
@@ -233,19 +246,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
     rcpp_result_gen = Rcpp::wrap(betabinomial_sampler_host(data, k, seed));
-    return rcpp_result_gen;
-END_RCPP
-}
-// betabinomial_sampler_device
-inline Rcpp::NumericVector betabinomial_sampler_device(Rcpp::NumericVector data, size_t k, Rcpp::Nullable<Rcpp::NumericVector> seed);
-RcppExport SEXP _mob_betabinomial_sampler_device(SEXP dataSEXP, SEXP kSEXP, SEXP seedSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type seed(seedSEXP);
-    rcpp_result_gen = Rcpp::wrap(betabinomial_sampler_device(data, k, seed));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -270,6 +270,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_homogeneous_infection_process_device", (DL_FUNC) &_mob_homogeneous_infection_process_device, 4},
     {"_mob_partition_create_device", (DL_FUNC) &_mob_partition_create_device, 1},
     {"_mob_household_infection_process_device", (DL_FUNC) &_mob_household_infection_process_device, 5},
+    {"_mob_selection_sampler_device", (DL_FUNC) &_mob_selection_sampler_device, 3},
+    {"_mob_betabinomial_sampler_device", (DL_FUNC) &_mob_betabinomial_sampler_device, 3},
     {"_mob_random_create_host", (DL_FUNC) &_mob_random_create_host, 2},
     {"_mob_runif_host", (DL_FUNC) &_mob_runif_host, 4},
     {"_mob_rbinom_host", (DL_FUNC) &_mob_rbinom_host, 4},
@@ -278,9 +280,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_household_infection_process_host", (DL_FUNC) &_mob_household_infection_process_host, 5},
     {"_mob_bernoulli_sampler_host", (DL_FUNC) &_mob_bernoulli_sampler_host, 3},
     {"_mob_selection_sampler_host", (DL_FUNC) &_mob_selection_sampler_host, 3},
-    {"_mob_selection_sampler_device", (DL_FUNC) &_mob_selection_sampler_device, 3},
     {"_mob_betabinomial_sampler_host", (DL_FUNC) &_mob_betabinomial_sampler_host, 3},
-    {"_mob_betabinomial_sampler_device", (DL_FUNC) &_mob_betabinomial_sampler_device, 3},
     {"_mob_run_catch", (DL_FUNC) &_mob_run_catch, 2},
     {NULL, NULL, 0}
 };

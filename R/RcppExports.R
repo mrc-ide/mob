@@ -29,6 +29,14 @@ household_infection_process_device <- function(rngs, susceptible, infected, hous
     .Call(`_mob_household_infection_process_device`, rngs, susceptible, infected, households, infection_probability)
 }
 
+selection_sampler_device <- function(data, k, seed = NULL) {
+    .Call(`_mob_selection_sampler_device`, data, k, seed)
+}
+
+betabinomial_sampler_device <- function(data, k, seed = NULL) {
+    .Call(`_mob_betabinomial_sampler_device`, data, k, seed)
+}
+
 random_create_host <- function(size, seed = NULL) {
     .Call(`_mob_random_create_host`, size, seed)
 }
@@ -61,16 +69,8 @@ selection_sampler_host <- function(data, k, seed = NULL) {
     .Call(`_mob_selection_sampler_host`, data, k, seed)
 }
 
-selection_sampler_device <- function(data, k, seed = NULL) {
-    .Call(`_mob_selection_sampler_device`, data, k, seed)
-}
-
 betabinomial_sampler_host <- function(data, k, seed = NULL) {
     .Call(`_mob_betabinomial_sampler_host`, data, k, seed)
-}
-
-betabinomial_sampler_device <- function(data, k, seed = NULL) {
-    .Call(`_mob_betabinomial_sampler_device`, data, k, seed)
 }
 
 run_catch <- function(args = NULL, fork = TRUE) {

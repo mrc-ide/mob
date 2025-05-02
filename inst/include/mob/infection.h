@@ -29,12 +29,12 @@ template <typename KeyIt, typename OutputKeyIt, typename OutputValueIt>
 std::pair<OutputKeyIt, OutputValueIt>
 uniform_index_by_key(mob::host_random &rngs, KeyIt first, KeyIt last,
                      OutputKeyIt output_key, OutputValueIt output_value) {
-  size_t maxn = std::distance(first, last);
+  size_t maxn = cuda::std::distance(first, last);
   std::vector<size_t> boundaries(maxn + 1);
 
   auto [keys_last, count_last] =
       run_lengths(first, last, output_key, boundaries.begin());
-  size_t n = std::distance(output_key, keys_last);
+  size_t n = cuda::std::distance(output_key, keys_last);
 
   thrust::exclusive_scan(boundaries.begin(), count_last + 1,
                          boundaries.begin());
@@ -84,7 +84,7 @@ infection_process(typename System::random &rngs,
         // types. We workaround this by doing a get / put, and hope the
         // compiler is clever enough to remove the superfluous stores.
         auto rng_copy = rng.get();
-        auto result = compat::distance(victims_fn(i, rng));
+        auto result = cuda::std::ranges::distance(victims_fn(i, rng));
         rng.put(rng_copy);
         return result;
       });
