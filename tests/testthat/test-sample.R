@@ -1,25 +1,36 @@
-test_that("selection_sampler returns a subset", {
+mob_test("selection_sampler returns a subset", {
   data <- runif(100)
 
-  sample <- selection_sampler(data, k = 10, seed = 1)
+  sample <- selection_sampler(data, k = 10)
   expect_length(sample, 10)
   expect_contains(data, sample)
 })
 
-test_that("betabinomial_sampler returns a subset", {
+mob_test("betabinomial_sampler returns a subset", {
   data <- runif(100)
 
-  sample <- betabinomial_sampler(data, k = 10, seed = 1)
+  sample <- betabinomial_sampler(data, k = 10)
   expect_length(sample, 10)
   expect_contains(data, sample)
 })
 
-test_that("bernoulli_sampler returns a subset", {
+mob_test("bernoulli_sampler returns a subset", {
   data <- runif(100)
 
-  p <- 0.2
-  expected <- bernoulli_sampler_count(length(data), p, seed = 1)
-  sample <- bernoulli_sampler(data, p, seed = 1)
-  expect_length(sample, expected)
-  expect_contains(data, sample)
+  for (p in c(0, 0.01, 0.1, 0.5, 0.9, 0.99, 1)) {
+    sample <- bernoulli_sampler(data, p)
+    expect_contains(data, sample)
+  }
+})
+
+mob_test("bernoulli_sampler with p=0 returns an empty set", {
+  data <- runif(100)
+  sample <- bernoulli_sampler(data, p = 0)
+  expect_length(sample, 0)
+})
+
+mob_test("bernoulli_sampler with p=1 returns entire dataset", {
+  data <- runif(100)
+  sample <- bernoulli_sampler(data, p = 1)
+  expect_equal(sample, data)
 })

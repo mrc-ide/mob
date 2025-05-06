@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mob/random.h>
+
 #include <dust/random/prng.hpp>
 #include <dust/random/xoroshiro128.hpp>
 #include <thrust/device_vector.h>
@@ -38,23 +40,22 @@ namespace mob {
  * RNG stream.
  */
 template <template <typename> typename Vector,
-          typename T = dust::random::xoroshiro128plus>
+          random_state_storage T = dust::random::xoroshiro128plus>
 struct parallel_random {
   using rng_state = T;
   using vector_type = Vector<typename rng_state::int_type>;
 
   static constexpr size_t width = rng_state::size();
 
-  parallel_random(size_t capacity, int seed = 0)
-      : data(capacity * width), capacity(capacity) {
-    dust::random::prng<rng_state> states(capacity, seed);
+  parallel_random(size_t size, int seed = 0) : data(size * width), size_(size) {
+    dust::random::prng<rng_state> states(size, seed);
 
     // TODO: use something like cudamemcpy2d, which should be able to do strided
     // copies.
-    for (size_t i = 0; i < capacity; i++) {
+    for (size_t i = 0; i < size; i++) {
       rng_state rng = states.state(i);
       for (size_t j = 0; j < width; j++) {
-        data[i + j * capacity] = rng.state[j];
+        data[i + j * size] = rng.state[j];
       }
     }
   }
@@ -63,11 +64,11 @@ struct parallel_random {
   struct iterator;
 
   iterator begin() {
-    return iterator(data.begin(), capacity);
+    return iterator(data.begin(), size_);
   }
 
   iterator end() {
-    return iterator(data.begin() + capacity, capacity);
+    return iterator(data.begin() + size_, size_);
   }
 
   struct proxy {
@@ -77,7 +78,7 @@ struct parallel_random {
     __host__ __device__ proxy(typename vector_type::pointer ptr, size_t stride)
         : ptr(ptr), stride(stride) {}
 
-    __host__ __device__ rng_state get() {
+    __host__ __device__ rng_state get() const {
       rng_state state;
       for (size_t j = 0; j < width; j++) {
         state[j] = ptr[j * stride];
@@ -100,8 +101,8 @@ struct parallel_random {
     }
 
   private:
-    size_t stride;
     typename vector_type::pointer ptr;
+    size_t stride;
   };
 
   struct iterator : public thrust::iterator_adaptor<
@@ -116,6 +117,7 @@ struct parallel_random {
                                  proxy, thrust::use_default,
                                  thrust::use_default, proxy>;
 
+    iterator() = default;
     iterator(typename vector_type::iterator underlying, size_t stride)
         : super_t(underlying), stride(stride) {}
 
@@ -126,18 +128,27 @@ struct parallel_random {
       return proxy(this->base().base(), stride);
     }
 
-    size_t stride;
+    size_t stride = 0;
   };
+
+  static_assert(std::random_access_iterator<iterator>);
+
+  size_t size() {
+    return size_;
+  }
 
 private:
   vector_type data;
-  size_t capacity;
+  size_t size_;
 };
 
-template <typename T = dust::random::xoroshiro128plus>
-using device_random = parallel_random<thrust::device_vector, T>;
+using device_random =
+    parallel_random<thrust::device_vector, dust::random::xoroshiro128plus>;
 
-template <typename T = dust::random::xoroshiro128plus>
-using host_random = parallel_random<thrust::host_vector, T>;
+using host_random =
+    parallel_random<thrust::host_vector, dust::random::xoroshiro128plus>;
+
+static_assert(std::ranges::random_access_range<device_random>);
+static_assert(std::ranges::random_access_range<host_random>);
 
 } // namespace mob

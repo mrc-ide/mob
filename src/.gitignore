@@ -3,3 +3,4 @@
 *.dll
 .deps
 .libs
+/RcppExports.cuda.cu

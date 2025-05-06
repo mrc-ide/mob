@@ -1,4 +1,4 @@
-#include "roaring.h"
+#include <mob/roaring/bitset.h>
 
 #include <catch2/catch_test_macros.hpp>
 #include <cinttypes>
@@ -6,8 +6,10 @@
 #include <rapidcheck.h>
 #include <rapidcheck/catch.h>
 
-template <typename Container, typename T>
-static void check_iterable(Container &c, const std::vector<T> &expected) {
+template <typename Container>
+static void
+check_iterable(Container &c,
+               const std::vector<typename Container::value_type> &expected) {
   size_t index = 0;
   for (auto v : c) {
     RC_LOG() << index << std::endl;
@@ -19,7 +21,7 @@ static void check_iterable(Container &c, const std::vector<T> &expected) {
   RC_ASSERT(index == expected.size());
 }
 
-rc::Gen<size_t> sizeGenerator(std::optional<size_t> maxSize) {
+rc::Gen<size_t> sizeGenerator(std::optional<size_t> maxSize = std::nullopt) {
   if (maxSize.has_value()) {
     return rc::gen::inRange<size_t>(0, maxSize.value() + 1);
   } else {
@@ -45,50 +47,56 @@ namespace rc {
 template <>
 struct Arbitrary<mob::roaring::bitset> {
   static rc::Gen<mob::roaring::bitset> arbitrary() {
-    return rc::gen::scale(64, rc::gen::unique<mob::roaring::bitset>(
-                                  rc::gen::arbitrary<uint32_t>()));
+    auto values = rc::gen::scale(1024, uniqueVectorGenerator<uint32_t>());
+    return rc::gen::map(values, [](auto values) {
+      std::sort(values.begin(), values.end());
+      return mob::roaring::bitset(values.begin(), values.end());
+    });
   }
 };
 
 } // namespace rc
 
 template <typename Container>
-void container_properties(std::optional<size_t> maxSize) {
+void container_properties(size_t maxSize) {
+  using value_type = typename Container::value_type;
+
   rc::prop("An empty container contains no value", [=] {
     Container container;
     RC_ASSERT(container.size() == 0U);
-    RC_ASSERT(container.find(*rc::gen::arbitrary<uint16_t>()) == false);
+    RC_ASSERT(container.contains(*rc::gen::arbitrary<value_type>()) == false);
   });
 
-  rc::prop("Can insert and find a value", [=](uint16_t index) {
-    uint16_t x = *rc::gen::arbitrary<uint16_t>();
+  rc::prop("Can insert and find a value", [=](value_type index) {
+    value_type x = *rc::gen::arbitrary<value_type>();
     Container container;
     container.insert(x);
-    RC_ASSERT(container.find(x) == true);
+    RC_ASSERT(container.contains(x) == true);
     RC_ASSERT(container.size() == 1U);
   });
 
-  rc::prop("Adding a value multiple times is idempotent", [=](uint16_t index) {
-    uint16_t x = *rc::gen::arbitrary<uint16_t>();
-    Container container;
-    container.insert(x);
-    container.insert(x);
-    container.insert(x);
-    RC_ASSERT(container.find(x) == true);
-    RC_ASSERT(container.size() == 1U);
-  });
+  rc::prop("Adding a value multiple times is idempotent",
+           [=](value_type index) {
+             value_type x = *rc::gen::arbitrary<value_type>();
+             Container container;
+             container.insert(x);
+             container.insert(x);
+             container.insert(x);
+             RC_ASSERT(container.contains(x) == true);
+             RC_ASSERT(container.size() == 1U);
+           });
 
   rc::prop("If one value is added, finding a different one returns false", [=] {
-    uint16_t x = *rc::gen::arbitrary<uint16_t>();
-    uint16_t y = *rc::gen::distinctFrom(x);
+    value_type x = *rc::gen::arbitrary<value_type>();
+    value_type y = *rc::gen::distinctFrom(x);
     Container container;
     container.insert(x);
-    return container.find(y) == false;
+    return container.contains(y) == false;
   });
 
   rc::prop("Can iterate over container", [=] {
     auto size = *sizeGenerator(maxSize);
-    auto values = *uniqueVectorGenerator<uint16_t>(size);
+    auto values = *uniqueVectorGenerator<value_type>(size);
 
     Container container;
     for (auto v : values) {
@@ -101,7 +109,7 @@ void container_properties(std::optional<size_t> maxSize) {
 
   rc::prop("Values which were inserted can be found", [=] {
     auto size = *sizeGenerator(maxSize);
-    auto values = *uniqueVectorGenerator<uint16_t>(size);
+    auto values = *uniqueVectorGenerator<value_type>(size);
 
     Container container;
     for (auto v : values) {
@@ -110,12 +118,12 @@ void container_properties(std::optional<size_t> maxSize) {
     RC_ASSERT(container.size() == values.size());
 
     auto x = *rc::gen::elementOf(values);
-    RC_ASSERT(container.find(x) == true);
+    RC_ASSERT(container.contains(x) == true);
   });
 
   rc::prop("Values which weren't inserted are not found", [=] {
     auto size = *sizeGenerator(maxSize);
-    auto values = *uniqueVectorGenerator<uint16_t>(size + 1);
+    auto values = *uniqueVectorGenerator<value_type>(size + 1);
 
     Container container;
     for (auto it = values.begin(); it != values.end() - 1; it++) {
@@ -123,85 +131,76 @@ void container_properties(std::optional<size_t> maxSize) {
     }
     RC_ASSERT(container.size() == values.size() - 1);
 
-    RC_ASSERT(container.find(values.back()) == false);
+    RC_ASSERT(container.contains(values.back()) == false);
   });
 }
 
 TEST_CASE("roaring::container_array") {
-  container_properties<mob::roaring::container_array>(4096);
-
-  rc::prop("An array container can contain at most 4096 elements", []() {
-    auto values = *uniqueVectorGenerator<uint16_t>(4097);
-
-    mob::roaring::container_array container;
-    for (auto it = values.begin(); it != values.end() - 1; it++) {
-      RC_ASSERT(container.insert(*it) == true);
-    }
-
-    RC_ASSERT(container.size() == 4096U);
-    RC_ASSERT(container.insert(values.back()) == false);
-
-    for (auto it = values.begin(); it != values.end() - 1; it++) {
-      RC_ASSERT(container.find(*it) == true);
-    }
-    RC_ASSERT(container.find(values.back()) == false);
-  });
+  container_properties<mob::roaring::container_array<>>(4096);
 }
 
 TEST_CASE("roaring::container_bitmap") {
-  container_properties<mob::roaring::container_bitmap>(std::nullopt);
+  container_properties<mob::roaring::container_bitmap<>>(65536);
 }
 
 TEST_CASE("roaring::bitset") {
-  rc::prop("Can iterate over bitset", [] {
-    auto values = *rc::gen::scale(64, uniqueVectorGenerator<uint32_t>());
-    mob::roaring::bitset bitset(values.begin(), values.end());
+  container_properties<mob::roaring::bitset>(65536);
 
-    std::sort(values.begin(), values.end());
-    check_iterable(bitset, values);
-  });
-
-  rc::prop("Can have many values in a single chunk", [] {
-    size_t count = *sizeGenerator(8192);
-
+  rc::prop("Chunk with many values is promoted to a bitmap", [] {
     uint16_t high = *rc::gen::arbitrary<uint16_t>();
-    auto lows = *uniqueVectorGenerator<uint16_t>(count);
+
+    // We need at least 4097 elements to trigger the promotion
+    auto lows = *uniqueVectorGenerator<uint16_t>(5000);
 
     std::vector<uint32_t> values;
     for (uint16_t low : lows) {
       values.push_back(high << 16 | low);
     }
 
-    mob::roaring::bitset bitset(values.begin(), values.end());
+    mob::roaring::bitset bitset;
+    const auto &containers = bitset.containers();
+
+    bitset.insert(values.begin(), values.begin() + 4096);
+
+    RC_ASSERT(containers.size() == 1U);
+    RC_ASSERT(containers.front().first == high);
+    RC_ASSERT(containers.front()
+                  .second.holds_alternative<mob::roaring::container_array<>>());
+
+    bitset.insert(*(values.begin() + 4096));
+
+    RC_ASSERT(containers.size() == 1U);
+    RC_ASSERT(
+        containers.front()
+            .second.holds_alternative<mob::roaring::container_bitmap<>>());
+
+    bitset.insert(values.begin() + 4097, values.end());
+
+    RC_ASSERT(containers.size() == 1U);
+    RC_ASSERT(
+        containers.front()
+            .second.holds_alternative<mob::roaring::container_bitmap<>>());
 
     std::sort(values.begin(), values.end());
     check_iterable(bitset, values);
   });
 
   rc::prop("intersection() elements are in both inputs", [] {
+    // TODO: generate some more interesting inputs
     auto left = *rc::gen::arbitrary<mob::roaring::bitset>();
     auto right = *rc::gen::arbitrary<mob::roaring::bitset>();
     auto result = mob::roaring::intersection(left, right);
 
     for (auto v : result) {
-      RC_ASSERT(left.find(v));
-      RC_ASSERT(right.find(v));
+      RC_ASSERT(left.contains(v));
+      RC_ASSERT(right.contains(v));
     }
     for (auto v : left) {
-      RC_ASSERT(right.find(v) == result.find(v));
+      RC_ASSERT(right.contains(v) == result.contains(v));
     }
     for (auto v : right) {
-      RC_ASSERT(left.find(v) == result.find(v));
+      RC_ASSERT(left.contains(v) == result.contains(v));
     }
-  });
-
-  rc::prop("size() matches iteration", [] {
-    auto bitmap = *rc::gen::arbitrary<mob::roaring::bitset>();
-    uint64_t size = 0;
-    for ([[maybe_unused]] auto v : bitmap) {
-      size += 1;
-    }
-    RC_ASSERT(size == bitmap.size());
   });
 
   rc::prop("intersection_size() matches intersection()", [] {

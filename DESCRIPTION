@@ -19,10 +19,12 @@ LinkingTo:
     dust
 Imports:
     Rcpp,
-    dust
+    dust,
+    cli
 Remotes:
     mrc-ide/dust
 Suggests:
+    patrick,
     testthat (>= 3.0.0),
     withr,
     xml2
@@ -30,3 +32,4 @@ Config/build/extra-sources:
     src/Makevars,
     src/*.cu
 Config/testthat/edition: 3
+SystemRequirements: C++20
