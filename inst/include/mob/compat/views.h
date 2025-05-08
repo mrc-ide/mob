@@ -23,22 +23,25 @@ private:
 template <cuda::std::ranges::range R>
   requires std::movable<R>
 struct owning_view : cuda::std::ranges::view_interface<owning_view<R>> {
-  owning_view(R &&range) : underlying(std::move(range)) {};
+  __device__ __host__ owning_view(R &&range) : underlying(std::move(range)) {};
+
+  owning_view(const owning_view &) = delete;
+  owning_view &operator=(const owning_view &) = delete;
 
   owning_view(owning_view &&) = default;
   owning_view &operator=(owning_view &&other) = default;
 
-  cuda::std::ranges::iterator_t<const R> begin() const {
-    return cuda::std::begin(underlying);
+  __device__ __host__ cuda::std::ranges::iterator_t<const R> begin() const {
+    return cuda::std::ranges::begin(underlying);
   }
-  cuda::std::ranges::iterator_t<const R> end() const {
-    return cuda::std::end(underlying);
+  __device__ __host__ cuda::std::ranges::sentinel_t<const R> end() const {
+    return cuda::std::ranges::end(underlying);
   }
-  cuda::std::ranges::iterator_t<R> begin() {
-    return cuda::std::begin(underlying);
+  __device__ __host__ cuda::std::ranges::iterator_t<R> begin() {
+    return cuda::std::ranges::begin(underlying);
   }
-  cuda::std::ranges::iterator_t<R> end() {
-    return cuda::std::end(underlying);
+  __device__ __host__ cuda::std::ranges::sentinel_t<R> end() {
+    return cuda::std::ranges::end(underlying);
   }
 
 private:

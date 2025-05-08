@@ -1,4 +1,5 @@
 #pragma once
+#include <cuda/std/ranges>
 #include <dust/random/cuda_compatibility.hpp>
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>

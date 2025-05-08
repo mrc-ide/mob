@@ -6,7 +6,7 @@
 namespace mob {
 
 template <cuda::std::ranges::input_range LeftRange,
-          cuda::std::ranges::input_range RightRange>
+          cuda::std::ranges::random_access_range RightRange>
   requires cuda::std::ranges::enable_view<LeftRange> &&
            cuda::std::ranges::enable_view<RightRange>
 struct intersection_view : cuda::std::ranges::view_interface<
@@ -24,7 +24,7 @@ struct intersection_view : cuda::std::ranges::view_interface<
       skip();
     }
 
-    __host__ __device__ iterator &operator++() {
+    __nv_exec_check_disable__ __host__ __device__ iterator &operator++() {
       ++left;
       skip();
       return *this;
@@ -34,20 +34,20 @@ struct intersection_view : cuda::std::ranges::view_interface<
       ++(*this);
     }
 
-    __host__ __device__ bool operator==(sentinel) const {
-      return left == left_end;
+    __nv_exec_check_disable__ __host__ __device__ bool
+    operator==(sentinel) const {
+      return left == left_end || right == right_end;
     }
 
-    __host__ __device__ reference operator*() const {
+    __nv_exec_check_disable__ __host__ __device__ reference operator*() const {
       return *left;
     }
 
   private:
-    __host__ __device__ void skip() {
+    __nv_exec_check_disable__ __host__ __device__ void skip() {
       for (; left != left_end; left++) {
         right = mob::compat::lower_bound(right, right_end, *left);
         if (right == right_end) {
-          left = left_end;
           break;
         } else if (*right == *left) {
           break;

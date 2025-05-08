@@ -66,23 +66,22 @@ random_select_by_key(mob::host_random &rngs, KeyIt first, KeyIt last,
   return {keys_last, values_last};
 }
 
-template <typename System, typename VictimsFn>
-std::pair<typename System::vector<uint32_t>, typename System::vector<uint32_t>>
+template <typename System, typename VictimsFn, typename T>
+std::pair<typename System::vector<T>, typename System::vector<T>>
 infection_process(typename System::random &rngs,
-                  typename System::span<uint32_t> infected,
-                  VictimsFn victims_fn) {
+                  typename System::span<T> infected, VictimsFn victims_fn) {
   // Figure out how many people each I infects - don't store the actual targets
   // anywhere yet since we have nowhere to put the result.
-  typename System::vector<uint32_t> victim_count(infected.size());
+  typename System::vector<size_t> victim_count(infected.size());
   thrust::transform(
       infected.begin(), infected.end(), rngs.begin(), victim_count.begin(),
-      [=] __host__ __device__(uint32_t i,
-                              typename System::random::proxy rng) -> uint32_t {
+      [=] __host__ __device__(T i,
+                              typename System::random::proxy rng) -> size_t {
         // Ideally we'd pass rng_copy directly to victims_fn. Unfortunately
         // CUDA doesn't support generic lambdas, which, assuming it is a lambda,
         // means victims_fn can only support one type of RNG state and rng and
         // rng_copy have different types. We workaround this by doing a get /
-        // put, and hope the compiler is clever enough to remove the superfluous
+        // put, and hope the compiler is clever enough to remove the redundant
         // stores.
         auto rng_copy = rng.get();
         auto result = cuda::std::ranges::distance(victims_fn(i, rng));
@@ -104,8 +103,13 @@ infection_process(typename System::random &rngs,
     total_infections = 0;
   }
 
-  typename System::vector<uint32_t> infection_victim(total_infections);
-  typename System::vector<uint32_t> infection_source(total_infections);
+  // This does value-initialization of the two vectors, which isn't necessary
+  // since they get overwritten by the for_each. Thrust does not have an easy
+  // way of avoiding this yet (neither does the STL).
+  // https://github.com/NVIDIA/cccl/issues/1992
+  // https://github.com/NVIDIA/cccl/pull/4183
+  typename System::vector<T> infection_victim(total_infections);
+  typename System::vector<T> infection_source(total_infections);
 
   // Select all the victims. This uses the same RNG state as our earlier
   // sampling, guaranteeing that we'll get the same number as we had allocated.
@@ -121,7 +125,7 @@ infection_process(typename System::random &rngs,
       thrust::make_zip_iterator(infected.end(), offsets.end(),
                                 rngs.begin() + infected.size()),
       thrust::make_zip_function(
-          [=] __host__ __device__(uint32_t i, size_t offset,
+          [=] __host__ __device__(T i, size_t offset,
                                   typename System::random::proxy rng) {
             auto victims = victims_fn(i, rng);
             auto victim_first = infection_victim_begin + offset;
@@ -134,44 +138,51 @@ infection_process(typename System::random &rngs,
             compat::fill(source_first, source_last, i);
           }));
 
-  return {infection_source, infection_victim};
+  return {std::move(infection_source), std::move(infection_victim)};
 }
 
-template <typename System>
-std::pair<typename System::vector<uint32_t>, typename System::vector<uint32_t>>
+template <typename System, typename T>
+std::pair<typename System::vector<T>, typename System::vector<T>>
 homogeneous_infection_process(typename System::random &rngs,
-                              typename System::span<uint32_t> infected,
-                              typename System::span<uint32_t> susceptible,
+                              typename System::span<T> infected,
+                              typename System::span<T> susceptible,
                               double infection_probability) {
 
   return infection_process<System>(
       rngs, infected,
-      [=] __host__ __device__(uint32_t, typename System::random::proxy &rng) {
+      [=] __host__ __device__(T, typename System::random::proxy & rng) {
         return bernoulli(susceptible, infection_probability, rng);
       });
 }
 
-template <typename System>
-std::pair<typename System::vector<uint32_t>, typename System::vector<uint32_t>>
+template <typename System, typename T>
+std::pair<typename System::vector<T>, typename System::vector<T>>
 household_infection_process(typename System::random &rngs,
-                            ds::span<System, uint32_t> infected,
-                            ds::span<System, uint32_t> susceptible,
+                            ds::span<System, T> infected,
+                            ds::span<System, T> susceptible,
                             ds::partition_view<System> partition,
                             ds::span<System, double> infection_probability) {
-  // TODO: this applies the S filter first, and then applies the bernoulli
-  // sampler. It may be faster to do the bernoulli sample first and apply
-  // the filter second.
   return infection_process<System>(
       rngs, infected,
-      [=] __host__ __device__(uint32_t i, typename System::random::proxy &rng) {
+      [=] __host__ __device__(T i, typename System::random::proxy & rng) {
         double p;
         if (infection_probability.size() == 1) {
           p = infection_probability[0];
         } else {
           p = infection_probability[partition.get_partition(i)];
         }
-        auto candidates = intersection(partition.neighbours(i), susceptible);
-        return bernoulli(candidates, p, rng);
+
+        // The following two expressions would be equivalent, but the former is
+        // much faster since it avoids doing any work in the vast majority of
+        // cases:
+        // bernoulli(household) & susceptible
+        // bernoulli(household & susceptible)
+        //
+        // intersection is optimized for a small first argument and large second
+        // one: it operates in O(m * log(n)), where m and n are the size of the
+        // first and second arguments, respectively.
+        return intersection(bernoulli(partition.neighbours(i), p, rng),
+                            susceptible);
       });
 }
 

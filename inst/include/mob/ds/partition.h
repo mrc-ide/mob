@@ -27,7 +27,7 @@ struct partition {
   typename System::vector<uint32_t> partitions_offset_;
   typename System::vector<uint32_t> partitions_size_;
 
-  partition(std::vector<uint32_t> members) {
+  partition(thrust::host_vector<uint32_t> members) {
     uint32_t count = *std::max_element(members.begin(), members.end()) + 1;
 
     // TODO: some of this can be parallelized. Maybe not worth it if only done
@@ -37,16 +37,23 @@ struct partition {
       partitions[members[i]].push_back(i);
     }
 
-    partitions_data_.reserve(members.size());
-    partitions_size_.reserve(count);
-    partitions_offset_.reserve(count);
+    thrust::host_vector<uint32_t> partitions_data;
+    thrust::host_vector<uint32_t> partitions_offset;
+    thrust::host_vector<uint32_t> partitions_size;
+
+    partitions_data.reserve(members.size());
+    partitions_size.reserve(count);
+    partitions_offset.reserve(count);
     for (const std::vector<uint32_t> &p : partitions) {
-      partitions_offset_.push_back(partitions_data_.size());
-      partitions_size_.push_back(p.size());
-      partitions_data_.insert(partitions_data_.end(), p.begin(), p.end());
+      partitions_offset.push_back(partitions_data.size());
+      partitions_size.push_back(p.size());
+      partitions_data.insert(partitions_data.end(), p.begin(), p.end());
     }
 
     members_ = std::move(members);
+    partitions_data_ = std::move(partitions_data);
+    partitions_size_ = std::move(partitions_size);
+    partitions_offset_ = std::move(partitions_offset);
   }
 
   size_t partitions_count() const {
