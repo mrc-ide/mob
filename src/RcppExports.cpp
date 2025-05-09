@@ -23,9 +23,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// runif_device
-inline Rcpp::NumericVector runif_device(Rcpp::XPtr<mob::system::device::random> rngs, size_t n, double min, double max);
-RcppExport SEXP _mob_runif_device(SEXP rngsSEXP, SEXP nSEXP, SEXP minSEXP, SEXP maxSEXP) {
+// random_uniform_device
+inline Rcpp::NumericVector random_uniform_device(Rcpp::XPtr<mob::system::device::random> rngs, size_t n, double min, double max);
+RcppExport SEXP _mob_random_uniform_device(SEXP rngsSEXP, SEXP nSEXP, SEXP minSEXP, SEXP maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -33,13 +33,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< double >::type min(minSEXP);
     Rcpp::traits::input_parameter< double >::type max(maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(runif_device(rngs, n, min, max));
+    rcpp_result_gen = Rcpp::wrap(random_uniform_device(rngs, n, min, max));
     return rcpp_result_gen;
 END_RCPP
 }
-// rbinom_device
-inline Rcpp::NumericVector rbinom_device(Rcpp::XPtr<mob::system::device::random> rngs, size_t n, size_t size, double prob);
-RcppExport SEXP _mob_rbinom_device(SEXP rngsSEXP, SEXP nSEXP, SEXP sizeSEXP, SEXP probSEXP) {
+// random_binomial_device
+inline Rcpp::NumericVector random_binomial_device(Rcpp::XPtr<mob::system::device::random> rngs, size_t n, size_t size, double prob);
+RcppExport SEXP _mob_random_binomial_device(SEXP rngsSEXP, SEXP nSEXP, SEXP sizeSEXP, SEXP probSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -47,7 +47,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< size_t >::type size(sizeSEXP);
     Rcpp::traits::input_parameter< double >::type prob(probSEXP);
-    rcpp_result_gen = Rcpp::wrap(rbinom_device(rngs, n, size, prob));
+    rcpp_result_gen = Rcpp::wrap(random_binomial_device(rngs, n, size, prob));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -142,9 +142,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// runif_host
-inline Rcpp::NumericVector runif_host(Rcpp::XPtr<mob::system::host::random> rngs, size_t n, double min, double max);
-RcppExport SEXP _mob_runif_host(SEXP rngsSEXP, SEXP nSEXP, SEXP minSEXP, SEXP maxSEXP) {
+// random_uniform_host
+inline Rcpp::NumericVector random_uniform_host(Rcpp::XPtr<mob::system::host::random> rngs, size_t n, double min, double max);
+RcppExport SEXP _mob_random_uniform_host(SEXP rngsSEXP, SEXP nSEXP, SEXP minSEXP, SEXP maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -152,13 +152,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< double >::type min(minSEXP);
     Rcpp::traits::input_parameter< double >::type max(maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(runif_host(rngs, n, min, max));
+    rcpp_result_gen = Rcpp::wrap(random_uniform_host(rngs, n, min, max));
     return rcpp_result_gen;
 END_RCPP
 }
-// rbinom_host
-inline Rcpp::NumericVector rbinom_host(Rcpp::XPtr<mob::system::host::random> rngs, size_t n, size_t size, double prob);
-RcppExport SEXP _mob_rbinom_host(SEXP rngsSEXP, SEXP nSEXP, SEXP sizeSEXP, SEXP probSEXP) {
+// random_binomial_host
+inline Rcpp::NumericVector random_binomial_host(Rcpp::XPtr<mob::system::host::random> rngs, size_t n, size_t size, double prob);
+RcppExport SEXP _mob_random_binomial_host(SEXP rngsSEXP, SEXP nSEXP, SEXP sizeSEXP, SEXP probSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -166,7 +166,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< size_t >::type size(sizeSEXP);
     Rcpp::traits::input_parameter< double >::type prob(probSEXP);
-    rcpp_result_gen = Rcpp::wrap(rbinom_host(rngs, n, size, prob));
+    rcpp_result_gen = Rcpp::wrap(random_binomial_host(rngs, n, size, prob));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -264,8 +264,8 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mob_random_create_device", (DL_FUNC) &_mob_random_create_device, 2},
-    {"_mob_runif_device", (DL_FUNC) &_mob_runif_device, 4},
-    {"_mob_rbinom_device", (DL_FUNC) &_mob_rbinom_device, 4},
+    {"_mob_random_uniform_device", (DL_FUNC) &_mob_random_uniform_device, 4},
+    {"_mob_random_binomial_device", (DL_FUNC) &_mob_random_binomial_device, 4},
     {"_mob_bernoulli_sampler_device", (DL_FUNC) &_mob_bernoulli_sampler_device, 3},
     {"_mob_homogeneous_infection_process_device", (DL_FUNC) &_mob_homogeneous_infection_process_device, 4},
     {"_mob_partition_create_device", (DL_FUNC) &_mob_partition_create_device, 1},
@@ -273,8 +273,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_selection_sampler_device", (DL_FUNC) &_mob_selection_sampler_device, 3},
     {"_mob_betabinomial_sampler_device", (DL_FUNC) &_mob_betabinomial_sampler_device, 3},
     {"_mob_random_create_host", (DL_FUNC) &_mob_random_create_host, 2},
-    {"_mob_runif_host", (DL_FUNC) &_mob_runif_host, 4},
-    {"_mob_rbinom_host", (DL_FUNC) &_mob_rbinom_host, 4},
+    {"_mob_random_uniform_host", (DL_FUNC) &_mob_random_uniform_host, 4},
+    {"_mob_random_binomial_host", (DL_FUNC) &_mob_random_binomial_host, 4},
     {"_mob_homogeneous_infection_process_host", (DL_FUNC) &_mob_homogeneous_infection_process_host, 4},
     {"_mob_partition_create_host", (DL_FUNC) &_mob_partition_create_host, 1},
     {"_mob_household_infection_process_host", (DL_FUNC) &_mob_household_infection_process_host, 5},
