@@ -54,7 +54,8 @@ private:
 template <cuda::std::ranges::input_range Range, typename real_type,
           random_state rng_state_type>
   requires(cuda::std::ranges::enable_view<Range>)
-struct bernoulli_view {
+struct bernoulli_view : cuda::std::ranges::view_interface<
+                            bernoulli_view<Range, real_type, rng_state_type>> {
   using sentinel = cuda::std::default_sentinel_t;
 
   struct iterator {
@@ -62,6 +63,14 @@ struct bernoulli_view {
     using value_type = cuda::std::ranges::range_value_t<const Range>;
     using difference_type = ptrdiff_t;
     using iterator_category = std::input_iterator_tag;
+
+    // The bernoulli iterator does not allow multiple passes: each pass would
+    // use a distinct random number generator state
+    iterator(const iterator &other) = delete;
+    iterator &operator=(const iterator &other) = delete;
+
+    iterator(iterator &&other) = default;
+    iterator &operator=(iterator &&other) = default;
 
     __host__ __device__ iterator(const Range &range, real_type p,
                                  rng_state_type *rng_state)

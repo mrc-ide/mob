@@ -47,28 +47,38 @@ struct parallel_random {
 
   static constexpr size_t width = rng_state::size();
 
-  parallel_random(size_t size, int seed = 0) : data(size * width), size_(size) {
+  parallel_random(size_t size, int seed = 0) : size_(size) {
     dust::random::prng<rng_state> states(size, seed);
 
-    // TODO: use something like cudamemcpy2d, which should be able to do strided
-    // copies.
+    // We first build the interleaved array on the CPU and then copy it to GPU
+    // memory as a single memcpy. This is much faster than initializing those
+    // states one by one.
+    //
+    // TODO: use something like cudamemcpy2d, which should be able to directly
+    // do strided copies. Alternatively, do this directly on the GPU, using
+    // longer jumps.
+    thrust::host_vector<typename rng_state::int_type> data(size * width);
     for (size_t i = 0; i < size; i++) {
       rng_state rng = states.state(i);
       for (size_t j = 0; j < width; j++) {
         data[i + j * size] = rng.state[j];
       }
     }
+
+    // This is constant time if data_ is actually host memory, or a single
+    // memcpy if on the GPU.
+    data_ = std::move(data);
   }
 
   struct proxy;
   struct iterator;
 
   iterator begin() {
-    return iterator(data.begin(), size_);
+    return iterator(data_.begin(), size_);
   }
 
   iterator end() {
-    return iterator(data.begin() + size_, size_);
+    return iterator(data_.begin() + size_, size_);
   }
 
   struct proxy {
@@ -138,7 +148,7 @@ struct parallel_random {
   }
 
 private:
-  vector_type data;
+  vector_type data_;
   size_t size_;
 };
 
