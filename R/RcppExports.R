@@ -5,12 +5,12 @@ random_create_device <- function(size, seed = NULL) {
     .Call(`_mob_random_create_device`, size, seed)
 }
 
-runif_device <- function(rngs, n, min, max) {
-    .Call(`_mob_runif_device`, rngs, n, min, max)
+random_uniform_device <- function(rngs, n, min, max) {
+    .Call(`_mob_random_uniform_device`, rngs, n, min, max)
 }
 
-rbinom_device <- function(rngs, n, size, prob) {
-    .Call(`_mob_rbinom_device`, rngs, n, size, prob)
+random_binomial_device <- function(rngs, n, size, prob) {
+    .Call(`_mob_random_binomial_device`, rngs, n, size, prob)
 }
 
 bernoulli_sampler_device <- function(data, p, seed = NULL) {
@@ -41,12 +41,12 @@ random_create_host <- function(size, seed = NULL) {
     .Call(`_mob_random_create_host`, size, seed)
 }
 
-runif_host <- function(rngs, n, min, max) {
-    .Call(`_mob_runif_host`, rngs, n, min, max)
+random_uniform_host <- function(rngs, n, min, max) {
+    .Call(`_mob_random_uniform_host`, rngs, n, min, max)
 }
 
-rbinom_host <- function(rngs, n, size, prob) {
-    .Call(`_mob_rbinom_host`, rngs, n, size, prob)
+random_binomial_host <- function(rngs, n, size, prob) {
+    .Call(`_mob_random_binomial_host`, rngs, n, size, prob)
 }
 
 homogeneous_infection_process_host <- function(rngs, susceptible, infected, infection_probability) {

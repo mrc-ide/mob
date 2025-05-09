@@ -27,16 +27,16 @@ random_create_device(size_t size,
 
 // [[Rcpp::export]]
 inline Rcpp::NumericVector
-runif_device(Rcpp::XPtr<mob::system::device::random> rngs, size_t n, double min,
-             double max) {
-  return runif_wrapper<mob::system::device>(rngs, n, min, max);
+random_uniform_device(Rcpp::XPtr<mob::system::device::random> rngs, size_t n,
+                      double min, double max) {
+  return random_uniform_wrapper<mob::system::device>(rngs, n, min, max);
 }
 
 // [[Rcpp::export]]
 inline Rcpp::NumericVector
-rbinom_device(Rcpp::XPtr<mob::system::device::random> rngs, size_t n,
-              size_t size, double prob) {
-  return rbinom_wrapper<mob::system::device>(rngs, n, size, prob);
+random_binomial_device(Rcpp::XPtr<mob::system::device::random> rngs, size_t n,
+                       size_t size, double prob) {
+  return random_binomial_wrapper<mob::system::device>(rngs, n, size, prob);
 }
 
 // [[Rcpp::export]]
@@ -96,16 +96,16 @@ random_create_host(size_t size,
 
 // [[Rcpp::export]]
 inline Rcpp::NumericVector
-runif_host(Rcpp::XPtr<mob::system::host::random> rngs, size_t n, double min,
-           double max) {
-  return runif_wrapper<mob::system::host>(rngs, n, min, max);
+random_uniform_host(Rcpp::XPtr<mob::system::host::random> rngs, size_t n,
+                    double min, double max) {
+  return random_uniform_wrapper<mob::system::host>(rngs, n, min, max);
 }
 
 // [[Rcpp::export]]
 inline Rcpp::NumericVector
-rbinom_host(Rcpp::XPtr<mob::system::host::random> rngs, size_t n, size_t size,
-            double prob) {
-  return rbinom_wrapper<mob::system::host>(rngs, n, size, prob);
+random_binomial_host(Rcpp::XPtr<mob::system::host::random> rngs, size_t n,
+                     size_t size, double prob) {
+  return random_binomial_wrapper<mob::system::host>(rngs, n, size, prob);
 }
 
 // [[Rcpp::export]]
