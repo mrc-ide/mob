@@ -1,3 +1,6 @@
+#pragma once
+
+#include "conversion.h"
 #include <mob/bernoulli.h>
 #include <mob/parallel_random.h>
 #include <mob/sample.h>
@@ -27,7 +30,7 @@ selection_sampler_wrapper(Rcpp::NumericVector data, size_t k,
                            result_view.begin(), result_view.end());
   });
 
-  return {result.begin(), result.end()};
+  return asRcppVector(result);
 }
 
 template <typename System>
@@ -50,7 +53,7 @@ betabinomial_sampler_wrapper(Rcpp::NumericVector data, size_t k,
                               result_view.begin(), result_view.end());
   });
 
-  return {result.begin(), result.end()};
+  return asRcppVector(result);
 }
 
 template <typename System>
@@ -77,5 +80,5 @@ bernoulli_sampler_wrapper(Rcpp::NumericVector data, double p,
         result_begin);
   });
 
-  return {result.begin(), result.end()};
+  return asRcppVector(result);
 }

@@ -1,10 +1,7 @@
 CXX_STD=CXX20
 
-OBJECTS= \
-  RcppExports.cuda.o \
-  test-runner.o test-intersection.o
-
-# test-roaring.o test-infection.o test-roaring-gpu.o
+OBJECTS=RcppExports.cuda.o
+OBJECTS+=test-runner.o test-intersection.o
 
 PKG_LIBS=-lcudart -g
 PKG_CXXFLAGS=-I../inst/include -g

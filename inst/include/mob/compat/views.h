@@ -148,4 +148,82 @@ __host__ __device__ auto all(R &&r) {
 template <typename R>
 using all_t = decltype(mob::compat::all(std::declval<R>()));
 
+template <cuda::std::ranges::input_range V,
+          std::indirect_unary_predicate<cuda::std::ranges::iterator_t<V>> Pred>
+  requires cuda::std::ranges::view<V> && std::is_object_v<Pred>
+struct filter_view
+    : public cuda::std::ranges::view_interface<filter_view<V, Pred>> {
+  V underlying;
+  Pred pred;
+
+  __host__ __device__ filter_view(V underlying, Pred pred)
+      : underlying(std::move(underlying)), pred(std::move(pred)) {}
+
+  struct sentinel;
+  struct iterator {
+    using reference = cuda::std::ranges::range_reference_t<V>;
+    using value_type = cuda::std::ranges::range_value_t<V>;
+    using difference_type = ptrdiff_t;
+
+    __host__ __device__ iterator(filter_view *parent,
+                                 cuda::std::ranges::iterator_t<V> inner)
+        : parent(parent), inner(std::move(inner)) {
+      next();
+    }
+
+    __host__ __device__ reference operator*() const {
+      return *inner;
+    }
+
+    __host__ __device__ iterator &operator++() {
+      inner++;
+      next();
+      return *this;
+    }
+
+    __host__ __device__ void operator++(int) {
+      ++(*this);
+    }
+
+    __host__ __device__ bool operator==(sentinel end) const {
+      return inner == end.inner;
+    }
+
+  private:
+    __host__ __device__ void next() {
+      while (inner != parent->underlying.end() && !parent->pred(*inner)) {
+        inner++;
+      }
+    }
+
+    filter_view *parent;
+    cuda::std::ranges::iterator_t<V> inner;
+  };
+
+  struct sentinel {
+    cuda::std::ranges::sentinel_t<V> inner;
+  };
+
+  static_assert(std::input_iterator<iterator>);
+  static_assert(std::sentinel_for<sentinel, iterator>);
+
+  __host__ __device__ iterator begin() {
+    return iterator{this, underlying.begin()};
+  }
+
+  __host__ __device__ sentinel end() {
+    return sentinel{underlying.end()};
+  }
+};
+
+template <cuda::std::ranges::input_range V,
+          std::indirect_unary_predicate<cuda::std::ranges::iterator_t<V>> Pred>
+filter_view(V &&, Pred &&) -> filter_view<compat::all_t<V>, Pred>;
+
+template <cuda::std::ranges::input_range V,
+          std::indirect_unary_predicate<cuda::std::ranges::iterator_t<V>> Pred>
+__host__ __device__ auto filter(V &&range, Pred &&pred) {
+  return filter_view(std::forward<V>(range), std::forward<Pred>(pred));
+}
+
 } // namespace mob::compat

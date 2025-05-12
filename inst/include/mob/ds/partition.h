@@ -2,62 +2,118 @@
 #include <mob/ds/span.h>
 
 #include <algorithm>
+#include <thrust/binary_search.h>
+#include <thrust/sequence.h>
+#include <thrust/sort.h>
 #include <vector>
 
 namespace mob {
 namespace ds {
+
+template <typename System, typename T>
+struct ragged_vector_view;
+
+template <typename System, typename T>
+struct ragged_vector {
+public:
+  friend ragged_vector_view<System, T>;
+
+  ragged_vector(size_t capacity) : offsets_(capacity + 1) {}
+
+  void assign(mob::vector<System, size_t> keys, mob::vector<System, T> values) {
+    if (keys.size() != values.size()) {
+      throw std::logic_error("Mismatching key sizes");
+    }
+
+    thrust::sort_by_key(keys.begin(), keys.end(), values.begin());
+
+    // For each segment, we need to know where it begins. Its end is
+    // implicitly the start of the next one. There is probably a cleverer
+    // way than `lower_bound` to do this (eg. take the adjacent_difference
+    // of the keys δ and write the offset of it to offsets_[k:k+δ]).
+    thrust::lower_bound(
+        keys.begin(), keys.end(), thrust::counting_iterator<uint32_t>(0),
+        thrust::counting_iterator<uint32_t>(size()), offsets_.begin());
+
+    // auto output = offsets_.begin();
+    // thrust::for_each(
+    //     thrust::make_zip_iterator(thrust::counting_iterator<size_t>(1),
+    //                               keys.begin(), keys.begin() + 1),
+    //     thrust::make_zip_iterator(
+    //         thrust::counting_iterator<size_t>(offsets_.size()),
+    //         keys.end() - 1, keys.end()),
+    //     thrust::make_zip_function(
+    //         [] __host__ __device__(size_t i, size_t left, size_t right) {
+    //           size_t n = right - left;
+    //           for (size_t j = 0; j < n; j++) {
+    //             output[left + j] = i;
+    //           }
+    //         }));
+
+    offsets_.back() = values.size();
+    data_ = std::move(values);
+  }
+
+  ds::span<System, const T> operator[](size_t i) const {
+    return {data_.begin() + offsets_[i], data_.begin() + offsets_[i + 1]};
+  }
+
+  size_t size() const {
+    return offsets_.size() - 1;
+  }
+
+private:
+  mob::vector<System, T> data_;
+  mob::vector<System, size_t> offsets_;
+};
+
+template <typename System, typename T>
+struct ragged_vector_view {
+public:
+  ragged_vector_view(const ragged_vector<System, T> &vector)
+      : data_(vector.data_), offsets_(vector.offsets_) {}
+
+  __host__ __device__ ds::span<System, const T> operator[](size_t i) const {
+    return {data_.begin() + offsets_[i], data_.begin() + offsets_[i + 1]};
+  }
+
+  __host__ __device__ size_t size() const {
+    return offsets_.size() - 1;
+  }
+
+private:
+  ds::span<System, const T> data_;
+  ds::span<System, const size_t> offsets_;
+};
 
 /**
  * This represents a partition of the population into disjoint sets, eg. into
  * households. It allows quick look ups from one individual to all members in
  * the same subset.
  *
- * It is represented as two structures, once mapping from individuals to subset
- * index, and the other mapping from a subset index to a list of members.
+ * It is represented as two structures, once mapping from individuals to
+ * subset index, and the other mapping from a subset index to a list of
+ * members.
  *
  * Rather than store the latter as a vector<vector<int>>, we use a flat
- * vector<int> and separately store the offset and length of each subset.
- * This makes it easier to copy and reference the data from the GPU.
+ * vector<int> and separately store the offset to each subset. This makes it
+ * easier to copy and reference the data from the GPU.
  */
-
 template <typename System>
 struct partition {
-  typename System::vector<uint32_t> members_;
-  typename System::vector<uint32_t> partitions_data_;
-  typename System::vector<uint32_t> partitions_offset_;
-  typename System::vector<uint32_t> partitions_size_;
+  ragged_vector<System, uint32_t> partitions_;
+  mob::vector<System, uint32_t> members_;
 
-  partition(thrust::host_vector<uint32_t> members) {
-    uint32_t count = *std::max_element(members.begin(), members.end()) + 1;
+  partition(size_t capacity, thrust::host_vector<uint32_t> members)
+      : partitions_(capacity), members_(std::move(members)) {
 
-    // TODO: some of this can be parallelized. Maybe not worth it if only done
-    // once.
-    std::vector<std::vector<uint32_t>> partitions(count);
-    for (uint32_t i = 0; i < members.size(); i++) {
-      partitions[members[i]].push_back(i);
-    }
-
-    thrust::host_vector<uint32_t> partitions_data;
-    thrust::host_vector<uint32_t> partitions_offset;
-    thrust::host_vector<uint32_t> partitions_size;
-
-    partitions_data.reserve(members.size());
-    partitions_size.reserve(count);
-    partitions_offset.reserve(count);
-    for (const std::vector<uint32_t> &p : partitions) {
-      partitions_offset.push_back(partitions_data.size());
-      partitions_size.push_back(p.size());
-      partitions_data.insert(partitions_data.end(), p.begin(), p.end());
-    }
-
-    members_ = std::move(members);
-    partitions_data_ = std::move(partitions_data);
-    partitions_size_ = std::move(partitions_size);
-    partitions_offset_ = std::move(partitions_offset);
+    mob::vector<System, uint32_t> values(members_.size());
+    thrust::sequence(values.begin(), values.end());
+    partitions_.assign(members_, values);
   }
 
   size_t partitions_count() const {
-    return partitions_size_.size();
+    return partitions_.size();
   }
 
   size_t population_size() const {
@@ -69,8 +125,7 @@ struct partition {
   }
 
   ds::span<System, const uint32_t> get_members(uint32_t p) const {
-    return {partitions_data_.data() + partitions_offset_[p],
-            partitions_size_[p]};
+    return partitions_[p];
   }
 
   ds::span<System, const uint32_t> neighbours(uint32_t i) const {
@@ -81,17 +136,13 @@ struct partition {
 template <typename System>
 struct partition_view {
   ds::span<System, const uint32_t> members_;
-  ds::span<System, const uint32_t> partitions_data_;
-  ds::span<System, const uint32_t> partitions_offset_;
-  ds::span<System, const uint32_t> partitions_size_;
+  ragged_vector_view<System, uint32_t> partitions_;
 
   partition_view(const partition<System> &p)
-      : members_(p.members_), partitions_data_(p.partitions_data_),
-        partitions_offset_(p.partitions_offset_),
-        partitions_size_(p.partitions_size_) {}
+      : members_(p.members_), partitions_(p.partitions_) {}
 
   __host__ __device__ size_t partitions_count() const {
-    return partitions_data_.size();
+    return partitions_.size();
   }
 
   __host__ __device__ size_t population_size() const {
@@ -104,8 +155,7 @@ struct partition_view {
 
   __host__ __device__ ds::span<System, const uint32_t>
   get_members(uint32_t p) const {
-    return {partitions_data_.data() + partitions_offset_[p],
-            partitions_size_[p]};
+    return partitions_[p];
   }
 
   __host__ __device__ ds::span<System, const uint32_t>
