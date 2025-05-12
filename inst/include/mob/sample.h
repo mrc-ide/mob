@@ -1,7 +1,5 @@
 #pragma once
 
-#include "iterator.h"
-
 #include <cuda/std/cmath>
 #include <dust/random/binomial.hpp>
 #include <dust/random/gamma.hpp>

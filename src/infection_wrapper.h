@@ -1,99 +1,100 @@
 #pragma once
 
+#include "conversion.h"
 #include <mob/ds/partition.h>
 #include <mob/infection.h>
 
-// Rcpp supports converting a device_vector<T> natively already, but it does
-// so by iterating over the elements and copying them one by one. The latency
-// of each copy is very large making the overall operation very slow. It is
-// much faster to do a single copy into a host_vector<T>, and then let Rcpp
-// wrap that entirely within CPU memory.
-//
-// An even faster option would be to copy directly from device memory to R
-// memory, in cases where the underlying element type matches.
-//
-// TODO: use thrust::copy, which already takes care of these details. If a type
-// conversion is needed, it can do it in parallel, device-side.
-template <typename T>
-SEXP asRcppVector(T &&data) {
-  using value_type = typename std::remove_cvref_t<T>::value_type;
-  return Rcpp::wrap(thrust::host_vector<value_type>{std::forward<T>(data)});
+template <typename System>
+Rcpp::XPtr<mob::infection_list<System>> infection_list_create_wrapper() {
+  return Rcpp::XPtr(new mob::infection_list<System>());
 }
 
 template <typename System>
-Rcpp::DataFrame homogeneous_infection_process_wrapper(
-    Rcpp::XPtr<typename System::random> rngs, Rcpp::IntegerVector susceptible,
-    Rcpp::IntegerVector infected, double infection_probability) {
-  if (rngs->size() < size_t(susceptible.size())) {
+size_t homogeneous_infection_process_wrapper(
+    Rcpp::XPtr<typename System::random> rngs,
+    Rcpp::XPtr<mob::infection_list<System>> output,
+    Rcpp::XPtr<mob::bitset<System>> susceptible,
+    Rcpp::XPtr<mob::bitset<System>> infected, double infection_probability) {
+  if (rngs->size() < susceptible->capacity()) {
     Rcpp::stop("RNG state is too small: %d < %d", rngs->size(),
-               susceptible.size());
+               susceptible->capacity());
   }
-  if (rngs->size() < size_t(infected.size())) {
+  if (rngs->size() < infected->capacity()) {
     Rcpp::stop("RNG state is too small: %d < %d", rngs->size(),
-               infected.size());
+               infected->capacity());
   }
 
-  typename System::vector<int> infected_data(infected.begin(), infected.end());
-  typename System::vector<int> susceptible_data(susceptible.begin(),
-                                                susceptible.end());
-  auto [source, victim] = mob::homogeneous_infection_process<System, int>(
-      *rngs, infected_data, susceptible_data, infection_probability);
-
-  return Rcpp::DataFrame::create(Rcpp::Named("source") = asRcppVector(source),
-                                 Rcpp::Named("victim") = asRcppVector(victim));
+  auto infected_data = mob::bitset_view(*infected).to_vector();
+  return mob::homogeneous_infection_process<System>(
+      *rngs, *output, infected_data, *susceptible, infection_probability);
 }
 
 template <typename System>
 Rcpp::XPtr<mob::ds::partition<System>>
-partition_create_wrapper(std::vector<uint32_t> population) {
-  return Rcpp::XPtr(new mob::ds::partition<System>(std::move(population)));
+partition_create_wrapper(size_t capacity, std::vector<uint32_t> population) {
+  if (std::ranges::any_of(population, [=](auto i) { return i >= capacity; })) {
+    Rcpp::stop("out-of-range population");
+  }
+  return Rcpp::XPtr(
+      new mob::ds::partition<System>(capacity, std::move(population)));
 }
 
 template <typename System>
-Rcpp::DataFrame household_infection_process_wrapper(
-    Rcpp::XPtr<typename System::random> rngs, Rcpp::IntegerVector susceptible,
-    Rcpp::IntegerVector infected,
+size_t household_infection_process_wrapper(
+    Rcpp::XPtr<typename System::random> rngs,
+    Rcpp::XPtr<mob::infection_list<System>> output,
+    Rcpp::XPtr<mob::bitset<System>> susceptible,
+    Rcpp::XPtr<mob::bitset<System>> infected,
     Rcpp::XPtr<mob::ds::partition<System>> households,
     Rcpp::DoubleVector infection_probability) {
-  if (rngs->size() < size_t(susceptible.size())) {
+  if (rngs->size() < susceptible->capacity()) {
     Rcpp::stop("RNG state is too small: %d < %d", rngs->size(),
-               susceptible.size());
+               susceptible->capacity());
   }
-  if (rngs->size() < size_t(infected.size())) {
+  if (rngs->size() < infected->capacity()) {
     Rcpp::stop("RNG state is too small: %d < %d", rngs->size(),
-               susceptible.size());
+               infected->capacity());
   }
-  if (susceptible.size() != 0 &&
-      *std::max_element(susceptible.begin(), susceptible.end()) >=
-          households->population_size()) {
+  if (susceptible->capacity() != households->population_size()) {
     Rcpp::stop("bad susceptible");
   }
-  if (infected.size() != 0 &&
-      *std::max_element(infected.begin(), infected.end()) >=
-          households->population_size()) {
-    Rcpp::stop("bad infected");
-  }
-  // This is needed for binary search / fast intersection
-  if (!std::is_sorted(susceptible.begin(), susceptible.end())) {
-    Rcpp::stop("susceptible must be sorted");
+  if (infected->capacity() != households->population_size()) {
+    Rcpp::stop("bad susceptible");
   }
   if (infection_probability.size() != 1 &&
-      infection_probability.size() != households->partitions_count()) {
+      households->partitions_count() != infection_probability.size()) {
     Rcpp::stop("infection probability size is incorrect: got %d households but "
                "%d probabilities",
                households->partitions_count(), infection_probability.size());
   }
 
-  typename System::vector<int> infected_data(infected.begin(), infected.end());
-  typename System::vector<int> susceptible_data(susceptible.begin(),
-                                                susceptible.end());
   typename System::vector<double> infection_probability_data(
       infection_probability.begin(), infection_probability.end());
 
-  auto [source, victim] = mob::household_infection_process<System, int>(
-      *rngs, infected_data, susceptible_data, *households,
-      infection_probability_data);
+  auto infected_data = mob::bitset_view(*infected).to_vector();
+  return mob::household_infection_process<System>(*rngs, *output, infected_data,
+                                                  *susceptible, *households,
+                                                  infection_probability_data);
+}
 
-  return Rcpp::DataFrame::create(Rcpp::Named("source") = asRcppVector(source),
-                                 Rcpp::Named("victim") = asRcppVector(victim));
+template <typename System>
+Rcpp::XPtr<mob::bitset<System>>
+infection_victims_wrapper(Rcpp::XPtr<mob::infection_list<System>> infections,
+                          size_t capacity) {
+  // Returning this as a bitset may be overkill - it might be more suitable as a
+  // vector.
+  //
+  // Also having capacity as an argument here is a bit weird. Maybe it needs to
+  // be moved to infection_list_create.
+  auto result = Rcpp::XPtr(new mob::bitset<System>(capacity));
+  result->insert(infection_victims(*infections));
+  return result;
+}
+
+template <typename System>
+Rcpp::DataFrame
+infections_as_dataframe(Rcpp::XPtr<mob::infection_list<System>> infections) {
+  return Rcpp::DataFrame::create(
+      Rcpp::Named("source") = asRcppVector(infections->sources),
+      Rcpp::Named("victim") = asRcppVector(infections->victims));
 }

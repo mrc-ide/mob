@@ -1,7 +1,6 @@
 #pragma once
 
 #include <mob/ds/soa.h>
-#include <mob/iterator.h>
 #include <mob/roaring/container_array.h>
 #include <mob/roaring/container_bitmap.h>
 

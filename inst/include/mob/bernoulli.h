@@ -59,8 +59,8 @@ struct bernoulli_view : cuda::std::ranges::view_interface<
   using sentinel = cuda::std::default_sentinel_t;
 
   struct iterator {
-    using reference = cuda::std::ranges::range_reference_t<const Range>;
-    using value_type = cuda::std::ranges::range_value_t<const Range>;
+    using reference = cuda::std::ranges::range_reference_t<Range>;
+    using value_type = cuda::std::ranges::range_value_t<Range>;
     using difference_type = ptrdiff_t;
     using iterator_category = std::input_iterator_tag;
 
@@ -72,7 +72,7 @@ struct bernoulli_view : cuda::std::ranges::view_interface<
     iterator(iterator &&other) = default;
     iterator &operator=(iterator &&other) = default;
 
-    __host__ __device__ iterator(const Range &range, real_type p,
+    __host__ __device__ iterator(Range &range, real_type p,
                                  rng_state_type *rng_state)
         : it(cuda::std::begin(range)), end(cuda::std::end(range)),
           rng_state(rng_state), bernoulli(p) {
@@ -105,8 +105,8 @@ struct bernoulli_view : cuda::std::ranges::view_interface<
       cuda::std::ranges::advance(it, n, end);
     }
 
-    cuda::std::ranges::iterator_t<const Range> it;
-    cuda::std::ranges::sentinel_t<const Range> end;
+    cuda::std::ranges::iterator_t<Range> it;
+    cuda::std::ranges::sentinel_t<Range> end;
     rng_state_type *rng_state;
     fast_bernoulli<real_type> bernoulli;
   };
@@ -118,11 +118,11 @@ struct bernoulli_view : cuda::std::ranges::view_interface<
                                      rng_state_type &rng)
       : range(std::move(range)), probability(probability), rng(&rng) {}
 
-  __host__ __device__ iterator begin() const {
+  __host__ __device__ iterator begin() {
     return iterator(range, probability, rng);
   }
 
-  __host__ __device__ sentinel end() const {
+  __host__ __device__ sentinel end() {
     return {};
   }
 

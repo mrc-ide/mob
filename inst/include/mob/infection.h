@@ -10,9 +10,167 @@
 #include <thrust/gather.h>
 #include <thrust/iterator/constant_iterator.h>
 #include <thrust/sort.h>
+#include <thrust/unique.h>
 #include <thrust/zip_function.h>
 
 namespace mob {
+
+template <typename System>
+struct infection_list {
+  mob::vector<System, uint32_t> sources;
+  mob::vector<System, uint32_t> victims;
+
+  std::pair<mob::ds::span<System, uint32_t>, mob::ds::span<System, uint32_t>>
+  grow(size_t n) {
+    size_t size = sources.size();
+    // This does value-initialization (ie. zero) of the two vectors, which isn't
+    // necessary since they get overwritten by the for_each. Thrust does not
+    // have an easy way of avoiding this yet (neither does the STL).
+    // https://github.com/NVIDIA/cccl/issues/1992
+    // https://github.com/NVIDIA/cccl/pull/4183
+    sources.resize(size + n);
+    victims.resize(size + n);
+    return std::make_pair(mob::ds::span(sources).subspan(size, n),
+                          mob::ds::span(victims).subspan(size, n));
+  }
+};
+
+template <typename System, typename VictimsFn>
+  requires requires(VictimsFn victims_fn, uint32_t i,
+                    typename System::random::proxy rng) {
+    { victims_fn(i, rng) } -> std::ranges::input_range;
+  }
+size_t infection_process(typename System::random &rngs,
+                         infection_list<System> &output,
+                         typename System::span<uint32_t> infected,
+                         VictimsFn victims_fn) {
+  // Figure out how many people each I infects - don't store the actual targets
+  // anywhere yet since we have nowhere to put the result.
+  mob::vector<System, size_t> victim_count(infected.size());
+  thrust::transform(
+      infected.begin(), infected.end(), rngs.begin(), victim_count.begin(),
+      [=] __host__ __device__(uint32_t i,
+                              typename System::random::proxy rng) -> size_t {
+        // Ideally we'd pass rng_copy directly to victims_fn. Unfortunately
+        // CUDA doesn't support generic lambdas, which, assuming it is a lambda,
+        // means victims_fn can only support one type of RNG state and rng and
+        // rng_copy have different types. We workaround this by doing a get /
+        // put, and hope the compiler is clever enough to remove the redundant
+        // stores.
+        auto rng_copy = rng.get();
+        auto result = cuda::std::ranges::distance(victims_fn(i, rng));
+        rng.put(rng_copy);
+        return result;
+      });
+
+  // Prepare some space in which to store the infection victims.
+  // The cumulative sum of the victim count gives us the offset at which each I
+  // should store its victims.
+  mob::vector<System, size_t> offsets(infected.size());
+  thrust::exclusive_scan(victim_count.begin(), victim_count.end(),
+                         offsets.begin());
+
+  size_t total_infections;
+  if (infected.size() > 0) {
+    total_infections = offsets.back() + victim_count.back();
+  } else {
+    total_infections = 0;
+  }
+
+  auto [infection_source, infection_victim] = output.grow(total_infections);
+
+  // Select all the victims. This uses the same RNG state as our earlier
+  // sampling, guaranteeing that we'll get the same number as we had allocated.
+  //
+  // This produces (victim, source) tuples for each infection.
+
+  auto infection_victim_begin = infection_victim.begin();
+  auto infection_source_begin = infection_source.begin();
+
+  thrust::for_each(
+      thrust::make_zip_iterator(infected.begin(), offsets.begin(),
+                                rngs.begin()),
+      thrust::make_zip_iterator(infected.end(), offsets.end(),
+                                rngs.begin() + infected.size()),
+      thrust::make_zip_function(
+          [=] __host__ __device__(uint32_t i, size_t offset,
+                                  typename System::random::proxy rng) {
+            auto victims = victims_fn(i, rng);
+            auto victim_first = infection_victim_begin + offset;
+            auto victim_last = compat::copy(victims, victim_first);
+
+            auto source_first = infection_source_begin + offset;
+            auto source_last =
+                infection_source_begin + (victim_last - infection_victim_begin);
+
+            compat::fill(source_first, source_last, i);
+          }));
+
+  return total_infections;
+}
+
+template <typename System>
+size_t homogeneous_infection_process(typename System::random &rngs,
+                                     infection_list<System> &output,
+                                     mob::ds::span<System, uint32_t> infected,
+                                     mob::bitset_view<System> susceptible,
+                                     double infection_probability) {
+  size_t n = susceptible.size();
+
+  // Unfortunately bernoulli() on a bitset is not as fast as we'd want it to
+  // be. Materializing the bitset into a vector first and then sampling that
+  // is much faster, especially given that the `to_vector` call can be
+  // parallelized.
+  auto susceptible_vector = susceptible.to_vector();
+  ds::span susceptible_view(susceptible_vector);
+
+  return infection_process<System>(
+      rngs, output, infected,
+      [=] __host__ __device__(uint32_t, typename System::random::proxy &rng) {
+        return bernoulli(susceptible_view, infection_probability, rng);
+      });
+}
+
+template <typename System>
+size_t household_infection_process(
+    typename System::random &rngs, infection_list<System> &output,
+    ds::span<System, uint32_t> infected, mob::bitset_view<System> susceptible,
+    ds::partition_view<System> partition,
+    ds::span<System, double> infection_probability) {
+  auto is_susceptible = [=] __host__ __device__(uint32_t i) {
+    return susceptible.contains(i);
+  };
+  return infection_process<System>(
+      rngs, output, infected,
+      [=] __host__ __device__(uint32_t i, typename System::random::proxy &rng) {
+        double p;
+        if (infection_probability.size() == 1) {
+          p = infection_probability[0];
+        } else {
+          p = infection_probability[partition.get_partition(i)];
+        }
+
+        // The following two expressions would be equivalent, but the former is
+        // much faster since it avoids doing any work in the vast majority of
+        // cases:
+        // bernoulli(household) & susceptible
+        // bernoulli(household & susceptible)
+        return compat::filter(bernoulli(partition.neighbours(i), p, rng),
+                              is_susceptible);
+      });
+}
+
+template <typename System>
+mob::vector<System, uint32_t>
+infection_victims(const infection_list<System> &infections) {
+  // TODO: this does a copy, which we could avoided in cases where
+  // `infections` was passed by move.
+  mob::vector<System, uint32_t> victims = infections.victims;
+  thrust::sort(victims.begin(), victims.end());
+  auto end = thrust::unique(victims.begin(), victims.end());
+  victims.erase(end, victims.end());
+  return victims;
+}
 
 // Compute the length of contiguous runs
 template <typename InputIt, typename OutputIt1, typename OutputIt2>
@@ -64,126 +222,6 @@ random_select_by_key(mob::host_random &rngs, KeyIt first, KeyIt last,
   auto values_last =
       thrust::gather(indices.begin(), indices_last, values, output_value);
   return {keys_last, values_last};
-}
-
-template <typename System, typename VictimsFn, typename T>
-std::pair<typename System::vector<T>, typename System::vector<T>>
-infection_process(typename System::random &rngs,
-                  typename System::span<T> infected, VictimsFn victims_fn) {
-  // Figure out how many people each I infects - don't store the actual targets
-  // anywhere yet since we have nowhere to put the result.
-  typename System::vector<size_t> victim_count(infected.size());
-  thrust::transform(
-      infected.begin(), infected.end(), rngs.begin(), victim_count.begin(),
-      [=] __host__ __device__(T i,
-                              typename System::random::proxy rng) -> size_t {
-        // Ideally we'd pass rng_copy directly to victims_fn. Unfortunately
-        // CUDA doesn't support generic lambdas, which, assuming it is a lambda,
-        // means victims_fn can only support one type of RNG state and rng and
-        // rng_copy have different types. We workaround this by doing a get /
-        // put, and hope the compiler is clever enough to remove the redundant
-        // stores.
-        auto rng_copy = rng.get();
-        auto result = cuda::std::ranges::distance(victims_fn(i, rng));
-        rng.put(rng_copy);
-        return result;
-      });
-
-  // Prepare some space in which to store the infection victims.
-  // The cumulative sum of the victim count gives us the offset at which each I
-  // should store its victims.
-  typename System::vector<size_t> offsets(infected.size());
-  thrust::exclusive_scan(victim_count.begin(), victim_count.end(),
-                         offsets.begin());
-
-  size_t total_infections;
-  if (infected.size() > 0) {
-    total_infections = offsets.back() + victim_count.back();
-  } else {
-    total_infections = 0;
-  }
-
-  // This does value-initialization of the two vectors, which isn't necessary
-  // since they get overwritten by the for_each. Thrust does not have an easy
-  // way of avoiding this yet (neither does the STL).
-  // https://github.com/NVIDIA/cccl/issues/1992
-  // https://github.com/NVIDIA/cccl/pull/4183
-  typename System::vector<T> infection_victim(total_infections);
-  typename System::vector<T> infection_source(total_infections);
-
-  // Select all the victims. This uses the same RNG state as our earlier
-  // sampling, guaranteeing that we'll get the same number as we had allocated.
-  //
-  // This produces (victim, source) tuples for each infection.
-
-  auto infection_victim_begin = infection_victim.begin();
-  auto infection_source_begin = infection_source.begin();
-
-  thrust::for_each(
-      thrust::make_zip_iterator(infected.begin(), offsets.begin(),
-                                rngs.begin()),
-      thrust::make_zip_iterator(infected.end(), offsets.end(),
-                                rngs.begin() + infected.size()),
-      thrust::make_zip_function(
-          [=] __host__ __device__(T i, size_t offset,
-                                  typename System::random::proxy rng) {
-            auto victims = victims_fn(i, rng);
-            auto victim_first = infection_victim_begin + offset;
-            auto victim_last = compat::copy(victims, victim_first);
-
-            auto source_first = infection_source_begin + offset;
-            auto source_last =
-                infection_source_begin + (victim_last - infection_victim_begin);
-
-            compat::fill(source_first, source_last, i);
-          }));
-
-  return {std::move(infection_source), std::move(infection_victim)};
-}
-
-template <typename System, typename T>
-std::pair<typename System::vector<T>, typename System::vector<T>>
-homogeneous_infection_process(typename System::random &rngs,
-                              typename System::span<T> infected,
-                              typename System::span<T> susceptible,
-                              double infection_probability) {
-
-  return infection_process<System>(
-      rngs, infected,
-      [=] __host__ __device__(T, typename System::random::proxy & rng) {
-        return bernoulli(susceptible, infection_probability, rng);
-      });
-}
-
-template <typename System, typename T>
-std::pair<typename System::vector<T>, typename System::vector<T>>
-household_infection_process(typename System::random &rngs,
-                            ds::span<System, T> infected,
-                            ds::span<System, T> susceptible,
-                            ds::partition_view<System> partition,
-                            ds::span<System, double> infection_probability) {
-  return infection_process<System>(
-      rngs, infected,
-      [=] __host__ __device__(T i, typename System::random::proxy & rng) {
-        double p;
-        if (infection_probability.size() == 1) {
-          p = infection_probability[0];
-        } else {
-          p = infection_probability[partition.get_partition(i)];
-        }
-
-        // The following two expressions would be equivalent, but the former is
-        // much faster since it avoids doing any work in the vast majority of
-        // cases:
-        // bernoulli(household) & susceptible
-        // bernoulli(household & susceptible)
-        //
-        // intersection is optimized for a small first argument and large second
-        // one: it operates in O(m * log(n)), where m and n are the size of the
-        // first and second arguments, respectively.
-        return intersection(bernoulli(partition.neighbours(i), p, rng),
-                            susceptible);
-      });
 }
 
 } // namespace mob

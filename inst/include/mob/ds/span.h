@@ -46,6 +46,13 @@ struct span {
     return first[index];
   }
 
+  span subspan(size_t offset, size_t count) const {
+    return span(begin() + offset, begin() + offset + count);
+  }
+
+  static_assert(std::random_access_iterator<iterator>);
+  static_assert(std::sized_sentinel_for<iterator, iterator>);
+
 private:
   pointer first;
   pointer last;

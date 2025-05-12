@@ -17,16 +17,28 @@ bernoulli_sampler_device <- function(data, p, seed = NULL) {
     .Call(`_mob_bernoulli_sampler_device`, data, p, seed)
 }
 
-homogeneous_infection_process_device <- function(rngs, susceptible, infected, infection_probability) {
-    .Call(`_mob_homogeneous_infection_process_device`, rngs, susceptible, infected, infection_probability)
+infection_list_create_device <- function() {
+    .Call(`_mob_infection_list_create_device`)
 }
 
-partition_create_device <- function(population) {
-    .Call(`_mob_partition_create_device`, population)
+homogeneous_infection_process_device <- function(rngs, output, susceptible, infected, infection_probability) {
+    .Call(`_mob_homogeneous_infection_process_device`, rngs, output, susceptible, infected, infection_probability)
 }
 
-household_infection_process_device <- function(rngs, susceptible, infected, households, infection_probability) {
-    .Call(`_mob_household_infection_process_device`, rngs, susceptible, infected, households, infection_probability)
+partition_create_device <- function(capacity, population) {
+    .Call(`_mob_partition_create_device`, capacity, population)
+}
+
+household_infection_process_device <- function(rngs, output, susceptible, infected, households, infection_probability) {
+    .Call(`_mob_household_infection_process_device`, rngs, output, susceptible, infected, households, infection_probability)
+}
+
+infection_victims_device <- function(infections, capacity) {
+    .Call(`_mob_infection_victims_device`, infections, capacity)
+}
+
+infections_as_dataframe_device <- function(infections) {
+    .Call(`_mob_infections_as_dataframe_device`, infections)
 }
 
 selection_sampler_device <- function(data, k, seed = NULL) {
@@ -35,6 +47,42 @@ selection_sampler_device <- function(data, k, seed = NULL) {
 
 betabinomial_sampler_device <- function(data, k, seed = NULL) {
     .Call(`_mob_betabinomial_sampler_device`, data, k, seed)
+}
+
+bitset_create_device <- function(capacity) {
+    .Call(`_mob_bitset_create_device`, capacity)
+}
+
+bitset_clone_device <- function(ptr) {
+    .Call(`_mob_bitset_clone_device`, ptr)
+}
+
+bitset_size_device <- function(ptr) {
+    .Call(`_mob_bitset_size_device`, ptr)
+}
+
+bitset_or_device <- function(left, right) {
+    invisible(.Call(`_mob_bitset_or_device`, left, right))
+}
+
+bitset_remove_device <- function(left, right) {
+    invisible(.Call(`_mob_bitset_remove_device`, left, right))
+}
+
+bitset_invert_device <- function(ptr) {
+    invisible(.Call(`_mob_bitset_invert_device`, ptr))
+}
+
+bitset_insert_device <- function(ptr, values) {
+    invisible(.Call(`_mob_bitset_insert_device`, ptr, values))
+}
+
+bitset_sample_device <- function(ptr, rngs, p) {
+    invisible(.Call(`_mob_bitset_sample_device`, ptr, rngs, p))
+}
+
+bitset_to_vector_device <- function(ptr) {
+    .Call(`_mob_bitset_to_vector_device`, ptr)
 }
 
 random_create_host <- function(size, seed = NULL) {
@@ -49,16 +97,28 @@ random_binomial_host <- function(rngs, n, size, prob) {
     .Call(`_mob_random_binomial_host`, rngs, n, size, prob)
 }
 
-homogeneous_infection_process_host <- function(rngs, susceptible, infected, infection_probability) {
-    .Call(`_mob_homogeneous_infection_process_host`, rngs, susceptible, infected, infection_probability)
+infection_list_create_host <- function() {
+    .Call(`_mob_infection_list_create_host`)
 }
 
-partition_create_host <- function(population) {
-    .Call(`_mob_partition_create_host`, population)
+homogeneous_infection_process_host <- function(rngs, output, susceptible, infected, infection_probability) {
+    .Call(`_mob_homogeneous_infection_process_host`, rngs, output, susceptible, infected, infection_probability)
 }
 
-household_infection_process_host <- function(rngs, susceptible, infected, households, infection_probability) {
-    .Call(`_mob_household_infection_process_host`, rngs, susceptible, infected, households, infection_probability)
+partition_create_host <- function(capacity, population) {
+    .Call(`_mob_partition_create_host`, capacity, population)
+}
+
+household_infection_process_host <- function(rngs, output, susceptible, infected, households, infection_probability) {
+    .Call(`_mob_household_infection_process_host`, rngs, output, susceptible, infected, households, infection_probability)
+}
+
+infection_victims_host <- function(infections, capacity) {
+    .Call(`_mob_infection_victims_host`, infections, capacity)
+}
+
+infections_as_dataframe_host <- function(infections) {
+    .Call(`_mob_infections_as_dataframe_host`, infections)
 }
 
 bernoulli_sampler_host <- function(data, p, seed = NULL) {
@@ -71,6 +131,42 @@ selection_sampler_host <- function(data, k, seed = NULL) {
 
 betabinomial_sampler_host <- function(data, k, seed = NULL) {
     .Call(`_mob_betabinomial_sampler_host`, data, k, seed)
+}
+
+bitset_create_host <- function(capacity) {
+    .Call(`_mob_bitset_create_host`, capacity)
+}
+
+bitset_clone_host <- function(ptr) {
+    .Call(`_mob_bitset_clone_host`, ptr)
+}
+
+bitset_size_host <- function(ptr) {
+    .Call(`_mob_bitset_size_host`, ptr)
+}
+
+bitset_or_host <- function(left, right) {
+    invisible(.Call(`_mob_bitset_or_host`, left, right))
+}
+
+bitset_remove_host <- function(left, right) {
+    invisible(.Call(`_mob_bitset_remove_host`, left, right))
+}
+
+bitset_invert_host <- function(ptr) {
+    invisible(.Call(`_mob_bitset_invert_host`, ptr))
+}
+
+bitset_insert_host <- function(ptr, values) {
+    invisible(.Call(`_mob_bitset_insert_host`, ptr, values))
+}
+
+bitset_sample_host <- function(ptr, rngs, p) {
+    invisible(.Call(`_mob_bitset_sample_host`, ptr, rngs, p))
+}
+
+bitset_to_vector_host <- function(ptr) {
+    .Call(`_mob_bitset_to_vector_host`, ptr)
 }
 
 run_catch <- function(args = NULL, fork = TRUE) {

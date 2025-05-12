@@ -1,5 +1,7 @@
 #pragma once
 
+#include "conversion.h"
+
 #include <Rcpp.h>
 #include <dust/random/binomial.hpp>
 #include <dust/random/uniform.hpp>
@@ -36,7 +38,7 @@ random_uniform_wrapper(Rcpp::XPtr<typename System::random> rngs, size_t n,
         return dust::random::uniform<double>(rng, min, max);
       });
 
-  return {result.begin(), result.end()};
+  return asRcppVector(result);
 }
 
 template <typename System>
@@ -54,5 +56,5 @@ random_binomial_wrapper(Rcpp::XPtr<typename System::random> rngs, size_t n,
                       return dust::random::binomial<double>(rng, size, prob);
                     });
 
-  return {result.begin(), result.end()};
+  return asRcppVector(result);
 }
