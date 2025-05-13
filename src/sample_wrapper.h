@@ -69,14 +69,14 @@ bernoulli_sampler_wrapper(Rcpp::NumericVector data, double p,
 
   auto count = mob::execute<System>([=] __device__ __host__() -> size_t {
     dust::random::xoroshiro128plus rng_copy = *rng_ptr;
-    return cuda::std::ranges::distance(mob::bernoulli(input_view, p, rng_copy));
+    return cuda::std::ranges::distance(mob::bernoulli(input_view, rng_copy, p));
   });
 
   mob::vector<System, double> result(count);
   auto result_begin = result.begin();
   mob::execute<System>([=] __device__ __host__ {
     mob::compat::copy(
-        mob::bernoulli(input_view, p, thrust::raw_reference_cast(*rng_ptr)),
+        mob::bernoulli(input_view, thrust::raw_reference_cast(*rng_ptr), p),
         result_begin);
   });
 

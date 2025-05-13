@@ -1,6 +1,4 @@
 #pragma once
-#include <mob/ds/span.h>
-#include <mob/parallel_random.h>
 
 #include <thrust/device_make_unique.h>
 #include <thrust/device_ptr.h>
@@ -15,11 +13,6 @@ struct host {
 
   template <typename T>
   using pointer = T *;
-
-  template <typename T>
-  using span = ds::span<host, T>;
-
-  using random = host_random;
 
   template <typename T, typename... Args>
   static std::unique_ptr<T> make_unique(Args &&...args) {
@@ -38,11 +31,6 @@ struct device {
 
   template <typename T>
   using pointer = thrust::device_ptr<T>;
-
-  template <typename T>
-  using span = ds::span<device, T>;
-
-  using random = device_random;
 
   template <typename T, typename... Args>
   static auto make_unique(Args &&...args) {
@@ -78,16 +66,4 @@ std::invoke_result_t<F> execute(F &&f) {
 template <typename System, typename T>
 using vector = typename System::vector<T>;
 
-namespace ds {
-
-template <typename T>
-span(thrust::device_vector<T>) -> span<system::device, T>;
-
-template <typename T>
-span(thrust::host_vector<T>) -> span<system::host, T>;
-
-template <typename T>
-span(std::vector<T>) -> span<system::host, T>;
-
-} // namespace ds
 }; // namespace mob

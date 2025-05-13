@@ -53,7 +53,9 @@ private:
 
 template <cuda::std::ranges::input_range Range, typename real_type,
           random_state rng_state_type>
-  requires(cuda::std::ranges::enable_view<Range>)
+  requires(cuda::std::ranges::enable_view<Range> &&
+           cuda::std::sized_sentinel_for<std::ranges::sentinel_t<Range>,
+                                         std::ranges::iterator_t<Range>>)
 struct bernoulli_view : cuda::std::ranges::view_interface<
                             bernoulli_view<Range, real_type, rng_state_type>> {
   using sentinel = cuda::std::default_sentinel_t;
@@ -99,10 +101,20 @@ struct bernoulli_view : cuda::std::ranges::view_interface<
 
   private:
     __host__ __device__ void skip() {
-      auto n =
+      auto skip =
           bernoulli.template next<cuda::std::ranges::range_difference_t<Range>>(
               *rng_state);
-      cuda::std::ranges::advance(it, n, end);
+
+      // This could be done with std::advance, however it only uses += when the
+      // iterator is random access. With bitsets as the underlying iterator, we
+      // don't have full random access but += is significantly faster than
+      // repeated ++.
+      auto remaining = end - it;
+      if (skip < remaining) {
+        it += skip;
+      } else {
+        it = end;
+      }
     }
 
     cuda::std::ranges::iterator_t<Range> it;
@@ -114,9 +126,9 @@ struct bernoulli_view : cuda::std::ranges::view_interface<
   static_assert(std::input_iterator<iterator>);
   static_assert(std::sentinel_for<sentinel, iterator>);
 
-  __host__ __device__ bernoulli_view(Range range, real_type probability,
-                                     rng_state_type &rng)
-      : range(std::move(range)), probability(probability), rng(&rng) {}
+  __host__ __device__ bernoulli_view(Range range, rng_state_type &rng,
+                                     real_type probability)
+      : range(std::move(range)), rng(&rng), probability(probability) {}
 
   __host__ __device__ iterator begin() {
     return iterator(range, probability, rng);
@@ -128,20 +140,45 @@ struct bernoulli_view : cuda::std::ranges::view_interface<
 
 private:
   Range range;
-  real_type probability;
   rng_state_type *rng;
+  real_type probability;
 };
 
-template <cuda::std::ranges::input_range Range, typename real_type,
-          random_state rng_state_type>
-bernoulli_view(Range &&, real_type, rng_state_type &)
-    -> bernoulli_view<compat::all_t<Range>, real_type, rng_state_type>;
+template <typename R, typename real_type, typename rng_state_type>
+bernoulli_view(R &&, real_type, rng_state_type &)
+    -> bernoulli_view<compat::all_t<R>, real_type, rng_state_type>;
 
-template <typename real_type, random_state rng_state_type,
-          cuda::std::ranges::input_range Range>
-__host__ __device__ auto bernoulli(Range &&range, real_type probability,
-                                   rng_state_type &rng) {
-  return bernoulli_view(std::forward<Range>(range), probability, rng);
-}
+struct bernoulli_cpo {
+  template <cuda::std::ranges::viewable_range Range, typename real_type,
+            random_state rng_state_type>
+  __host__ __device__ auto operator()(Range &&range, rng_state_type &rng,
+                                      real_type probability) const {
+    return bernoulli_view(std::forward<Range>(range), rng, probability);
+  }
+
+  // Typically we'd use bind_back to create range adaptor closures, but
+  // bind_back doesn't really allow for passing by reference transparently
+  // (which we want for the RNG). std::bind does support it, but it isn't
+  // implemented in CCCL. A manual closure is the best way we can do this.
+  template <random_state rng_state_type, typename real_type>
+  struct closure
+      : compat::range_adaptor_closure<closure<rng_state_type, real_type>> {
+    template <cuda::std::ranges::viewable_range Range>
+    __host__ __device__ auto operator()(Range &&range) {
+      return bernoulli_view(std::forward<Range>(range), rng.get(), p);
+    }
+
+    cuda::std::reference_wrapper<rng_state_type> rng;
+    real_type p;
+  };
+
+  template <random_state rng_state_type, typename real_type>
+  __host__ __device__ auto operator()(rng_state_type &rng,
+                                      real_type probability) const {
+    return closure{{}, cuda::std::ref(rng), probability};
+  }
+};
+
+__host__ __device__ static constexpr bernoulli_cpo bernoulli;
 
 } // namespace mob

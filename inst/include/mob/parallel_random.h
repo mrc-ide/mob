@@ -1,13 +1,12 @@
 #pragma once
 
 #include <mob/random.h>
+#include <mob/system.h>
 
 #include <cuda/std/array>
 #include <dust/random/prng.hpp>
 #include <dust/random/xoroshiro128.hpp>
-#include <thrust/device_vector.h>
 #include <thrust/execution_policy.h>
-#include <thrust/host_vector.h>
 
 namespace mob {
 
@@ -117,12 +116,12 @@ __host__ __device__ void jump_n(dust::random::xoroshiro128plus &rng,
  * TODO: provide methods for use without thrust, eg. direct access to the i-th
  * RNG stream.
  */
-template <template <typename> typename Vector,
+template <typename System,
           random_state_storage T = dust::random::xoroshiro128plus>
 struct parallel_random {
   using rng_state = T;
   using int_type = typename rng_state::int_type;
-  using vector_type = Vector<int_type>;
+  using vector_type = mob::vector<System, int_type>;
 
   static constexpr size_t width = rng_state::size();
 
@@ -174,7 +173,6 @@ struct parallel_random {
                      });
   }
 
-  struct proxy;
   struct iterator;
 
   iterator begin() {
@@ -185,12 +183,9 @@ struct parallel_random {
     return iterator(data_.begin() + size_, size_);
   }
 
-  struct proxy {
+  struct proxy_base {
     using int_type = typename rng_state::int_type;
     static constexpr bool deterministic = false;
-
-    __host__ __device__ proxy(typename vector_type::pointer ptr, size_t stride)
-        : ptr(ptr), stride(stride) {}
 
     __host__ __device__ rng_state get() const {
       rng_state state;
@@ -200,24 +195,32 @@ struct parallel_random {
       return state;
     }
 
-    __host__ __device__ void put(rng_state state) {
+    __host__ __device__ void put(rng_state state) const {
       for (size_t j = 0; j < width; j++) {
         ptr[j * stride] = state[j];
       }
     }
 
     // Used for ADL by dust
-    friend __host__ __device__ auto next(proxy p) {
+    friend __host__ __device__ auto next(const proxy_base &p) {
       auto state = p.get();
       auto value = next(state);
       p.put(state);
       return value;
     }
 
+    friend iterator;
+
   private:
+    __host__ __device__ proxy_base(typename vector_type::pointer ptr,
+                                   size_t stride)
+        : ptr(ptr), stride(stride) {}
+
     typename vector_type::pointer ptr;
     size_t stride;
   };
+
+  using proxy = const proxy_base;
 
   struct iterator : public thrust::iterator_adaptor<
                         /* Derived */ iterator,
@@ -252,17 +255,25 @@ struct parallel_random {
   }
 
 private:
-  vector_type data_;
   size_t size_;
+  vector_type data_;
 };
 
-using device_random =
-    parallel_random<thrust::device_vector, dust::random::xoroshiro128plus>;
+template <typename System>
+using random_proxy = parallel_random<System>::proxy;
 
 using host_random =
-    parallel_random<thrust::host_vector, dust::random::xoroshiro128plus>;
+    parallel_random<mob::system::host, dust::random::xoroshiro128plus>;
 
-static_assert(std::ranges::random_access_range<device_random>);
 static_assert(std::ranges::random_access_range<host_random>);
+static_assert(random_state<host_random::proxy>);
+
+using device_random =
+    parallel_random<mob::system::device, dust::random::xoroshiro128plus>;
+
+#ifdef __NVCC__
+static_assert(std::ranges::random_access_range<device_random>);
+static_assert(random_state<device_random::proxy>);
+#endif
 
 } // namespace mob

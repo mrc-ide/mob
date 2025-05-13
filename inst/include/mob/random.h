@@ -1,6 +1,9 @@
 #pragma once
 
 #include <concepts>
+#include <cstddef>
+#include <dust/random/cuda_compatibility.hpp>
+#include <thrust/device_reference.h>
 
 namespace mob {
 
@@ -20,6 +23,8 @@ concept random_state_storage = requires(T rng, size_t i) {
 
 } // namespace mob
 
+#ifdef __NVCC__
+
 namespace thrust {
 
 template <typename T>
@@ -28,3 +33,4 @@ __device__ decltype(next(std::declval<T &>())) next(device_reference<T> rng) {
 }
 
 } // namespace thrust
+#endif

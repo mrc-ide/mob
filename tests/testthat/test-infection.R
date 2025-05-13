@@ -1,3 +1,21 @@
+mob_test("homogeneous_infection_process with empty I", {
+  population <- 0:99
+  susceptible <- bitset_from_vector(length(population), population)
+  infected <- bitset_create(length(population))
+
+  rngs <- random_create(length(population))
+  result <- infection_list_create()
+
+  count <- homogeneous_infection_process(
+    rngs, result,
+    susceptible, infected,
+    0.5)
+
+  expect_equal(count, 0)
+  expect_equal(nrow(infections_as_dataframe(result)), 0)
+  expect_length(bitset_to_vector(infection_victims(result, length(population))), 0)
+})
+
 mob_test("homogeneous_infection_process with p = 0", {
   population <- 0:99
   susceptible <- sample(population, length(population) / 2)

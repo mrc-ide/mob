@@ -4,6 +4,7 @@
 #include <mob/ds/span.h>
 #include <mob/system.h>
 
+#include <dust/random/prng.hpp>
 #include <thrust/transform_reduce.h>
 #include <thrust/zip_function.h>
 
@@ -105,14 +106,14 @@ struct bitset {
   template <typename rng_state>
   void sample(rng_state &rngs, double p) {
     // TODO: we should be more clever than this and possibly use
-    // fast_bernouilli, like individual does. The obvious way to do that is
-    // fully sequential though, so we would want a compromise.
+    // fast_bernoulli, like individual does. The obvious way to do that is
+    // fully sequential though, so we would want a compromise
     thrust::for_each(
         thrust::make_zip_iterator(data_.begin(), rngs.begin()),
         thrust::make_zip_iterator(data_.end(), rngs.begin() + data_.size()),
         thrust::make_zip_function(
             [p] __host__ __device__(word_type & word,
-                                    typename rng_state::proxy rng) {
+                                    typename rng_state::proxy & rng) {
               word_type mask = 0;
               for (size_t i = 0; i < num_bits; i++) {
                 if (dust::random::random_real<double>(rng) < p) {
@@ -123,9 +124,13 @@ struct bitset {
             }));
   }
 
+  mob::vector<System, uint32_t> to_vector() const {
+    return bitset_view(*this).to_vector();
+  }
+
 private:
-  mob::vector<System, word_type> data_;
   size_t capacity_;
+  mob::vector<System, word_type> data_;
 
   friend bitset_view<System>;
 };
