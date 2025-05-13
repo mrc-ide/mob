@@ -12,7 +12,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // random_create_device
-Rcpp::XPtr<mob::system::device::random> random_create_device(size_t size, Rcpp::Nullable<Rcpp::NumericVector> seed);
+Rcpp::XPtr<mob::device_random> random_create_device(size_t size, Rcpp::Nullable<Rcpp::NumericVector> seed);
 RcppExport SEXP _mob_random_create_device(SEXP sizeSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -24,12 +24,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // random_uniform_device
-Rcpp::NumericVector random_uniform_device(Rcpp::XPtr<mob::system::device::random> rngs, size_t n, double min, double max);
+Rcpp::NumericVector random_uniform_device(Rcpp::XPtr<mob::device_random> rngs, size_t n, double min, double max);
 RcppExport SEXP _mob_random_uniform_device(SEXP rngsSEXP, SEXP nSEXP, SEXP minSEXP, SEXP maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::device::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::device_random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< double >::type min(minSEXP);
     Rcpp::traits::input_parameter< double >::type max(maxSEXP);
@@ -38,12 +38,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // random_binomial_device
-Rcpp::NumericVector random_binomial_device(Rcpp::XPtr<mob::system::device::random> rngs, size_t n, size_t size, double prob);
+Rcpp::NumericVector random_binomial_device(Rcpp::XPtr<mob::device_random> rngs, size_t n, size_t size, double prob);
 RcppExport SEXP _mob_random_binomial_device(SEXP rngsSEXP, SEXP nSEXP, SEXP sizeSEXP, SEXP probSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::device::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::device_random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< size_t >::type size(sizeSEXP);
     Rcpp::traits::input_parameter< double >::type prob(probSEXP);
@@ -75,12 +75,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // homogeneous_infection_process_device
-size_t homogeneous_infection_process_device(Rcpp::XPtr<mob::system::device::random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::device>> output, Rcpp::XPtr<mob::bitset<mob::system::device>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::device>> infected, double infection_probability);
+size_t homogeneous_infection_process_device(Rcpp::XPtr<mob::device_random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::device>> output, Rcpp::XPtr<mob::bitset<mob::system::device>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::device>> infected, double infection_probability);
 RcppExport SEXP _mob_homogeneous_infection_process_device(SEXP rngsSEXP, SEXP outputSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP infection_probabilitySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::device::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::device_random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::infection_list<mob::system::device>> >::type output(outputSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::device>> >::type susceptible(susceptibleSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::device>> >::type infected(infectedSEXP);
@@ -102,18 +102,73 @@ BEGIN_RCPP
 END_RCPP
 }
 // household_infection_process_device
-size_t household_infection_process_device(Rcpp::XPtr<mob::system::device::random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::device>> output, Rcpp::XPtr<mob::bitset<mob::system::device>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::device>> infected, Rcpp::XPtr<mob::ds::partition<mob::system::device>> households, Rcpp::DoubleVector infection_probability);
+size_t household_infection_process_device(Rcpp::XPtr<mob::device_random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::device>> output, Rcpp::XPtr<mob::bitset<mob::system::device>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::device>> infected, Rcpp::XPtr<mob::ds::partition<mob::system::device>> households, Rcpp::DoubleVector infection_probability);
 RcppExport SEXP _mob_household_infection_process_device(SEXP rngsSEXP, SEXP outputSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP householdsSEXP, SEXP infection_probabilitySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::device::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::device_random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::infection_list<mob::system::device>> >::type output(outputSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::device>> >::type susceptible(susceptibleSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::device>> >::type infected(infectedSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::ds::partition<mob::system::device>> >::type households(householdsSEXP);
     Rcpp::traits::input_parameter< Rcpp::DoubleVector >::type infection_probability(infection_probabilitySEXP);
     rcpp_result_gen = Rcpp::wrap(household_infection_process_device(rngs, output, susceptible, infected, households, infection_probability));
+    return rcpp_result_gen;
+END_RCPP
+}
+// spatial_infection_naive_device
+size_t spatial_infection_naive_device(Rcpp::XPtr<mob::device_random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::device>> output, Rcpp::XPtr<mob::bitset<mob::system::device>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::device>> infected, Rcpp::NumericVector x, Rcpp::NumericVector y, double base, double k);
+RcppExport SEXP _mob_spatial_infection_naive_device(SEXP rngsSEXP, SEXP outputSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP xSEXP, SEXP ySEXP, SEXP baseSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::device_random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::infection_list<mob::system::device>> >::type output(outputSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::device>> >::type susceptible(susceptibleSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::device>> >::type infected(infectedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type base(baseSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(spatial_infection_naive_device(rngs, output, susceptible, infected, x, y, base, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// spatial_infection_sieve_device
+size_t spatial_infection_sieve_device(Rcpp::XPtr<mob::device_random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::device>> output, Rcpp::XPtr<mob::bitset<mob::system::device>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::device>> infected, Rcpp::NumericVector x, Rcpp::NumericVector y, double base, double k);
+RcppExport SEXP _mob_spatial_infection_sieve_device(SEXP rngsSEXP, SEXP outputSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP xSEXP, SEXP ySEXP, SEXP baseSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::device_random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::infection_list<mob::system::device>> >::type output(outputSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::device>> >::type susceptible(susceptibleSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::device>> >::type infected(infectedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type base(baseSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(spatial_infection_sieve_device(rngs, output, susceptible, infected, x, y, base, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// spatial_infection_hybrid_device
+Rcpp::IntegerVector spatial_infection_hybrid_device(Rcpp::XPtr<mob::device_random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::device>> output, Rcpp::XPtr<mob::bitset<mob::system::device>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::device>> infected, Rcpp::NumericVector x, Rcpp::NumericVector y, double base, double k, double width);
+RcppExport SEXP _mob_spatial_infection_hybrid_device(SEXP rngsSEXP, SEXP outputSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP xSEXP, SEXP ySEXP, SEXP baseSEXP, SEXP kSEXP, SEXP widthSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::device_random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::infection_list<mob::system::device>> >::type output(outputSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::device>> >::type susceptible(susceptibleSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::device>> >::type infected(infectedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type base(baseSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    Rcpp::traits::input_parameter< double >::type width(widthSEXP);
+    rcpp_result_gen = Rcpp::wrap(spatial_infection_hybrid_device(rngs, output, susceptible, infected, x, y, base, k, width));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -243,12 +298,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // bitset_sample_device
-void bitset_sample_device(Rcpp::XPtr<mob::bitset<mob::system::device>> ptr, Rcpp::XPtr<mob::system::device::random> rngs, double p);
+void bitset_sample_device(Rcpp::XPtr<mob::bitset<mob::system::device>> ptr, Rcpp::XPtr<mob::device_random> rngs, double p);
 RcppExport SEXP _mob_bitset_sample_device(SEXP ptrSEXP, SEXP rngsSEXP, SEXP pSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::device>> >::type ptr(ptrSEXP);
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::device::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::device_random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< double >::type p(pSEXP);
     bitset_sample_device(ptr, rngs, p);
     return R_NilValue;
@@ -266,7 +321,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // random_create_host
-Rcpp::XPtr<mob::system::host::random> random_create_host(size_t size, Rcpp::Nullable<Rcpp::NumericVector> seed);
+Rcpp::XPtr<mob::host_random> random_create_host(size_t size, Rcpp::Nullable<Rcpp::NumericVector> seed);
 RcppExport SEXP _mob_random_create_host(SEXP sizeSEXP, SEXP seedSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -278,12 +333,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // random_uniform_host
-Rcpp::NumericVector random_uniform_host(Rcpp::XPtr<mob::system::host::random> rngs, size_t n, double min, double max);
+Rcpp::NumericVector random_uniform_host(Rcpp::XPtr<mob::host_random> rngs, size_t n, double min, double max);
 RcppExport SEXP _mob_random_uniform_host(SEXP rngsSEXP, SEXP nSEXP, SEXP minSEXP, SEXP maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::host::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::host_random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< double >::type min(minSEXP);
     Rcpp::traits::input_parameter< double >::type max(maxSEXP);
@@ -292,12 +347,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // random_binomial_host
-Rcpp::NumericVector random_binomial_host(Rcpp::XPtr<mob::system::host::random> rngs, size_t n, size_t size, double prob);
+Rcpp::NumericVector random_binomial_host(Rcpp::XPtr<mob::host_random> rngs, size_t n, size_t size, double prob);
 RcppExport SEXP _mob_random_binomial_host(SEXP rngsSEXP, SEXP nSEXP, SEXP sizeSEXP, SEXP probSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::host::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::host_random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
     Rcpp::traits::input_parameter< size_t >::type size(sizeSEXP);
     Rcpp::traits::input_parameter< double >::type prob(probSEXP);
@@ -316,12 +371,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // homogeneous_infection_process_host
-size_t homogeneous_infection_process_host(Rcpp::XPtr<mob::system::host::random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::host>> output, Rcpp::XPtr<mob::bitset<mob::system::host>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::host>> infected, double infection_probability);
+size_t homogeneous_infection_process_host(Rcpp::XPtr<mob::host_random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::host>> output, Rcpp::XPtr<mob::bitset<mob::system::host>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::host>> infected, double infection_probability);
 RcppExport SEXP _mob_homogeneous_infection_process_host(SEXP rngsSEXP, SEXP outputSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP infection_probabilitySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::host::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::host_random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::infection_list<mob::system::host>> >::type output(outputSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::host>> >::type susceptible(susceptibleSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::host>> >::type infected(infectedSEXP);
@@ -343,18 +398,73 @@ BEGIN_RCPP
 END_RCPP
 }
 // household_infection_process_host
-size_t household_infection_process_host(Rcpp::XPtr<mob::system::host::random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::host>> output, Rcpp::XPtr<mob::bitset<mob::system::host>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::host>> infected, Rcpp::XPtr<mob::ds::partition<mob::system::host>> households, Rcpp::DoubleVector infection_probability);
+size_t household_infection_process_host(Rcpp::XPtr<mob::host_random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::host>> output, Rcpp::XPtr<mob::bitset<mob::system::host>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::host>> infected, Rcpp::XPtr<mob::ds::partition<mob::system::host>> households, Rcpp::DoubleVector infection_probability);
 RcppExport SEXP _mob_household_infection_process_host(SEXP rngsSEXP, SEXP outputSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP householdsSEXP, SEXP infection_probabilitySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::host::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::host_random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::infection_list<mob::system::host>> >::type output(outputSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::host>> >::type susceptible(susceptibleSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::host>> >::type infected(infectedSEXP);
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::ds::partition<mob::system::host>> >::type households(householdsSEXP);
     Rcpp::traits::input_parameter< Rcpp::DoubleVector >::type infection_probability(infection_probabilitySEXP);
     rcpp_result_gen = Rcpp::wrap(household_infection_process_host(rngs, output, susceptible, infected, households, infection_probability));
+    return rcpp_result_gen;
+END_RCPP
+}
+// spatial_infection_naive_host
+size_t spatial_infection_naive_host(Rcpp::XPtr<mob::host_random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::host>> output, Rcpp::XPtr<mob::bitset<mob::system::host>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::host>> infected, Rcpp::NumericVector x, Rcpp::NumericVector y, double base, double k);
+RcppExport SEXP _mob_spatial_infection_naive_host(SEXP rngsSEXP, SEXP outputSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP xSEXP, SEXP ySEXP, SEXP baseSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::host_random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::infection_list<mob::system::host>> >::type output(outputSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::host>> >::type susceptible(susceptibleSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::host>> >::type infected(infectedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type base(baseSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(spatial_infection_naive_host(rngs, output, susceptible, infected, x, y, base, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// spatial_infection_sieve_host
+size_t spatial_infection_sieve_host(Rcpp::XPtr<mob::host_random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::host>> output, Rcpp::XPtr<mob::bitset<mob::system::host>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::host>> infected, Rcpp::NumericVector x, Rcpp::NumericVector y, double base, double k);
+RcppExport SEXP _mob_spatial_infection_sieve_host(SEXP rngsSEXP, SEXP outputSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP xSEXP, SEXP ySEXP, SEXP baseSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::host_random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::infection_list<mob::system::host>> >::type output(outputSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::host>> >::type susceptible(susceptibleSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::host>> >::type infected(infectedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type base(baseSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(spatial_infection_sieve_host(rngs, output, susceptible, infected, x, y, base, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// spatial_infection_hybrid_host
+Rcpp::IntegerVector spatial_infection_hybrid_host(Rcpp::XPtr<mob::host_random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::host>> output, Rcpp::XPtr<mob::bitset<mob::system::host>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::host>> infected, Rcpp::NumericVector x, Rcpp::NumericVector y, double base, double k, double width);
+RcppExport SEXP _mob_spatial_infection_hybrid_host(SEXP rngsSEXP, SEXP outputSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP xSEXP, SEXP ySEXP, SEXP baseSEXP, SEXP kSEXP, SEXP widthSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::host_random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::infection_list<mob::system::host>> >::type output(outputSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::host>> >::type susceptible(susceptibleSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::host>> >::type infected(infectedSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type base(baseSEXP);
+    Rcpp::traits::input_parameter< double >::type k(kSEXP);
+    Rcpp::traits::input_parameter< double >::type width(widthSEXP);
+    rcpp_result_gen = Rcpp::wrap(spatial_infection_hybrid_host(rngs, output, susceptible, infected, x, y, base, k, width));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -497,12 +607,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // bitset_sample_host
-void bitset_sample_host(Rcpp::XPtr<mob::bitset<mob::system::host>> ptr, Rcpp::XPtr<mob::system::host::random> rngs, double p);
+void bitset_sample_host(Rcpp::XPtr<mob::bitset<mob::system::host>> ptr, Rcpp::XPtr<mob::host_random> rngs, double p);
 RcppExport SEXP _mob_bitset_sample_host(SEXP ptrSEXP, SEXP rngsSEXP, SEXP pSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::host>> >::type ptr(ptrSEXP);
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::system::host::random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::host_random> >::type rngs(rngsSEXP);
     Rcpp::traits::input_parameter< double >::type p(pSEXP);
     bitset_sample_host(ptr, rngs, p);
     return R_NilValue;
@@ -541,6 +651,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_homogeneous_infection_process_device", (DL_FUNC) &_mob_homogeneous_infection_process_device, 5},
     {"_mob_partition_create_device", (DL_FUNC) &_mob_partition_create_device, 2},
     {"_mob_household_infection_process_device", (DL_FUNC) &_mob_household_infection_process_device, 6},
+    {"_mob_spatial_infection_naive_device", (DL_FUNC) &_mob_spatial_infection_naive_device, 8},
+    {"_mob_spatial_infection_sieve_device", (DL_FUNC) &_mob_spatial_infection_sieve_device, 8},
+    {"_mob_spatial_infection_hybrid_device", (DL_FUNC) &_mob_spatial_infection_hybrid_device, 9},
     {"_mob_infection_victims_device", (DL_FUNC) &_mob_infection_victims_device, 2},
     {"_mob_infections_as_dataframe_device", (DL_FUNC) &_mob_infections_as_dataframe_device, 1},
     {"_mob_selection_sampler_device", (DL_FUNC) &_mob_selection_sampler_device, 3},
@@ -561,6 +674,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_homogeneous_infection_process_host", (DL_FUNC) &_mob_homogeneous_infection_process_host, 5},
     {"_mob_partition_create_host", (DL_FUNC) &_mob_partition_create_host, 2},
     {"_mob_household_infection_process_host", (DL_FUNC) &_mob_household_infection_process_host, 6},
+    {"_mob_spatial_infection_naive_host", (DL_FUNC) &_mob_spatial_infection_naive_host, 8},
+    {"_mob_spatial_infection_sieve_host", (DL_FUNC) &_mob_spatial_infection_sieve_host, 8},
+    {"_mob_spatial_infection_hybrid_host", (DL_FUNC) &_mob_spatial_infection_hybrid_host, 9},
     {"_mob_infection_victims_host", (DL_FUNC) &_mob_infection_victims_host, 2},
     {"_mob_infections_as_dataframe_host", (DL_FUNC) &_mob_infections_as_dataframe_host, 1},
     {"_mob_bernoulli_sampler_host", (DL_FUNC) &_mob_bernoulli_sampler_host, 3},

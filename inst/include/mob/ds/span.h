@@ -1,4 +1,6 @@
 #pragma once
+#include <mob/system.h>
+
 #include <cuda/std/ranges>
 #include <dust/random/cuda_compatibility.hpp>
 #include <thrust/device_vector.h>
@@ -12,6 +14,7 @@ template <typename System, typename T>
 struct span {
   using pointer = typename System::pointer<T>;
   using iterator = pointer;
+  using reference = decltype(*std::declval<pointer>());
   using value_type = typename cuda::std::pointer_traits<pointer>::element_type;
   using difference_type =
       typename cuda::std::pointer_traits<pointer>::difference_type;
@@ -42,7 +45,15 @@ struct span {
     return last;
   }
 
-  __host__ __device__ value_type operator[](size_t index) const {
+  __host__ __device__ bool empty() const {
+    return first == last;
+  }
+
+  __host__ __device__ reference front() const {
+    return *first;
+  }
+
+  __host__ __device__ reference operator[](size_t index) const {
     return first[index];
   }
 
@@ -57,6 +68,15 @@ private:
   pointer first;
   pointer last;
 };
+
+template <typename T>
+span(thrust::device_vector<T>) -> span<system::device, T>;
+
+template <typename T>
+span(thrust::host_vector<T>) -> span<system::host, T>;
+
+template <typename T>
+span(std::vector<T>) -> span<system::host, T>;
 
 } // namespace ds
 } // namespace mob

@@ -28,34 +28,39 @@ public:
     thrust::sort_by_key(keys.begin(), keys.end(), values.begin());
 
     // For each segment, we need to know where it begins. Its end is
-    // implicitly the start of the next one. There is probably a cleverer
-    // way than `lower_bound` to do this (eg. take the adjacent_difference
-    // of the keys δ and write the offset of it to offsets_[k:k+δ]).
-    thrust::lower_bound(
-        keys.begin(), keys.end(), thrust::counting_iterator<uint32_t>(0),
-        thrust::counting_iterator<uint32_t>(size()), offsets_.begin());
-
-    // auto output = offsets_.begin();
-    // thrust::for_each(
-    //     thrust::make_zip_iterator(thrust::counting_iterator<size_t>(1),
-    //                               keys.begin(), keys.begin() + 1),
-    //     thrust::make_zip_iterator(
-    //         thrust::counting_iterator<size_t>(offsets_.size()),
-    //         keys.end() - 1, keys.end()),
-    //     thrust::make_zip_function(
-    //         [] __host__ __device__(size_t i, size_t left, size_t right) {
-    //           size_t n = right - left;
-    //           for (size_t j = 0; j < n; j++) {
-    //             output[left + j] = i;
-    //           }
-    //         }));
+    // implicitly the start of the next one.
+    //
+    // There is probably a cleverer way than `lower_bound` to do this.
+    //
+    // From "Improved GPU Near Neighbours Performance for Multi-Agent
+    // Simulations":
+    // > When implemented with atomic counting sort this produces
+    // > the PBM [ie. the offsets_ array] as a by-product of the neighbour
+    // > data array sort.
+    //
+    // See also "Fast Fixed-Radius Nearest Neighbor Search on the GPU" by
+    // Hoetzlein. It is light on details, but the slides suggest an "atomic
+    // counting sort" as well.
+    // https://ramakarl.com/pdfs/2014_Hoetzlein_FastFixedRadius_Neighbors.pdf
+    //
+    // On the other hand, Thrust's histogram example just does a binary search
+    // like us (albeit a higher_bound instead of lower_bound):
+    // https://github.com/NVIDIA/cccl/blob/8c1010a03c81fc2ca139f93ce0ce317339d73430/thrust/examples/histogram.cu#L85
+    //
+    thrust::counting_iterator<uint32_t> start(0);
+    thrust::lower_bound(keys.begin(), keys.end(), start, start + size(),
+                        offsets_.begin());
 
     offsets_.back() = values.size();
     data_ = std::move(values);
   }
 
   ds::span<System, const T> operator[](size_t i) const {
-    return {data_.begin() + offsets_[i], data_.begin() + offsets_[i + 1]};
+    return slice(i, i + 1);
+  }
+
+  ds::span<System, const T> slice(size_t i, size_t j) const {
+    return {data_.data() + offsets_[i], data_.data() + offsets_[j]};
   }
 
   size_t size() const {
@@ -74,7 +79,12 @@ public:
       : data_(vector.data_), offsets_(vector.offsets_) {}
 
   __host__ __device__ ds::span<System, const T> operator[](size_t i) const {
-    return {data_.begin() + offsets_[i], data_.begin() + offsets_[i + 1]};
+    return slice(i, i + 1);
+  }
+
+  __host__ __device__ ds::span<System, const T> slice(size_t i,
+                                                      size_t j) const {
+    return {data_.begin() + offsets_[i], data_.begin() + offsets_[j]};
   }
 
   __host__ __device__ size_t size() const {

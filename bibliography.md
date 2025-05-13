@@ -161,6 +161,12 @@ use auxiliary datastructures (usually a hash set).
 [andrzejewski2011]: https://bibliotekanauki.pl/articles/206057.pdf
 [nelson2020]: https://journalofcloudcomputing.springeropen.com/counter/pdf/10.1186/s13677-020-00191-w.pdf
 
+# Fixed-radius near neighbors
+
+- ["Improved GPU Near Neighbours Performance for Multi-Agent Simulations" Chisholm et al][chisholm2019]
+
+[chisholm2019]: https://eprints.whiterose.ac.uk/id/eprint/153625/7/1-s2.0-S0743731519301340-main.pdf
+
 # Miscellaneous
 
 - ["Larger GPU-accelerated Brain Simulations with Procedural Connectivity" Knight et al.][knight2020]

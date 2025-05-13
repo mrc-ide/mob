@@ -33,6 +33,18 @@ household_infection_process_device <- function(rngs, output, susceptible, infect
     .Call(`_mob_household_infection_process_device`, rngs, output, susceptible, infected, households, infection_probability)
 }
 
+spatial_infection_naive_device <- function(rngs, output, susceptible, infected, x, y, base, k) {
+    .Call(`_mob_spatial_infection_naive_device`, rngs, output, susceptible, infected, x, y, base, k)
+}
+
+spatial_infection_sieve_device <- function(rngs, output, susceptible, infected, x, y, base, k) {
+    .Call(`_mob_spatial_infection_sieve_device`, rngs, output, susceptible, infected, x, y, base, k)
+}
+
+spatial_infection_hybrid_device <- function(rngs, output, susceptible, infected, x, y, base, k, width) {
+    .Call(`_mob_spatial_infection_hybrid_device`, rngs, output, susceptible, infected, x, y, base, k, width)
+}
+
 infection_victims_device <- function(infections, capacity) {
     .Call(`_mob_infection_victims_device`, infections, capacity)
 }
@@ -111,6 +123,18 @@ partition_create_host <- function(capacity, population) {
 
 household_infection_process_host <- function(rngs, output, susceptible, infected, households, infection_probability) {
     .Call(`_mob_household_infection_process_host`, rngs, output, susceptible, infected, households, infection_probability)
+}
+
+spatial_infection_naive_host <- function(rngs, output, susceptible, infected, x, y, base, k) {
+    .Call(`_mob_spatial_infection_naive_host`, rngs, output, susceptible, infected, x, y, base, k)
+}
+
+spatial_infection_sieve_host <- function(rngs, output, susceptible, infected, x, y, base, k) {
+    .Call(`_mob_spatial_infection_sieve_host`, rngs, output, susceptible, infected, x, y, base, k)
+}
+
+spatial_infection_hybrid_host <- function(rngs, output, susceptible, infected, x, y, base, k, width) {
+    .Call(`_mob_spatial_infection_hybrid_host`, rngs, output, susceptible, infected, x, y, base, k, width)
 }
 
 infection_victims_host <- function(infections, capacity) {

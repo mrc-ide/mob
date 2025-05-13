@@ -2,6 +2,7 @@
 
 #include "conversion.h"
 #include <mob/bitset.h>
+#include <mob/parallel_random.h>
 
 #include <Rcpp.h>
 
@@ -50,7 +51,7 @@ void bitset_insert(Rcpp::XPtr<mob::bitset<System>> ptr,
 
 template <typename System>
 void bitset_sample(Rcpp::XPtr<mob::bitset<System>> ptr,
-                   Rcpp::XPtr<typename System::random> rngs, double p) {
+                   Rcpp::XPtr<mob::parallel_random<System>> rngs, double p) {
   (*ptr).sample(*rngs, p);
 }
 

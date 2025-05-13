@@ -1,6 +1,7 @@
 #pragma once
 
 #include "conversion.h"
+#include <mob/parallel_random.h>
 
 #include <Rcpp.h>
 #include <dust/random/binomial.hpp>
@@ -17,24 +18,24 @@ inline size_t from_seed(Rcpp::Nullable<Rcpp::NumericVector> seed) {
 }
 
 template <typename System>
-Rcpp::XPtr<typename System::random>
+Rcpp::XPtr<mob::parallel_random<System>>
 random_create_wrapper(size_t size, Rcpp::Nullable<Rcpp::NumericVector> seed) {
-  return Rcpp::XPtr<typename System::random>(
-      new typename System::random(size, from_seed(seed)));
+  return Rcpp::XPtr<mob::parallel_random<System>>(
+      new mob::parallel_random<System>(size, from_seed(seed)));
 }
 
 template <typename System>
 Rcpp::NumericVector
-random_uniform_wrapper(Rcpp::XPtr<typename System::random> rngs, size_t n,
+random_uniform_wrapper(Rcpp::XPtr<mob::parallel_random<System>> rngs, size_t n,
                        double min, double max) {
   if (rngs->size() < n) {
     Rcpp::stop("RNG state is too small: %d < %d", rngs->size(), n);
   }
 
-  typename System::vector<double> result(n);
+  mob::vector<System, double> result(n);
   thrust::transform(
       rngs->begin(), rngs->begin() + n, result.begin(),
-      [min, max] __host__ __device__(typename System::random::proxy rng) {
+      [min, max] __host__ __device__(mob::random_proxy<System> & rng) {
         return dust::random::uniform<double>(rng, min, max);
       });
 
@@ -43,16 +44,16 @@ random_uniform_wrapper(Rcpp::XPtr<typename System::random> rngs, size_t n,
 
 template <typename System>
 Rcpp::NumericVector
-random_binomial_wrapper(Rcpp::XPtr<typename System::random> rngs, size_t n,
+random_binomial_wrapper(Rcpp::XPtr<mob::parallel_random<System>> rngs, size_t n,
                         size_t size, double prob) {
   if (rngs->size() < n) {
     Rcpp::stop("RNG state is too small: %d < %d", rngs->size(), n);
   }
 
-  typename System::vector<double> result(n);
+  mob::vector<System, double> result(n);
   thrust::transform(rngs->begin(), rngs->begin() + n, result.begin(),
-                    [size, prob] __host__ __device__(
-                        typename System::random::proxy rng) -> double {
+                    [size, prob] __host__ __device__(mob::random_proxy<System> &
+                                                     rng) -> double {
                       return dust::random::binomial<double>(rng, size, prob);
                     });
 

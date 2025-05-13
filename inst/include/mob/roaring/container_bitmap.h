@@ -114,7 +114,7 @@ struct container_bitmap {
   }
 
 public:
-  typename System::vector<word_type> data;
+  mob::vector<System, word_type> data;
 };
 
 template <typename System = system::host>
