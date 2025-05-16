@@ -8,7 +8,7 @@ namespace roaring {
 template <typename System = system::host>
 struct container_array {
   using value_type = uint16_t;
-  using iterator = typename System::vector<uint16_t>::const_iterator;
+  using iterator = mob::vector<System, uint16_t>::const_iterator;
 
   container_array() {}
   explicit container_array(uint16_t index) : values({index}) {}
@@ -44,7 +44,7 @@ struct container_array {
     return std::binary_search(begin(), end(), index);
   }
 
-  typename System::vector<uint16_t>::iterator lower_bound(uint16_t index) {
+  mob::vector<System, uint16_t>::iterator lower_bound(uint16_t index) {
     return std::lower_bound(values.begin(), values.end(), index);
   }
 
@@ -57,7 +57,7 @@ struct container_array {
 
   // position must be correct and preserve the ordering, ie. it is not just a
   // hint. use lower_bound() to find a suitable position.
-  void insert(typename System::vector<uint16_t>::iterator position,
+  void insert(mob::vector<System, uint16_t>::iterator position,
               uint16_t index) {
     // Annoyingly, thrust's vectors require an iterator as the first argument
     // rather than a const_iterator. This is contrary to the STL which accepts
@@ -70,7 +70,7 @@ struct container_array {
     values.insert(position, index);
   }
 
-  typename System::vector<uint16_t> values;
+  mob::vector<System, uint16_t> values;
 };
 
 template <typename System = system::host>

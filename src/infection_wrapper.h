@@ -3,6 +3,7 @@
 #include "conversion.h"
 #include <mob/ds/partition.h>
 #include <mob/infection.h>
+#include <mob/spatial.h>
 
 template <typename System>
 Rcpp::XPtr<mob::infection_list<System>> infection_list_create_wrapper() {
@@ -11,7 +12,7 @@ Rcpp::XPtr<mob::infection_list<System>> infection_list_create_wrapper() {
 
 template <typename System>
 size_t homogeneous_infection_process_wrapper(
-    Rcpp::XPtr<typename System::random> rngs,
+    Rcpp::XPtr<mob::parallel_random<System>> rngs,
     Rcpp::XPtr<mob::infection_list<System>> output,
     Rcpp::XPtr<mob::bitset<System>> susceptible,
     Rcpp::XPtr<mob::bitset<System>> infected, double infection_probability) {
@@ -41,7 +42,7 @@ partition_create_wrapper(size_t capacity, std::vector<uint32_t> population) {
 
 template <typename System>
 size_t household_infection_process_wrapper(
-    Rcpp::XPtr<typename System::random> rngs,
+    Rcpp::XPtr<mob::parallel_random<System>> rngs,
     Rcpp::XPtr<mob::infection_list<System>> output,
     Rcpp::XPtr<mob::bitset<System>> susceptible,
     Rcpp::XPtr<mob::bitset<System>> infected,
@@ -62,19 +63,102 @@ size_t household_infection_process_wrapper(
     Rcpp::stop("bad susceptible");
   }
   if (infection_probability.size() != 1 &&
-      households->partitions_count() != infection_probability.size()) {
+      households->partitions_count() !=
+          static_cast<size_t>(infection_probability.size())) {
     Rcpp::stop("infection probability size is incorrect: got %d households but "
                "%d probabilities",
                households->partitions_count(), infection_probability.size());
   }
 
-  typename System::vector<double> infection_probability_data(
+  mob::vector<System, double> infection_probability_data(
       infection_probability.begin(), infection_probability.end());
 
   auto infected_data = mob::bitset_view(*infected).to_vector();
   return mob::household_infection_process<System>(*rngs, *output, infected_data,
                                                   *susceptible, *households,
                                                   infection_probability_data);
+}
+
+template <typename System>
+size_t
+spatial_infection_naive_wrapper(Rcpp::XPtr<mob::parallel_random<System>> rngs,
+                                Rcpp::XPtr<mob::infection_list<System>> output,
+                                Rcpp::XPtr<mob::bitset<System>> susceptible,
+                                Rcpp::XPtr<mob::bitset<System>> infected,
+                                Rcpp::NumericVector x, Rcpp::NumericVector y,
+                                double base, double k) {
+  if (rngs->size() < susceptible->capacity()) {
+    Rcpp::stop("bad rng");
+  }
+  if (infected->capacity() != susceptible->capacity()) {
+    Rcpp::stop("bad infected");
+  }
+  if (static_cast<size_t>(x.size()) != susceptible->capacity()) {
+    Rcpp::stop("bad x");
+  }
+  if (static_cast<size_t>(y.size()) != susceptible->capacity()) {
+    Rcpp::stop("bad x");
+  }
+
+  mob::spatial<System> spatial_data{{x.begin(), x.end()}, {y.begin(), y.end()}};
+  return mob::spatial_infection_naive<System>(
+      *rngs, *output, infected->to_vector(), susceptible->to_vector(),
+      spatial_data, base, k);
+}
+
+template <typename System>
+size_t
+spatial_infection_sieve_wrapper(Rcpp::XPtr<mob::parallel_random<System>> rngs,
+                                Rcpp::XPtr<mob::infection_list<System>> output,
+                                Rcpp::XPtr<mob::bitset<System>> susceptible,
+                                Rcpp::XPtr<mob::bitset<System>> infected,
+                                Rcpp::NumericVector x, Rcpp::NumericVector y,
+                                double base, double k) {
+  if (rngs->size() < susceptible->capacity()) {
+    Rcpp::stop("bad rng");
+  }
+  if (infected->capacity() != susceptible->capacity()) {
+    Rcpp::stop("bad infected");
+  }
+  if (static_cast<size_t>(x.size()) != susceptible->capacity()) {
+    Rcpp::stop("bad x");
+  }
+  if (static_cast<size_t>(y.size()) != susceptible->capacity()) {
+    Rcpp::stop("bad x");
+  }
+
+  mob::spatial<System> spatial_data{{x.begin(), x.end()}, {y.begin(), y.end()}};
+  return mob::spatial_infection_sieve<System>(
+      *rngs, *output, infected->to_vector(), susceptible->to_vector(),
+      spatial_data, base, k);
+}
+
+template <typename System>
+Rcpp::IntegerVector
+spatial_infection_hybrid_wrapper(Rcpp::XPtr<mob::parallel_random<System>> rngs,
+                                 Rcpp::XPtr<mob::infection_list<System>> output,
+                                 Rcpp::XPtr<mob::bitset<System>> susceptible,
+                                 Rcpp::XPtr<mob::bitset<System>> infected,
+                                 Rcpp::NumericVector x, Rcpp::NumericVector y,
+                                 double base, double k, double width) {
+  if (rngs->size() < susceptible->capacity()) {
+    Rcpp::stop("bad rng");
+  }
+  if (infected->capacity() != susceptible->capacity()) {
+    Rcpp::stop("bad infected");
+  }
+  if (static_cast<size_t>(x.size()) != susceptible->capacity()) {
+    Rcpp::stop("bad x");
+  }
+  if (static_cast<size_t>(y.size()) != susceptible->capacity()) {
+    Rcpp::stop("bad x");
+  }
+
+  mob::spatial<System> spatial_data{{x.begin(), x.end()}, {y.begin(), y.end()}};
+  auto [n1, n2] = mob::spatial_infection_hybrid<System>(
+      *rngs, *output, infected->to_vector(), susceptible->to_vector(),
+      spatial_data, base, k, width);
+  return {static_cast<int>(n1), static_cast<int>(n2)};
 }
 
 template <typename System>
