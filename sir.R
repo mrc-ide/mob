@@ -1,3 +1,10 @@
+library(ggplot2)
+library(gganimate)
+
+options(viewer = function(url) {
+    utils::browseURL(url, browser="eog")
+})
+
 rate_to_p <- function(rate, dt) {
   1 - exp(-rate * dt)
 }
@@ -6,10 +13,20 @@ beta_to_p <- function(beta, size, dt) {
   rate_to_p(beta / size, dt)
 }
 
-run <- function(size, dt = 1, timesteps = 200) {
-  population <- 0:(size-1)
-  # infected <- mob:::bitset_from_vector(size, sort(sample(population, 0.01 * size)))
-  infected <- mob:::bitset_from_vector(size, sample(population, 1))
+# https://doi.org/10.5285/7beefde9-c520-4ddf-897a-0167e8918595
+sample_population <- function(map, size) {
+  weights <- tidyr::replace_na(terra::values(map), 0)
+  selected <- sample(seq_along(weights), size, replace = TRUE, prob = weights)
+
+  terra::xyFromCell(map, selected) |>
+    as.data.frame() |>
+    sf::st_as_sf(coords = c(1,2), crs = terra::crs(map))
+}
+
+run <- function(map, size, dt = 1, timesteps = 200) {
+  population <- sample_population(map, size) %>% tibble::add_column(i = 0:(size-1))
+
+  infected <- mob:::bitset_from_vector(size, sample(population$i, 1))
   susceptible <- mob:::bitset_clone(infected)
   mob:::bitset_invert(susceptible)
   recovered <- mob:::bitset_create(size)
@@ -21,14 +38,15 @@ run <- function(size, dt = 1, timesteps = 200) {
     household_sizes[i+1] <- household_sizes[i+1] + 1
   }
 
-  coordinates <- data.frame(x=runif(size), y=runif(size))
+  coordinates <- sf::st_coordinates(population)
 
   p_community <- 0 # beta_to_p(0.06, size, dt)
   p_household <- 0 # beta_to_p(0.06, household_sizes, dt)
   p_recovery <- 0 # rate_to_p(0.05, dt)
-  r_spatial <- 0.000001 / size
+  r_spatial <- 0.001 / size
 
   households <- mob:::partition_create(nhouseholds, households_data)
+
   rngs <- mob:::random_create(size)
 
   render <- individual::Render$new(timesteps)
@@ -40,8 +58,8 @@ run <- function(size, dt = 1, timesteps = 200) {
     n_community <- mob:::homogeneous_infection_process(rngs, infections, susceptible, infected, p_community)
     n_household <- mob:::household_infection_process(rngs, infections, susceptible, infected, households, p_household)
     n_spatial <- mob:::spatial_infection_hybrid(
-      rngs, infections, susceptible, infected, coordinates$x, coordinates$y,
-      base=r_spatial, k=-4, width=0.015)
+      rngs, infections, susceptible, infected, coordinates[,1], coordinates[,2],
+      base=r_spatial, k=-4, width=0.04)
 
     victims <- mob:::infection_victims(infections, size)
 
@@ -60,8 +78,9 @@ run <- function(size, dt = 1, timesteps = 200) {
     state[mob:::bitset_to_vector(recovered)+1] <- "R"
 
     after <- Sys.time()
+    elapsed <- after - before
 
-    data <- c(data, list(data.frame(timestep=t, state=state, i=seq_len(size), x=coordinates$x, y=coordinates$y)))
+    data <- c(data, list(data.frame(timestep=t, state=state, i=0:(size-1))))
 
     render$render("S", mob:::bitset_size(susceptible), t)
     render$render("I", mob:::bitset_size(infected), t)
@@ -72,55 +91,35 @@ run <- function(size, dt = 1, timesteps = 200) {
     render$render("n_spatial_local", n_spatial[[1]], t)
     render$render("n_spatial_distant", n_spatial[[2]], t)
     render$render("n_recovery", mob:::bitset_size(recovery), t)
-    render$render("time", as.numeric(after - before, units="secs"), t)
-    cat(sprintf("%f %f %f\n",
-                as.numeric(after - before, units="secs"),
-                n_spatial[[1]],
-                n_spatial[[2]]))
+    render$render("time", as.numeric(elapsed, units="secs"), t)
+
+    cli::cli_alert("{t} local={n_spatial[[1]]} distant={n_spatial[[2]]} {elapsed}")
   }
 
-  list(statistics=render$to_dataframe(), particles=dplyr::bind_rows(data))
+  list(
+    statistics=render$to_dataframe(),
+    # state=dplyr::bind_rows(data),
+    population=population
+  )
 }
 
-# results <- bench::press(
-#   system = c("host", "device"),
-#   size = c(1e3, 1e4, 1e5, 1e6),
-#   withr::with_options(list("mob.system" = system), bench::mark(run(size)))
-# )
-# print(results)
-
-# withr::with_options(list("mob.system" = "device"), {
-#   run(size = 1e7)
-# })
-
-# source("../profile.R")
-# withr::with_options(list("mob.system" = "device"), {
-#   profiler_run("output.prof", )
-#   # proffer::record_pprof(pprof = "output.prof", run(size = 1e6))
-#   # profiler_run("output.prof", run(size=1e6))
-# })
-
-library(ggplot2)
-library(gganimate)
-library(magrittr)
-
-source("profile.R")
-data <- withr::with_options(list("mob.system" = "host"), {
-  profiler_run("output.prof", {
-    run(50000)
-  })
+map <- terra::rast("data/uk_residential_population_2021.tif") %>%
+  terra::project("OGC:CRS84")
+result <- withr::with_options(list("mob.system" = "device"), {
+  run(map, size = 1e6)
 })
 
-p <- ggplot(data$particles, aes(x, y, colour=state)) +
-  geom_point(shape = ".") +
-  labs(title = 't={current_frame}') +
-  transition_manual(timestep)
+# data <- result$state %>%
+#   dplyr::left_join(result$population, dplyr::join_by(i))
+# p <- ggplot(data, aes(geometry=geometry, colour=state)) +
+#  geom_sf(shape = ".") +
+#  labs(title = 't={current_frame}') +
+#  transition_manual(timestep)
 
-# df <- data$statistics %>% tidyr::pivot_longer(cols=!timestep)
-# 
-# library(gridExtra)
-# base <- ggplot(df, aes(x=timestep, y=value, color=name))
-# p1 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("S","I","R")))
-# p2 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("n_community", "n_household", "n_spatial")))
-# p3 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("n_spatial_local", "n_spatial_distant")))
-# print(grid.arrange(p1, p2, p3, ncol=2))
+df <- result$statistics %>% tidyr::pivot_longer(cols=!timestep)
+library(gridExtra)
+base <- ggplot(df, aes(x=timestep, y=value, color=name))
+p1 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("S","I","R")))
+p2 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("n_community", "n_household", "n_spatial")))
+p3 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("n_spatial_local", "n_spatial_distant")))
+print(grid.arrange(p1, p2, p3, ncol=2))
