@@ -1,5 +1,6 @@
 #pragma once
 #include <mob/bernoulli.h>
+#include <mob/bitset.h>
 #include <mob/ds/partition.h>
 #include <mob/ds/span.h>
 #include <mob/intersection.h>
@@ -37,12 +38,12 @@ struct infection_list {
 
 template <typename System, typename VictimsFn>
   requires requires(VictimsFn victims_fn, uint32_t i,
-                    typename System::random::proxy rng) {
+                    mob::random_proxy<System> &rng) {
     { victims_fn(i, rng) } -> std::ranges::input_range;
   }
-size_t infection_process(typename System::random &rngs,
+size_t infection_process(mob::parallel_random<System> &rngs,
                          infection_list<System> &output,
-                         typename System::span<uint32_t> infected,
+                         mob::ds::span<System, uint32_t> infected,
                          VictimsFn victims_fn) {
   // Figure out how many people each I infects - don't store the actual targets
   // anywhere yet since we have nowhere to put the result.
@@ -50,7 +51,7 @@ size_t infection_process(typename System::random &rngs,
   thrust::transform(
       infected.begin(), infected.end(), rngs.begin(), victim_count.begin(),
       [=] __host__ __device__(uint32_t i,
-                              typename System::random::proxy rng) -> size_t {
+                              mob::random_proxy<System> &rng) -> size_t {
         // Ideally we'd pass rng_copy directly to victims_fn. Unfortunately
         // CUDA doesn't support generic lambdas, which, assuming it is a lambda,
         // means victims_fn can only support one type of RNG state and rng and
@@ -65,18 +66,14 @@ size_t infection_process(typename System::random &rngs,
 
   // Prepare some space in which to store the infection victims.
   // The cumulative sum of the victim count gives us the offset at which each I
-  // should store its victims.
-  mob::vector<System, size_t> offsets(infected.size());
-  thrust::exclusive_scan(victim_count.begin(), victim_count.end(),
-                         offsets.begin());
+  // should store its victims. The offsets vector is one element longer, giving
+  // us the total size as the final element.
 
-  size_t total_infections;
-  if (infected.size() > 0) {
-    total_infections = offsets.back() + victim_count.back();
-  } else {
-    total_infections = 0;
-  }
+  mob::vector<System, size_t> offsets(1 + infected.size());
+  thrust::inclusive_scan(victim_count.begin(), victim_count.end(),
+                         offsets.begin() + 1);
 
+  size_t total_infections = offsets.back();
   auto [infection_source, infection_victim] = output.grow(total_infections);
 
   // Select all the victims. This uses the same RNG state as our earlier
@@ -87,36 +84,35 @@ size_t infection_process(typename System::random &rngs,
   auto infection_victim_begin = infection_victim.begin();
   auto infection_source_begin = infection_source.begin();
 
-  thrust::for_each(
-      thrust::make_zip_iterator(infected.begin(), offsets.begin(),
-                                rngs.begin()),
-      thrust::make_zip_iterator(infected.end(), offsets.end(),
-                                rngs.begin() + infected.size()),
-      thrust::make_zip_function(
-          [=] __host__ __device__(uint32_t i, size_t offset,
-                                  typename System::random::proxy rng) {
-            auto victims = victims_fn(i, rng);
-            auto victim_first = infection_victim_begin + offset;
-            auto victim_last = compat::copy(victims, victim_first);
+  thrust::for_each(thrust::make_zip_iterator(infected.begin(), offsets.begin(),
+                                             rngs.begin()),
+                   thrust::make_zip_iterator(infected.end(),
+                                             offsets.begin() + infected.size(),
+                                             rngs.begin() + infected.size()),
+                   thrust::make_zip_function(
+                       [=] __host__ __device__(uint32_t i, size_t offset,
+                                               mob::random_proxy<System> &rng) {
+                         auto victims = victims_fn(i, rng);
+                         auto victim_first = infection_victim_begin + offset;
+                         auto victim_last = compat::copy(victims, victim_first);
 
-            auto source_first = infection_source_begin + offset;
-            auto source_last =
-                infection_source_begin + (victim_last - infection_victim_begin);
+                         auto source_first = infection_source_begin + offset;
+                         auto source_last =
+                             infection_source_begin +
+                             (victim_last - infection_victim_begin);
 
-            compat::fill(source_first, source_last, i);
-          }));
+                         compat::fill(source_first, source_last, i);
+                       }));
 
   return total_infections;
 }
 
 template <typename System>
-size_t homogeneous_infection_process(typename System::random &rngs,
+size_t homogeneous_infection_process(mob::parallel_random<System> &rngs,
                                      infection_list<System> &output,
                                      mob::ds::span<System, uint32_t> infected,
                                      mob::bitset_view<System> susceptible,
                                      double infection_probability) {
-  size_t n = susceptible.size();
-
   // Unfortunately bernoulli() on a bitset is not as fast as we'd want it to
   // be. Materializing the bitset into a vector first and then sampling that
   // is much faster, especially given that the `to_vector` call can be
@@ -126,14 +122,14 @@ size_t homogeneous_infection_process(typename System::random &rngs,
 
   return infection_process<System>(
       rngs, output, infected,
-      [=] __host__ __device__(uint32_t, typename System::random::proxy &rng) {
-        return bernoulli(susceptible_view, infection_probability, rng);
+      [=] __host__ __device__(uint32_t, mob::random_proxy<System> &rng) {
+        return bernoulli(susceptible_view, rng, infection_probability);
       });
 }
 
 template <typename System>
 size_t household_infection_process(
-    typename System::random &rngs, infection_list<System> &output,
+    mob::parallel_random<System> &rngs, infection_list<System> &output,
     ds::span<System, uint32_t> infected, mob::bitset_view<System> susceptible,
     ds::partition_view<System> partition,
     ds::span<System, double> infection_probability) {
@@ -142,7 +138,7 @@ size_t household_infection_process(
   };
   return infection_process<System>(
       rngs, output, infected,
-      [=] __host__ __device__(uint32_t i, typename System::random::proxy &rng) {
+      [=] __host__ __device__(uint32_t i, mob::random_proxy<System> &rng) {
         double p;
         if (infection_probability.size() == 1) {
           p = infection_probability[0];
@@ -150,13 +146,11 @@ size_t household_infection_process(
           p = infection_probability[partition.get_partition(i)];
         }
 
-        // The following two expressions would be equivalent, but the former is
-        // much faster since it avoids doing any work in the vast majority of
-        // cases:
-        // bernoulli(household) & susceptible
-        // bernoulli(household & susceptible)
-        return compat::filter(bernoulli(partition.neighbours(i), p, rng),
-                              is_susceptible);
+        // Whether we apply the bernoulli or the `is_susceptible` filter first
+        // is equivalent, but the former is much faster since it avoids doing
+        // any work in the vast majority of cases.
+        return partition.neighbours(i) | bernoulli(rng, p) |
+               compat::filter(is_susceptible);
       });
 }
 

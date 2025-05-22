@@ -11,6 +11,15 @@
 
 #pragma once
 
+// Keep this first. Both dust and CCCL try to define __host__/__device__ if not
+// using nvcc, but at least CCCL does it only if not defined already. If we
+// include CCCL first and then dust, we end up with loads of warnings about
+// redefinition.
+//
+// clang-format: off
+#include <dust/random/cuda_compatibility.hpp>
+// clang-format: on
+
 #include "bitset_wrapper.h"
 #include "infection_wrapper.h"
 #include "random_wrapper.h"
@@ -20,23 +29,21 @@
 #ifdef __NVCC__
 
 // [[Rcpp::export]]
-Rcpp::XPtr<mob::system::device::random>
+Rcpp::XPtr<mob::device_random>
 random_create_device(size_t size,
                      Rcpp::Nullable<Rcpp::NumericVector> seed = R_NilValue) {
   return random_create_wrapper<mob::system::device>(size, seed);
 }
 
 // [[Rcpp::export]]
-Rcpp::NumericVector
-random_uniform_device(Rcpp::XPtr<mob::system::device::random> rngs, size_t n,
-                      double min, double max) {
+Rcpp::NumericVector random_uniform_device(Rcpp::XPtr<mob::device_random> rngs,
+                                          size_t n, double min, double max) {
   return random_uniform_wrapper<mob::system::device>(rngs, n, min, max);
 }
 
 // [[Rcpp::export]]
-Rcpp::NumericVector
-random_binomial_device(Rcpp::XPtr<mob::system::device::random> rngs, size_t n,
-                       size_t size, double prob) {
+Rcpp::NumericVector random_binomial_device(Rcpp::XPtr<mob::device_random> rngs,
+                                           size_t n, size_t size, double prob) {
   return random_binomial_wrapper<mob::system::device>(rngs, n, size, prob);
 }
 
@@ -55,7 +62,7 @@ infection_list_create_device() {
 
 // [[Rcpp::export]]
 size_t homogeneous_infection_process_device(
-    Rcpp::XPtr<mob::system::device::random> rngs,
+    Rcpp::XPtr<mob::device_random> rngs,
     Rcpp::XPtr<mob::infection_list<mob::system::device>> output,
     Rcpp::XPtr<mob::bitset<mob::system::device>> susceptible,
     Rcpp::XPtr<mob::bitset<mob::system::device>> infected,
@@ -73,7 +80,7 @@ partition_create_device(size_t capacity, std::vector<uint32_t> population) {
 
 // [[Rcpp::export]]
 size_t household_infection_process_device(
-    Rcpp::XPtr<mob::system::device::random> rngs,
+    Rcpp::XPtr<mob::device_random> rngs,
     Rcpp::XPtr<mob::infection_list<mob::system::device>> output,
     Rcpp::XPtr<mob::bitset<mob::system::device>> susceptible,
     Rcpp::XPtr<mob::bitset<mob::system::device>> infected,
@@ -81,6 +88,40 @@ size_t household_infection_process_device(
     Rcpp::DoubleVector infection_probability) {
   return household_infection_process_wrapper<mob::system::device>(
       rngs, output, susceptible, infected, households, infection_probability);
+}
+
+// [[Rcpp::export]]
+size_t spatial_infection_naive_device(
+    Rcpp::XPtr<mob::device_random> rngs,
+    Rcpp::XPtr<mob::infection_list<mob::system::device>> output,
+    Rcpp::XPtr<mob::bitset<mob::system::device>> susceptible,
+    Rcpp::XPtr<mob::bitset<mob::system::device>> infected,
+    Rcpp::NumericVector x, Rcpp::NumericVector y, double base, double k) {
+  return spatial_infection_naive_wrapper(rngs, output, susceptible, infected, x,
+                                         y, base, k);
+}
+
+// [[Rcpp::export]]
+size_t spatial_infection_sieve_device(
+    Rcpp::XPtr<mob::device_random> rngs,
+    Rcpp::XPtr<mob::infection_list<mob::system::device>> output,
+    Rcpp::XPtr<mob::bitset<mob::system::device>> susceptible,
+    Rcpp::XPtr<mob::bitset<mob::system::device>> infected,
+    Rcpp::NumericVector x, Rcpp::NumericVector y, double base, double k) {
+  return spatial_infection_sieve_wrapper(rngs, output, susceptible, infected, x,
+                                         y, base, k);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector spatial_infection_hybrid_device(
+    Rcpp::XPtr<mob::device_random> rngs,
+    Rcpp::XPtr<mob::infection_list<mob::system::device>> output,
+    Rcpp::XPtr<mob::bitset<mob::system::device>> susceptible,
+    Rcpp::XPtr<mob::bitset<mob::system::device>> infected,
+    Rcpp::NumericVector x, Rcpp::NumericVector y, double base, double k,
+    double width) {
+  return spatial_infection_hybrid_wrapper(rngs, output, susceptible, infected,
+                                          x, y, base, k, width);
 }
 
 // [[Rcpp::export]]
@@ -152,8 +193,7 @@ void bitset_insert_device(Rcpp::XPtr<mob::bitset<mob::system::device>> ptr,
 
 // [[Rcpp::export]]
 void bitset_sample_device(Rcpp::XPtr<mob::bitset<mob::system::device>> ptr,
-                          Rcpp::XPtr<mob::system::device::random> rngs,
-                          double p) {
+                          Rcpp::XPtr<mob::device_random> rngs, double p) {
   return bitset_sample<mob::system::device>(ptr, rngs, p);
 }
 
@@ -166,23 +206,21 @@ bitset_to_vector_device(Rcpp::XPtr<mob::bitset<mob::system::device>> ptr) {
 #endif // __NVCC__
 
 // [[Rcpp::export]]
-Rcpp::XPtr<mob::system::host::random>
+Rcpp::XPtr<mob::host_random>
 random_create_host(size_t size,
                    Rcpp::Nullable<Rcpp::NumericVector> seed = R_NilValue) {
   return random_create_wrapper<mob::system::host>(size, seed);
 }
 
 // [[Rcpp::export]]
-Rcpp::NumericVector
-random_uniform_host(Rcpp::XPtr<mob::system::host::random> rngs, size_t n,
-                    double min, double max) {
+Rcpp::NumericVector random_uniform_host(Rcpp::XPtr<mob::host_random> rngs,
+                                        size_t n, double min, double max) {
   return random_uniform_wrapper<mob::system::host>(rngs, n, min, max);
 }
 
 // [[Rcpp::export]]
-Rcpp::NumericVector
-random_binomial_host(Rcpp::XPtr<mob::system::host::random> rngs, size_t n,
-                     size_t size, double prob) {
+Rcpp::NumericVector random_binomial_host(Rcpp::XPtr<mob::host_random> rngs,
+                                         size_t n, size_t size, double prob) {
   return random_binomial_wrapper<mob::system::host>(rngs, n, size, prob);
 }
 
@@ -194,7 +232,7 @@ infection_list_create_host() {
 
 // [[Rcpp::export]]
 size_t homogeneous_infection_process_host(
-    Rcpp::XPtr<mob::system::host::random> rngs,
+    Rcpp::XPtr<mob::host_random> rngs,
     Rcpp::XPtr<mob::infection_list<mob::system::host>> output,
     Rcpp::XPtr<mob::bitset<mob::system::host>> susceptible,
     Rcpp::XPtr<mob::bitset<mob::system::host>> infected,
@@ -212,7 +250,7 @@ partition_create_host(size_t capacity, std::vector<uint32_t> population) {
 
 // [[Rcpp::export]]
 size_t household_infection_process_host(
-    Rcpp::XPtr<mob::system::host::random> rngs,
+    Rcpp::XPtr<mob::host_random> rngs,
     Rcpp::XPtr<mob::infection_list<mob::system::host>> output,
     Rcpp::XPtr<mob::bitset<mob::system::host>> susceptible,
     Rcpp::XPtr<mob::bitset<mob::system::host>> infected,
@@ -220,6 +258,39 @@ size_t household_infection_process_host(
     Rcpp::DoubleVector infection_probability) {
   return household_infection_process_wrapper<mob::system::host>(
       rngs, output, susceptible, infected, households, infection_probability);
+}
+
+// [[Rcpp::export]]
+size_t spatial_infection_naive_host(
+    Rcpp::XPtr<mob::host_random> rngs,
+    Rcpp::XPtr<mob::infection_list<mob::system::host>> output,
+    Rcpp::XPtr<mob::bitset<mob::system::host>> susceptible,
+    Rcpp::XPtr<mob::bitset<mob::system::host>> infected, Rcpp::NumericVector x,
+    Rcpp::NumericVector y, double base, double k) {
+  return spatial_infection_naive_wrapper(rngs, output, susceptible, infected, x,
+                                         y, base, k);
+}
+
+// [[Rcpp::export]]
+size_t spatial_infection_sieve_host(
+    Rcpp::XPtr<mob::host_random> rngs,
+    Rcpp::XPtr<mob::infection_list<mob::system::host>> output,
+    Rcpp::XPtr<mob::bitset<mob::system::host>> susceptible,
+    Rcpp::XPtr<mob::bitset<mob::system::host>> infected, Rcpp::NumericVector x,
+    Rcpp::NumericVector y, double base, double k) {
+  return spatial_infection_sieve_wrapper(rngs, output, susceptible, infected, x,
+                                         y, base, k);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector spatial_infection_hybrid_host(
+    Rcpp::XPtr<mob::host_random> rngs,
+    Rcpp::XPtr<mob::infection_list<mob::system::host>> output,
+    Rcpp::XPtr<mob::bitset<mob::system::host>> susceptible,
+    Rcpp::XPtr<mob::bitset<mob::system::host>> infected, Rcpp::NumericVector x,
+    Rcpp::NumericVector y, double base, double k, double width) {
+  return spatial_infection_hybrid_wrapper(rngs, output, susceptible, infected,
+                                          x, y, base, k, width);
 }
 
 // [[Rcpp::export]]
@@ -297,7 +368,7 @@ void bitset_insert_host(Rcpp::XPtr<mob::bitset<mob::system::host>> ptr,
 
 // [[Rcpp::export]]
 void bitset_sample_host(Rcpp::XPtr<mob::bitset<mob::system::host>> ptr,
-                        Rcpp::XPtr<mob::system::host::random> rngs, double p) {
+                        Rcpp::XPtr<mob::host_random> rngs, double p) {
   return bitset_sample<mob::system::host>(ptr, rngs, p);
 }
 
