@@ -321,6 +321,7 @@ struct join_view {
   struct iterator {
     join_view *parent;
     OuterIterator outer_it;
+    cuda::std::optional<InnerRange> inner_range = cuda::std::nullopt;
     cuda::std::optional<InnerIterator> inner_it = cuda::std::nullopt;
 
     using value_type = cuda::std::ranges::range_value_t<InnerRange>;
@@ -342,8 +343,9 @@ struct join_view {
     }
 
     __host__ __device__ iterator &operator++() {
-      if (++(*inner_it) == cuda::std::ranges::end(*outer_it)) {
+      if (++(*inner_it) == cuda::std::ranges::end(*inner_range)) {
         ++outer_it;
+        inner_range.reset();
         satisfy();
       }
       return *this;
@@ -352,8 +354,9 @@ struct join_view {
     __host__ __device__ void satisfy() {
       for (; outer_it != cuda::std::ranges::end(parent->underlying);
            ++outer_it) {
-        inner_it = cuda::std::ranges::begin(*outer_it);
-        if (inner_it != cuda::std::ranges::end(*outer_it)) {
+        inner_range = *outer_it;
+        inner_it = cuda::std::ranges::begin(*inner_range);
+        if (inner_it != cuda::std::ranges::end(*inner_range)) {
           return;
         }
       }

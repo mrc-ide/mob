@@ -51,13 +51,13 @@ private:
   real_type probability;
 };
 
-template <cuda::std::ranges::input_range Range, typename real_type,
-          random_state rng_state_type>
+template <cuda::std::ranges::input_range Range, random_state rng_state_type,
+          typename real_type>
   requires(cuda::std::ranges::enable_view<Range> &&
            cuda::std::sized_sentinel_for<std::ranges::sentinel_t<Range>,
                                          std::ranges::iterator_t<Range>>)
 struct bernoulli_view : cuda::std::ranges::view_interface<
-                            bernoulli_view<Range, real_type, rng_state_type>> {
+                            bernoulli_view<Range, rng_state_type, real_type>> {
   using sentinel = cuda::std::default_sentinel_t;
 
   struct iterator {
@@ -144,9 +144,9 @@ private:
   real_type probability;
 };
 
-template <typename R, typename real_type, typename rng_state_type>
-bernoulli_view(R &&, real_type, rng_state_type &)
-    -> bernoulli_view<compat::all_t<R>, real_type, rng_state_type>;
+template <typename R, typename rng_state_type, typename real_type>
+bernoulli_view(R &&, rng_state_type &, real_type)
+    -> bernoulli_view<compat::all_t<R>, rng_state_type, real_type>;
 
 struct bernoulli_cpo {
   template <cuda::std::ranges::viewable_range Range, typename real_type,
