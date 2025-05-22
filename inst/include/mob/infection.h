@@ -34,6 +34,10 @@ struct infection_list {
     return std::make_pair(mob::ds::span(sources).subspan(size, n),
                           mob::ds::span(victims).subspan(size, n));
   }
+
+  size_t size() const {
+    return sources.size();
+  }
 };
 
 template <typename System, typename VictimsFn>
@@ -167,55 +171,72 @@ infection_victims(const infection_list<System> &infections) {
 }
 
 // Compute the length of contiguous runs
-template <typename InputIt, typename OutputIt1, typename OutputIt2>
-std::pair<OutputIt1, OutputIt2> run_lengths(InputIt first, InputIt last,
-                                            OutputIt1 keys, OutputIt2 values) {
-  return thrust::reduce_by_key(
-      first, last, thrust::constant_iterator<uint32_t>(1), keys, values);
+template <typename InputIt, typename OutputKeyIt, typename OutputValueIt>
+std::pair<OutputKeyIt, OutputValueIt> run_lengths(InputIt first, InputIt last,
+                                                  OutputKeyIt output_key,
+                                                  OutputValueIt output_value) {
+  return thrust::reduce_by_key(first, last,
+                               thrust::constant_iterator<uint32_t>(1),
+                               output_key, output_value);
 }
 
 /**
- * Given a segmented range of keys, for each segment, choose one of the indices.
+ * For each group of consecutive keys in the range [keys_first, keys_last) that
+ * are equal, this function selects one of the corresponding values at random.
+ *
+ * The output_key and output_value output iterators must be (at least) as large
+ * as the number of key groups. That size can be pre-determined using
+ * `thrust::unique_count(keys_first, keys_last)`.
  */
-template <typename KeyIt, typename OutputKeyIt, typename OutputValueIt>
+template <typename System, typename KeyIt, typename ValueIt,
+          typename OutputKeyIt, typename OutputValueIt>
 std::pair<OutputKeyIt, OutputValueIt>
-uniform_index_by_key(mob::host_random &rngs, KeyIt first, KeyIt last,
+random_select_by_key(mob::parallel_random<System> &rngs, KeyIt keys_first,
+                     KeyIt keys_last, ValueIt values_first,
                      OutputKeyIt output_key, OutputValueIt output_value) {
-  size_t maxn = cuda::std::distance(first, last);
-  std::vector<size_t> boundaries(maxn + 1);
+  size_t n = thrust::distance(keys_first, keys_last);
+  mob::vector<System, size_t> offsets(n + 1);
 
-  auto [keys_last, count_last] =
-      run_lengths(first, last, output_key, boundaries.begin());
-  size_t n = cuda::std::distance(output_key, keys_last);
+  auto [output_key_last, offsets_last] = run_lengths(
+      keys_first, keys_last, output_key, cuda::std::next(offsets.begin()));
+  size_t k = thrust::distance(output_key, output_key_last);
 
-  thrust::exclusive_scan(boundaries.begin(), count_last + 1,
-                         boundaries.begin());
+  thrust::inclusive_scan(cuda::std::next(offsets.begin()), offsets_last,
+                         cuda::std::next(offsets.begin()));
 
-  auto output_last = thrust::transform(
-      thrust::make_zip_iterator(boundaries.begin(), boundaries.begin() + 1,
-                                rngs.begin()),
-      thrust::make_zip_iterator(count_last, count_last + 1, rngs.begin() + n),
+  thrust::transform(
+      thrust::make_zip_iterator(offsets.begin(),
+                                cuda::std::next(offsets.begin()), rngs.begin()),
+      thrust::make_zip_iterator(cuda::std::prev(offsets_last), offsets_last,
+                                cuda::std::next(rngs.begin(), k)),
       output_value,
       thrust::make_zip_function(
-          [](uint32_t lower_bound, uint32_t upper_bound, auto &rng) {
-            return dust::random::uniform(rng, lower_bound, upper_bound);
+          [=] __host__ __device__(size_t lower_bound, size_t upper_bound,
+                                  mob::parallel_random<System>::proxy &rng) {
+            size_t i = random_bounded_int(rng, lower_bound, upper_bound);
+            return values_first[i];
           }));
 
-  return {keys_last, output_last};
+  return {output_key_last, output_value + k};
 }
 
-template <typename KeyIt, typename ValueIt, typename OutputKeyIt,
-          typename OutputValueIt>
-std::pair<OutputKeyIt, OutputValueIt>
-random_select_by_key(mob::host_random &rngs, KeyIt first, KeyIt last,
-                     ValueIt values, OutputKeyIt output_key,
-                     OutputValueIt output_value) {
-  std::vector<size_t> indices(last - first);
-  auto [keys_last, indices_last] =
-      uniform_index_by_key(first, last, output_key, indices.begin());
-  auto values_last =
-      thrust::gather(indices.begin(), indices_last, values, output_value);
-  return {keys_last, values_last};
+template <typename System>
+infection_list<System>
+infections_select(mob::parallel_random<System> &rngs,
+                  const infection_list<System> &infections) {
+  mob::vector<System, uint32_t> sources = infections.sources;
+  mob::vector<System, uint32_t> victims = infections.victims;
+
+  thrust::sort_by_key(victims.begin(), victims.end(), sources.begin());
+  size_t n = thrust::unique_count(victims.begin(), victims.end());
+
+  mob::vector<System, uint32_t> selected_sources(n);
+  mob::vector<System, uint32_t> selected_victims(n);
+
+  random_select_by_key(rngs, victims.begin(), victims.end(), sources.begin(),
+                       selected_victims.begin(), selected_sources.begin());
+
+  return {std::move(selected_sources), std::move(selected_victims)};
 }
 
 } // namespace mob
