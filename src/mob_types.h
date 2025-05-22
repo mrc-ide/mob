@@ -119,9 +119,9 @@ Rcpp::IntegerVector spatial_infection_hybrid_device(
     Rcpp::XPtr<mob::bitset<mob::system::device>> susceptible,
     Rcpp::XPtr<mob::bitset<mob::system::device>> infected,
     Rcpp::NumericVector x, Rcpp::NumericVector y, double base, double k,
-    double width) {
+    size_t n) {
   return spatial_infection_hybrid_wrapper(rngs, output, susceptible, infected,
-                                          x, y, base, k, width);
+                                          x, y, base, k, n);
 }
 
 // [[Rcpp::export]]
@@ -288,9 +288,9 @@ Rcpp::IntegerVector spatial_infection_hybrid_host(
     Rcpp::XPtr<mob::infection_list<mob::system::host>> output,
     Rcpp::XPtr<mob::bitset<mob::system::host>> susceptible,
     Rcpp::XPtr<mob::bitset<mob::system::host>> infected, Rcpp::NumericVector x,
-    Rcpp::NumericVector y, double base, double k, double width) {
+    Rcpp::NumericVector y, double base, double k, size_t n) {
   return spatial_infection_hybrid_wrapper(rngs, output, susceptible, infected,
-                                          x, y, base, k, width);
+                                          x, y, base, k, n);
 }
 
 // [[Rcpp::export]]

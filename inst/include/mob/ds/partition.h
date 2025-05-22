@@ -84,6 +84,12 @@ public:
 
   __host__ __device__ ds::span<System, const T> slice(size_t i,
                                                       size_t j) const {
+    if (i > j) {
+      dust::utils::fatal_error("invalid slice indices");
+    }
+    if (j > size()) {
+      dust::utils::fatal_error("out-of-bounds index");
+    }
     return {data_.begin() + offsets_[i], data_.begin() + offsets_[j]};
   }
 

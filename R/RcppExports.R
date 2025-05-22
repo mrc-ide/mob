@@ -41,8 +41,8 @@ spatial_infection_sieve_device <- function(rngs, output, susceptible, infected, 
     .Call(`_mob_spatial_infection_sieve_device`, rngs, output, susceptible, infected, x, y, base, k)
 }
 
-spatial_infection_hybrid_device <- function(rngs, output, susceptible, infected, x, y, base, k, width) {
-    .Call(`_mob_spatial_infection_hybrid_device`, rngs, output, susceptible, infected, x, y, base, k, width)
+spatial_infection_hybrid_device <- function(rngs, output, susceptible, infected, x, y, base, k, n) {
+    .Call(`_mob_spatial_infection_hybrid_device`, rngs, output, susceptible, infected, x, y, base, k, n)
 }
 
 infection_victims_device <- function(infections, capacity) {
@@ -133,8 +133,8 @@ spatial_infection_sieve_host <- function(rngs, output, susceptible, infected, x,
     .Call(`_mob_spatial_infection_sieve_host`, rngs, output, susceptible, infected, x, y, base, k)
 }
 
-spatial_infection_hybrid_host <- function(rngs, output, susceptible, infected, x, y, base, k, width) {
-    .Call(`_mob_spatial_infection_hybrid_host`, rngs, output, susceptible, infected, x, y, base, k, width)
+spatial_infection_hybrid_host <- function(rngs, output, susceptible, infected, x, y, base, k, n) {
+    .Call(`_mob_spatial_infection_hybrid_host`, rngs, output, susceptible, infected, x, y, base, k, n)
 }
 
 infection_victims_host <- function(infections, capacity) {

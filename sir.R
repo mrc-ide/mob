@@ -1,4 +1,5 @@
 library(ggplot2)
+library(magrittr)
 library(gganimate)
 
 options(viewer = function(url) {
@@ -43,7 +44,7 @@ run <- function(map, size, dt = 1, timesteps = 200) {
   p_community <- 0 # beta_to_p(0.06, size, dt)
   p_household <- 0 # beta_to_p(0.06, household_sizes, dt)
   p_recovery <- 0 # rate_to_p(0.05, dt)
-  r_spatial <- 0.001 / size
+  r_spatial <- 10 / (size * size)
 
   households <- mob:::partition_create(nhouseholds, households_data)
 
@@ -51,6 +52,7 @@ run <- function(map, size, dt = 1, timesteps = 200) {
 
   render <- individual::Render$new(timesteps)
 
+  cli::cli_alert("Ready!")
   data <- list()
   for (t in seq_len(timesteps)) {
     before <- Sys.time()
@@ -59,7 +61,7 @@ run <- function(map, size, dt = 1, timesteps = 200) {
     n_household <- mob:::household_infection_process(rngs, infections, susceptible, infected, households, p_household)
     n_spatial <- mob:::spatial_infection_hybrid(
       rngs, infections, susceptible, infected, coordinates[,1], coordinates[,2],
-      base=r_spatial, k=-4, width=0.04)
+      base=r_spatial, k=-4, n=12)
 
     victims <- mob:::infection_victims(infections, size)
 
@@ -89,37 +91,40 @@ run <- function(map, size, dt = 1, timesteps = 200) {
     render$render("n_household", n_household, t)
     render$render("n_spatial", sum(n_spatial), t)
     render$render("n_spatial_local", n_spatial[[1]], t)
-    render$render("n_spatial_distant", n_spatial[[2]], t)
+    render$render("n_spatial_midrange", n_spatial[[2]], t)
+    render$render("n_spatial_distant", n_spatial[[3]], t)
     render$render("n_recovery", mob:::bitset_size(recovery), t)
     render$render("time", as.numeric(elapsed, units="secs"), t)
 
-    cli::cli_alert("{t} local={n_spatial[[1]]} distant={n_spatial[[2]]} {elapsed}")
+    cli::cli_alert("{t} {n_spatial} {elapsed} S={mob:::bitset_size(susceptible)} I={mob:::bitset_size(infected)}")
+
+    if (mob:::bitset_size(susceptible) == 0) { break() }
   }
 
   list(
     statistics=render$to_dataframe(),
-    # state=dplyr::bind_rows(data),
+    state=dplyr::bind_rows(data),
     population=population
   )
 }
 
 map <- terra::rast("data/uk_residential_population_2021.tif") %>%
   terra::project("OGC:CRS84")
-result <- withr::with_options(list("mob.system" = "device"), {
-  run(map, size = 1e6)
+result <- withr::with_options(list("mob.system" = "host"), {
+  run(map, size = 1e5)
 })
 
-# data <- result$state %>%
-#   dplyr::left_join(result$population, dplyr::join_by(i))
-# p <- ggplot(data, aes(geometry=geometry, colour=state)) +
-#  geom_sf(shape = ".") +
-#  labs(title = 't={current_frame}') +
-#  transition_manual(timestep)
+data <- result$state %>%
+  dplyr::left_join(result$population, dplyr::join_by(i))
+p <- ggplot(data, aes(geometry=geometry, colour=state)) +
+ geom_sf(shape = ".") +
+ labs(title = 't={current_frame}') +
+ transition_manual(timestep)
 
 df <- result$statistics %>% tidyr::pivot_longer(cols=!timestep)
 library(gridExtra)
 base <- ggplot(df, aes(x=timestep, y=value, color=name))
 p1 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("S","I","R")))
 p2 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("n_community", "n_household", "n_spatial")))
-p3 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("n_spatial_local", "n_spatial_distant")))
+p3 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("n_spatial_local", "n_spatial_midrange", "n_spatial_distant")))
 print(grid.arrange(p1, p2, p3, ncol=2))

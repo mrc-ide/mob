@@ -140,7 +140,7 @@ spatial_infection_hybrid_wrapper(Rcpp::XPtr<mob::parallel_random<System>> rngs,
                                  Rcpp::XPtr<mob::bitset<System>> susceptible,
                                  Rcpp::XPtr<mob::bitset<System>> infected,
                                  Rcpp::NumericVector x, Rcpp::NumericVector y,
-                                 double base, double k, double width) {
+                                 double base, double k, size_t n) {
   if (rngs->size() < susceptible->capacity()) {
     Rcpp::stop("bad rng");
   }
@@ -155,10 +155,10 @@ spatial_infection_hybrid_wrapper(Rcpp::XPtr<mob::parallel_random<System>> rngs,
   }
 
   mob::spatial<System> spatial_data{{x.begin(), x.end()}, {y.begin(), y.end()}};
-  auto [n1, n2] = mob::spatial_infection_hybrid<System>(
+  auto result = mob::spatial_infection_hybrid<System>(
       *rngs, *output, infected->to_vector(), susceptible->to_vector(),
-      spatial_data, base, k, width);
-  return {static_cast<int>(n1), static_cast<int>(n2)};
+      spatial_data, base, k, n);
+  return {result.begin(), result.end()};
 }
 
 template <typename System>

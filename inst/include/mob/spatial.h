@@ -41,6 +41,12 @@ struct rect {
   __host__ __device__ double ymax() const {
     return end.y;
   }
+  __host__ __device__ double width() const {
+    return end.x - start.x;
+  }
+  __host__ __device__ double height() const {
+    return end.y - start.y;
+  }
 };
 
 __host__ __device__ rect operator|(const rect &r1, const rect &r2) {
@@ -201,10 +207,12 @@ struct spatial_hash {
 
   spatial_hash(const rect &bb, double width)
       : width(width),
+        // TODO: +2 is necessary here for when xmax() / width is already a
+        // whole number. ceil just returns the number back instead of going up
         xmin(static_cast<int32_t>(cuda::std::floor(bb.xmin() / width)) - 1),
-        xmax(static_cast<int32_t>(cuda::std::ceil(bb.xmax() / width)) + 1),
+        xmax(static_cast<int32_t>(cuda::std::ceil(bb.xmax() / width)) + 2),
         ymin(static_cast<int32_t>(cuda::std::floor(bb.ymin() / width)) - 1),
-        ymax(static_cast<int32_t>(cuda::std::ceil(bb.ymax() / width)) + 1) {}
+        ymax(static_cast<int32_t>(cuda::std::ceil(bb.ymax() / width)) + 2) {}
 
   __host__ __device__ uint32_t operator()(point p) const {
     auto [cx, cy] = map(p);
@@ -307,7 +315,7 @@ struct spatial_partition {
 
   spatial_partition(spatial_hash hash, spatial_view<System> coordinates,
                     mob::vector<System, uint32_t> individuals)
-      : hash(hash), data(individuals.size()) {
+      : hash(hash), data(hash.size()) {
     assign(coordinates, individuals);
   }
 
@@ -324,6 +332,19 @@ struct spatial_partition {
   }
 };
 
+struct lookup_cpo {
+  template <typename Lhs, typename Rhs>
+  __host__ __device__ decltype(auto) operator()(Lhs &&lhs, Rhs &&rhs) const {
+    return std::forward<Lhs>(lhs)[std::forward<Rhs>(rhs)];
+  }
+
+  template <typename Lhs>
+  __host__ __device__ auto operator()(Lhs &&lhs) const {
+    return cuda::std::bind_front(*this, std::forward<Lhs>(lhs));
+  }
+};
+__host__ __device__ static constexpr lookup_cpo lookup;
+
 template <typename System>
 struct spatial_partition_view {
   spatial_hash hash;
@@ -333,11 +354,15 @@ struct spatial_partition_view {
       : hash(partition.hash), data(partition.data) {}
 
   __host__ __device__ auto neighbours(point origin) const {
-    return hash.neighbourhood(origin) |
-           mob::compat::transform(cuda::std::bind_front(
-               &mob::ds::ragged_vector_view<System, uint32_t>::operator[],
-               data)) |
+    return hash.neighbourhood(origin) | mob::compat::transform(lookup(data)) |
            mob::compat::join;
+  }
+
+  template <random_state rng_state_type>
+  __host__ __device__ auto sample_neighbours(rng_state_type &rng, double p,
+                                             point origin) const {
+    return hash.neighbourhood(origin) | mob::compat::transform(lookup(data)) |
+           mob::compat::transform(bernoulli(rng, p)) | mob::compat::join;
   }
 };
 
@@ -356,6 +381,32 @@ size_t local_infection_process(mob::parallel_random<System> &rngs,
 
         return partition.neighbours(origin) |
                spatial_infection_filter(rng, coordinates, origin, base, k, 1);
+      });
+}
+
+template <typename System>
+size_t midrange_infection_process(mob::parallel_random<System> &rngs,
+                                  infection_list<System> &output,
+                                  mob::ds::span<System, uint32_t> infected,
+                                  mob::ds::span<System, uint32_t> susceptible,
+                                  spatial_view<System> coordinates,
+                                  spatial_partition_view<System> inner,
+                                  spatial_partition_view<System> outer,
+                                  double base, double k) {
+  double pthreshold = spatial_infection_probability(base, k, inner.hash.width);
+
+  auto is_distant = [=] __host__ __device__(point origin, uint32_t j)
+      -> bool { return !inner.hash.are_neighbours(origin, coordinates[j]); };
+
+  return infection_process<System>(
+      rngs, output, infected,
+      [=] __host__ __device__(uint32_t i, mob::random_proxy<System> &rng) {
+        auto origin = coordinates[i];
+
+        return outer.sample_neighbours(rng, pthreshold, origin) |
+               compat::filter(cuda::std::bind_front(is_distant, origin)) |
+               spatial_infection_filter(rng, coordinates, origin, base, k,
+                                        pthreshold);
       });
 }
 
@@ -384,11 +435,11 @@ size_t distant_infection_process(mob::parallel_random<System> &rngs,
 }
 
 template <typename System>
-std::pair<size_t, size_t> spatial_infection_hybrid(
+std::array<size_t, 3> spatial_infection_hybrid(
     mob::parallel_random<System> &rngs, infection_list<System> &output,
     mob::ds::span<System, uint32_t> infected,
     mob::ds::span<System, uint32_t> susceptible,
-    spatial_view<System> coordinates, double base, double k, double width) {
+    spatial_view<System> coordinates, double base, double k, size_t n) {
 
   // We could use just the susceptible bounding box, but that would require
   // extra bounds checks during queries. Having the bounding box include
@@ -396,16 +447,26 @@ std::pair<size_t, size_t> spatial_infection_hybrid(
   auto bb = bounding_box(coordinates, infected) |
             bounding_box(coordinates, susceptible);
 
+  double width = cuda::std::max(bb.width(), bb.height()) / n;
+  double width2 = width / n;
+
   spatial_hash hash(bb, width);
   spatial_partition partition(hash, coordinates,
                               {susceptible.begin(), susceptible.end()});
 
+  spatial_hash hash2(bb, width2);
+  spatial_partition partition2(hash2, coordinates,
+                               {susceptible.begin(), susceptible.end()});
+
   size_t n_local = local_infection_process<System>(
-      rngs, output, infected, susceptible, coordinates, partition, base, k);
-  size_t n_distant = distant_infection_process(
+      rngs, output, infected, susceptible, coordinates, partition2, base, k);
+  size_t n_midrange = midrange_infection_process<System>(
+      rngs, output, infected, susceptible, coordinates, partition2, partition,
+      base, k);
+  size_t n_distant = distant_infection_process<System>(
       rngs, output, infected, susceptible, coordinates, hash, base, k);
 
-  return {n_local, n_distant};
+  return {n_local, n_midrange, n_distant};
 }
 
 } // namespace mob
