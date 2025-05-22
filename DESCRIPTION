@@ -27,7 +27,8 @@ Suggests:
     patrick,
     testthat (>= 3.0.0),
     withr,
-    xml2
+    xml2,
+    dplyr
 Config/build/extra-sources:
     src/Makevars,
     src/*.cu

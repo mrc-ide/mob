@@ -125,7 +125,7 @@ struct parallel_random {
 
   static constexpr size_t width = rng_state::size();
 
-  parallel_random(size_t size, int seed = 0)
+  parallel_random(size_t size, uint64_t seed = 0)
       : size_(size), data_(size * width) {
     auto initial = dust::random::seed<rng_state>(seed);
 

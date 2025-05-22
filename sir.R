@@ -20,12 +20,12 @@ sample_population <- function(map, size) {
 
   terra::xyFromCell(map, selected) |>
     as.data.frame() |>
-    sf::st_as_sf(coords = c(1,2), crs = terra::crs(map))
+    sf::st_as_sf(coords = c(1,2), crs = terra::crs(map)) |>
+    tibble::add_column(i = 0:(size-1))
 }
 
-run <- function(map, size, dt = 1, timesteps = 200) {
-  population <- sample_population(map, size) %>% tibble::add_column(i = 0:(size-1))
-
+run <- function(population, dt = 1, timesteps = 200, beta_community = 0.06) {
+  size <- nrow(population)
   infected <- mob:::bitset_from_vector(size, sample(population$i, 1))
   susceptible <- mob:::bitset_clone(infected)
   mob:::bitset_invert(susceptible)
@@ -40,7 +40,7 @@ run <- function(map, size, dt = 1, timesteps = 200) {
 
   coordinates <- sf::st_coordinates(population)
 
-  p_community <- 0 # beta_to_p(0.06, size, dt)
+  p_community <- beta_to_p(0.06, size, dt)
   p_household <- 0 # beta_to_p(0.06, household_sizes, dt)
   p_recovery <- 0 # rate_to_p(0.05, dt)
   r_spatial <- 0.001 / size
@@ -51,6 +51,9 @@ run <- function(map, size, dt = 1, timesteps = 200) {
 
   render <- individual::Render$new(timesteps)
 
+  hue <- rep(NA_real_, size)
+  hue[mob:::bitset_to_vector(infected) + 1] <- 0
+
   data <- list()
   for (t in seq_len(timesteps)) {
     before <- Sys.time()
@@ -60,6 +63,10 @@ run <- function(map, size, dt = 1, timesteps = 200) {
     n_spatial <- mob:::spatial_infection_hybrid(
       rngs, infections, susceptible, infected, coordinates[,1], coordinates[,2],
       base=r_spatial, k=-4, width=0.04)
+
+    infections <- mob:::infections_select(rngs, infections)
+    infections_df <- mob:::infections_as_dataframe(infections)
+    print(infections_df)
 
     victims <- mob:::infection_victims(infections, size)
 
@@ -97,17 +104,20 @@ run <- function(map, size, dt = 1, timesteps = 200) {
   }
 
   list(
-    statistics=render$to_dataframe(),
+    statistics=render$to_dataframe()
     # state=dplyr::bind_rows(data),
-    population=population
   )
 }
 
 map <- terra::rast("data/uk_residential_population_2021.tif") %>%
   terra::project("OGC:CRS84")
-result <- withr::with_options(list("mob.system" = "device"), {
-  run(map, size = 1e6)
-})
+
+population <- sample_population(map, 100)
+run(population, timesteps = 1, beta_community = 1)
+
+# result <- withr::with_options(list("mob.system" = "device"), {
+#   run(map, size = 1e6)
+# })
 
 # data <- result$state %>%
 #   dplyr::left_join(result$population, dplyr::join_by(i))
@@ -116,10 +126,10 @@ result <- withr::with_options(list("mob.system" = "device"), {
 #  labs(title = 't={current_frame}') +
 #  transition_manual(timestep)
 
-df <- result$statistics %>% tidyr::pivot_longer(cols=!timestep)
-library(gridExtra)
-base <- ggplot(df, aes(x=timestep, y=value, color=name))
-p1 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("S","I","R")))
-p2 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("n_community", "n_household", "n_spatial")))
-p3 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("n_spatial_local", "n_spatial_distant")))
-print(grid.arrange(p1, p2, p3, ncol=2))
+# df <- result$statistics %>% tidyr::pivot_longer(cols=!timestep)
+# library(gridExtra)
+# base <- ggplot(df, aes(x=timestep, y=value, color=name))
+# p1 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("S","I","R")))
+# p2 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("n_community", "n_household", "n_spatial")))
+# p3 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("n_spatial_local", "n_spatial_distant")))
+# print(grid.arrange(p1, p2, p3, ncol=2))

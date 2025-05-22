@@ -195,6 +195,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// infections_from_dataframe_device
+Rcpp::XPtr<mob::infection_list<mob::system::device>> infections_from_dataframe_device(Rcpp::DataFrame df);
+RcppExport SEXP _mob_infections_from_dataframe_device(SEXP dfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type df(dfSEXP);
+    rcpp_result_gen = Rcpp::wrap(infections_from_dataframe_device(df));
+    return rcpp_result_gen;
+END_RCPP
+}
+// infections_select_device
+Rcpp::XPtr<mob::infection_list<mob::system::device>> infections_select_device(Rcpp::XPtr<mob::device_random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::device>> infections);
+RcppExport SEXP _mob_infections_select_device(SEXP rngsSEXP, SEXP infectionsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::device_random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::infection_list<mob::system::device>> >::type infections(infectionsSEXP);
+    rcpp_result_gen = Rcpp::wrap(infections_select_device(rngs, infections));
+    return rcpp_result_gen;
+END_RCPP
+}
 // selection_sampler_device
 Rcpp::NumericVector selection_sampler_device(Rcpp::NumericVector data, size_t k, Rcpp::Nullable<Rcpp::NumericVector> seed);
 RcppExport SEXP _mob_selection_sampler_device(SEXP dataSEXP, SEXP kSEXP, SEXP seedSEXP) {
@@ -491,6 +514,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// infections_from_dataframe_host
+Rcpp::XPtr<mob::infection_list<mob::system::host>> infections_from_dataframe_host(Rcpp::DataFrame df);
+RcppExport SEXP _mob_infections_from_dataframe_host(SEXP dfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::DataFrame >::type df(dfSEXP);
+    rcpp_result_gen = Rcpp::wrap(infections_from_dataframe_host(df));
+    return rcpp_result_gen;
+END_RCPP
+}
+// infections_select_host
+Rcpp::XPtr<mob::infection_list<mob::system::host>> infections_select_host(Rcpp::XPtr<mob::host_random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::host>> infections);
+RcppExport SEXP _mob_infections_select_host(SEXP rngsSEXP, SEXP infectionsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::host_random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::infection_list<mob::system::host>> >::type infections(infectionsSEXP);
+    rcpp_result_gen = Rcpp::wrap(infections_select_host(rngs, infections));
+    return rcpp_result_gen;
+END_RCPP
+}
 // bernoulli_sampler_host
 Rcpp::NumericVector bernoulli_sampler_host(Rcpp::NumericVector data, double p, Rcpp::Nullable<Rcpp::NumericVector> seed);
 RcppExport SEXP _mob_bernoulli_sampler_host(SEXP dataSEXP, SEXP pSEXP, SEXP seedSEXP) {
@@ -656,6 +702,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_spatial_infection_hybrid_device", (DL_FUNC) &_mob_spatial_infection_hybrid_device, 9},
     {"_mob_infection_victims_device", (DL_FUNC) &_mob_infection_victims_device, 2},
     {"_mob_infections_as_dataframe_device", (DL_FUNC) &_mob_infections_as_dataframe_device, 1},
+    {"_mob_infections_from_dataframe_device", (DL_FUNC) &_mob_infections_from_dataframe_device, 1},
+    {"_mob_infections_select_device", (DL_FUNC) &_mob_infections_select_device, 2},
     {"_mob_selection_sampler_device", (DL_FUNC) &_mob_selection_sampler_device, 3},
     {"_mob_betabinomial_sampler_device", (DL_FUNC) &_mob_betabinomial_sampler_device, 3},
     {"_mob_bitset_create_device", (DL_FUNC) &_mob_bitset_create_device, 1},
@@ -679,6 +727,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_spatial_infection_hybrid_host", (DL_FUNC) &_mob_spatial_infection_hybrid_host, 9},
     {"_mob_infection_victims_host", (DL_FUNC) &_mob_infection_victims_host, 2},
     {"_mob_infections_as_dataframe_host", (DL_FUNC) &_mob_infections_as_dataframe_host, 1},
+    {"_mob_infections_from_dataframe_host", (DL_FUNC) &_mob_infections_from_dataframe_host, 1},
+    {"_mob_infections_select_host", (DL_FUNC) &_mob_infections_select_host, 2},
     {"_mob_bernoulli_sampler_host", (DL_FUNC) &_mob_bernoulli_sampler_host, 3},
     {"_mob_selection_sampler_host", (DL_FUNC) &_mob_selection_sampler_host, 3},
     {"_mob_betabinomial_sampler_host", (DL_FUNC) &_mob_betabinomial_sampler_host, 3},

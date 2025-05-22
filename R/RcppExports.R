@@ -53,6 +53,14 @@ infections_as_dataframe_device <- function(infections) {
     .Call(`_mob_infections_as_dataframe_device`, infections)
 }
 
+infections_from_dataframe_device <- function(df) {
+    .Call(`_mob_infections_from_dataframe_device`, df)
+}
+
+infections_select_device <- function(rngs, infections) {
+    .Call(`_mob_infections_select_device`, rngs, infections)
+}
+
 selection_sampler_device <- function(data, k, seed = NULL) {
     .Call(`_mob_selection_sampler_device`, data, k, seed)
 }
@@ -143,6 +151,14 @@ infection_victims_host <- function(infections, capacity) {
 
 infections_as_dataframe_host <- function(infections) {
     .Call(`_mob_infections_as_dataframe_host`, infections)
+}
+
+infections_from_dataframe_host <- function(df) {
+    .Call(`_mob_infections_from_dataframe_host`, df)
+}
+
+infections_select_host <- function(rngs, infections) {
+    .Call(`_mob_infections_select_host`, rngs, infections)
 }
 
 bernoulli_sampler_host <- function(data, p, seed = NULL) {

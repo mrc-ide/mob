@@ -99,3 +99,28 @@ mob_test("household_infection_process can use different probabilities per househ
   expect_equal(df$victim, c(1, 3, 1, 3))
   expect_equal(bitset_to_vector(infection_victims(result, 8)), c(1, 3))
 })
+
+mob_test("infection_list", {
+  df <- data.frame(
+    source = c(1,1,2,2,3,3,4,4),
+    victim = c(5,6,5,6,7,8,7,8))
+  infections <- infections_from_dataframe(df)
+  expect_equal(df, infections_as_dataframe(infections))
+})
+
+mob_test("infections_select", {
+  rngs <- random_create(4)
+  df <- data.frame(
+    source = c(1,1,2,2,3,3,4,4),
+    victim = c(5,6,5,6,7,8,7,8))
+
+  infections <- infections_from_dataframe(df)
+  selected <- infections_as_dataframe(infections_select(rngs, infections))
+
+  # The selected infection contains each victim exactly once
+  expect_setequal(selected$victim, unique(df$victim))
+
+  # The source of infection for each victim matches the input dataframe
+  join <- dplyr::inner_join(df, selected, by = dplyr::join_by(source, victim))
+  expect_equal(nrow(join), nrow(selected))
+})

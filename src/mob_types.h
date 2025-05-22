@@ -138,6 +138,19 @@ Rcpp::DataFrame infections_as_dataframe_device(
 }
 
 // [[Rcpp::export]]
+Rcpp::XPtr<mob::infection_list<mob::system::device>>
+infections_from_dataframe_device(Rcpp::DataFrame df) {
+  return infections_from_dataframe<mob::system::device>(df);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::infection_list<mob::system::device>> infections_select_device(
+    Rcpp::XPtr<mob::device_random> rngs,
+    Rcpp::XPtr<mob::infection_list<mob::system::device>> infections) {
+  return infections_select_wrapper<mob::system::device>(rngs, infections);
+}
+
+// [[Rcpp::export]]
 Rcpp::NumericVector selection_sampler_device(
     Rcpp::NumericVector data, size_t k,
     Rcpp::Nullable<Rcpp::NumericVector> seed = R_NilValue) {
@@ -304,6 +317,19 @@ Rcpp::XPtr<mob::bitset<mob::system::host>> infection_victims_host(
 Rcpp::DataFrame infections_as_dataframe_host(
     Rcpp::XPtr<mob::infection_list<mob::system::host>> infections) {
   return infections_as_dataframe<mob::system::host>(infections);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::infection_list<mob::system::host>>
+infections_from_dataframe_host(Rcpp::DataFrame df) {
+  return infections_from_dataframe<mob::system::host>(df);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::infection_list<mob::system::host>> infections_select_host(
+    Rcpp::XPtr<mob::host_random> rngs,
+    Rcpp::XPtr<mob::infection_list<mob::system::host>> infections) {
+  return infections_select_wrapper<mob::system::host>(rngs, infections);
 }
 
 // [[Rcpp::export]]

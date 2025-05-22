@@ -8,12 +8,12 @@
 #include <dust/random/uniform.hpp>
 #include <thrust/transform.h>
 
-inline size_t from_seed(Rcpp::Nullable<Rcpp::NumericVector> seed) {
+inline uint64_t from_seed(Rcpp::Nullable<Rcpp::NumericVector> seed) {
   if (seed.isNotNull()) {
-    return Rcpp::as<size_t>(seed);
+    return Rcpp::as<uint64_t>(seed);
   } else {
     return std::ceil(std::abs(R::unif_rand()) *
-                     std::numeric_limits<size_t>::max());
+                     std::numeric_limits<uint64_t>::max());
   }
 }
 
