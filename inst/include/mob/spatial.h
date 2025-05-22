@@ -41,6 +41,12 @@ struct rect {
   __host__ __device__ double ymax() const {
     return end.y;
   }
+  __host__ __device__ double width() const {
+    return end.x - start.x;
+  }
+  __host__ __device__ double height() const {
+    return end.y - start.y;
+  }
 };
 
 __host__ __device__ rect operator|(const rect &r1, const rect &r2) {
@@ -201,10 +207,12 @@ struct spatial_hash {
 
   spatial_hash(const rect &bb, double width)
       : width(width),
+        // TODO: +2 is necessary here for when xmax() / width is already a
+        // whole number. ceil just returns the number back instead of going up
         xmin(static_cast<int32_t>(cuda::std::floor(bb.xmin() / width)) - 1),
-        xmax(static_cast<int32_t>(cuda::std::ceil(bb.xmax() / width)) + 1),
+        xmax(static_cast<int32_t>(cuda::std::ceil(bb.xmax() / width)) + 2),
         ymin(static_cast<int32_t>(cuda::std::floor(bb.ymin() / width)) - 1),
-        ymax(static_cast<int32_t>(cuda::std::ceil(bb.ymax() / width)) + 1) {}
+        ymax(static_cast<int32_t>(cuda::std::ceil(bb.ymax() / width)) + 2) {}
 
   __host__ __device__ uint32_t operator()(point p) const {
     auto [cx, cy] = map(p);
@@ -307,7 +315,7 @@ struct spatial_partition {
 
   spatial_partition(spatial_hash hash, spatial_view<System> coordinates,
                     mob::vector<System, uint32_t> individuals)
-      : hash(hash), data(individuals.size()) {
+      : hash(hash), data(hash.size()) {
     assign(coordinates, individuals);
   }
 
