@@ -1,5 +1,6 @@
 library(ggplot2)
 library(gganimate)
+library(magrittr)
 
 options(viewer = function(url) {
     utils::browseURL(url, browser="eog")
@@ -40,10 +41,10 @@ run <- function(population, dt = 1, timesteps = 200, beta_community = 0.06) {
 
   coordinates <- sf::st_coordinates(population)
 
-  p_community <- beta_to_p(0.06, size, dt)
+  p_community <- beta_to_p(beta_community, size, dt)
   p_household <- 0 # beta_to_p(0.06, household_sizes, dt)
   p_recovery <- 0 # rate_to_p(0.05, dt)
-  r_spatial <- 0.001 / size
+  r_spatial <- 0.01 / size
 
   households <- mob:::partition_create(nhouseholds, households_data)
 
@@ -51,8 +52,8 @@ run <- function(population, dt = 1, timesteps = 200, beta_community = 0.06) {
 
   render <- individual::Render$new(timesteps)
 
-  hue <- rep(NA_real_, size)
-  hue[mob:::bitset_to_vector(infected) + 1] <- 0
+  depth <- rep(NA_real_, size)
+  depth[mob:::bitset_to_vector(infected) + 1] <- 0
 
   data <- list()
   for (t in seq_len(timesteps)) {
@@ -62,11 +63,11 @@ run <- function(population, dt = 1, timesteps = 200, beta_community = 0.06) {
     n_household <- mob:::household_infection_process(rngs, infections, susceptible, infected, households, p_household)
     n_spatial <- mob:::spatial_infection_hybrid(
       rngs, infections, susceptible, infected, coordinates[,1], coordinates[,2],
-      base=r_spatial, k=-4, width=0.04)
+      base=r_spatial, k=-4, width=0.1)
 
     infections <- mob:::infections_select(rngs, infections)
     infections_df <- mob:::infections_as_dataframe(infections)
-    print(infections_df)
+    depth[infections_df$victim + 1] <- depth[infections_df$source + 1] + 1 #abs(rnorm(nrow(infections_df)))
 
     victims <- mob:::infection_victims(infections, size)
 
@@ -104,28 +105,51 @@ run <- function(population, dt = 1, timesteps = 200, beta_community = 0.06) {
   }
 
   list(
-    statistics=render$to_dataframe()
-    # state=dplyr::bind_rows(data),
+    statistics = render$to_dataframe(),
+    state = data,
+    depth = data.frame(i=0:(size-1), depth=depth)
   )
 }
 
-map <- terra::rast("data/uk_residential_population_2021.tif") %>%
-  terra::project("OGC:CRS84")
+render <- function(population, state, ncols=200, nrows=200) {
+  bbox <- sf::st_bbox(population)
+  r <- terra::rast(ncols=ncols, nrows=nrows,
+                   xmin = bbox$xmin,
+                   xmax = bbox$xmax,
+                   ymin = bbox$ymin,
+                   ymax = bbox$ymax,
+                   crs = terra::crs(population))
 
-population <- sample_population(map, 100)
-run(population, timesteps = 1, beta_community = 1)
+  r <- terra::rasterize(population, r)
+  r
+}
 
-# result <- withr::with_options(list("mob.system" = "device"), {
-#   run(map, size = 1e6)
-# })
+# outline <- sf::read_sf("data/CTRY_DEC_2021_UK_BUC/")
+# map <- terra::rast("data/uk_residential_population_2021.tif") %>%
+#   terra::project("OGC:CRS84")
 
-# data <- result$state %>%
-#   dplyr::left_join(result$population, dplyr::join_by(i))
-# p <- ggplot(data, aes(geometry=geometry, colour=state)) +
-#  geom_sf(shape = ".") +
-#  labs(title = 't={current_frame}') +
-#  transition_manual(timestep)
+#population <- sample_population(map, 1000)
+# result <- run(population, timesteps = 100, beta_community = 0)
 
+render(population, result$state[[1]])
+
+# for (state in result$state) {
+# }
+# 
+# # print("Join")
+# # data <- population %>%
+# #   dplyr::inner_join(result$depth, dplyr::join_by(i)) %>%
+# #   dplyr::right_join(result$state, dplyr::join_by(i))
+# # print("Join done")
+# # 
+# # p <- ggplot(data, aes(geometry=geometry)) +
+# #  geom_sf(data = outline) +
+# #  geom_sf(data = . %>% dplyr::filter(state == "S"), color="grey", shape = '.') +
+# #  geom_sf(data = . %>% dplyr::filter(state == "I"), aes(color=depth), shape = '.') +
+# #  paletteer::scale_colour_paletteer_c("viridis::plasma", name = NULL) +
+# #  labs(title = 't={current_frame}') +
+# #  transition_manual(timestep)
+# 
 # df <- result$statistics %>% tidyr::pivot_longer(cols=!timestep)
 # library(gridExtra)
 # base <- ggplot(df, aes(x=timestep, y=value, color=name))
