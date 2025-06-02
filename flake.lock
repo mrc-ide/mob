@@ -1,0 +1,98 @@
+{
+  "nodes": {
+    "flake-parts": {
+      "inputs": {
+        "nixpkgs-lib": "nixpkgs-lib"
+      },
+      "locked": {
+        "lastModified": 1730504689,
+        "narHash": "sha256-hgmguH29K2fvs9szpq2r3pz2/8cJd2LPS+b4tfNFCwE=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "506278e768c2a08bec68eb62932193e341f55c90",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "mrc-ide": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1748599909,
+        "narHash": "sha256-tv2FPHWlfq/4mVRSZmsWBkYq83KBu4TJ7mYdhOpDCcI=",
+        "ref": "refs/heads/master",
+        "rev": "9c87a9611f2413ae83e40d3c99dbebd8bae1402e",
+        "revCount": 1973,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/r-universe/mrc-ide"
+      },
+      "original": {
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/r-universe/mrc-ide"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1746461020,
+        "narHash": "sha256-7+pG1I9jvxNlmln4YgnlW4o+w0TZX24k688mibiFDUE=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "3730d8a308f94996a9ba7c7138ede69c1b9ac4ae",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-lib": {
+      "locked": {
+        "lastModified": 1730504152,
+        "narHash": "sha256-lXvH/vOfb4aGYyvFmZK/HlsNsr/0CVWlwYvo2rxJk3s=",
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs/archive/cc2f28000298e1269cea6612cd06ec9979dd5d7f.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs/archive/cc2f28000298e1269cea6612cd06ec9979dd5d7f.tar.gz"
+      }
+    },
+    "reside": {
+      "inputs": {
+        "flake-parts": "flake-parts",
+        "mrc-ide": "mrc-ide",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1748897134,
+        "narHash": "sha256-DK7mF2bH6BtT3BryYTQZJq0U/+EB0u+DPynCvU6ylts=",
+        "owner": "plietar",
+        "repo": "reside.nix",
+        "rev": "62556c2d4fb35d0bf34321b7612ef31bcf3d5923",
+        "type": "github"
+      },
+      "original": {
+        "owner": "plietar",
+        "repo": "reside.nix",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "reside": "reside"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
