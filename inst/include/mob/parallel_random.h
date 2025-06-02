@@ -254,6 +254,10 @@ struct parallel_random {
     return size_;
   }
 
+  proxy_base front() {
+    return *begin();
+  }
+
 private:
   size_t size_;
   vector_type data_;

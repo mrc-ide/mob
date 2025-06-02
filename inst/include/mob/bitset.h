@@ -2,6 +2,7 @@
 
 #include <mob/bits.h>
 #include <mob/ds/span.h>
+#include <mob/sample.h>
 #include <mob/system.h>
 
 #include <dust/random/prng.hpp>
@@ -10,7 +11,7 @@
 
 namespace mob {
 
-template <typename System>
+template <typename System, bool IsConst = false>
 struct bitset_view;
 
 template <typename System>
@@ -22,12 +23,12 @@ struct bitset {
       : capacity_(capacity), data_((capacity + num_bits - 1) / num_bits) {}
 
   void operator|=(bitset_view<System> other) {
-    if (capacity_ != other.capacity_) {
+    if (capacity_ != other.capacity()) {
       throw std::logic_error("bitsets have different sizes");
     }
     thrust::for_each(
-        thrust::make_zip_iterator(data_.begin(), other.data_.begin()),
-        thrust::make_zip_iterator(data_.end(), other.data_.end()),
+        thrust::make_zip_iterator(data_.begin(), other.data().begin()),
+        thrust::make_zip_iterator(data_.end(), other.data().end()),
         thrust::make_zip_function(
             [] __host__ __device__(word_type & left, word_type right) {
               left |= right;
@@ -35,12 +36,12 @@ struct bitset {
   }
 
   void remove(bitset_view<System> other) {
-    if (capacity_ != other.capacity_) {
+    if (capacity_ != other.capacity()) {
       throw std::logic_error("bitsets have different sizes");
     }
     thrust::for_each(
-        thrust::make_zip_iterator(data_.begin(), other.data_.begin()),
-        thrust::make_zip_iterator(data_.end(), other.data_.end()),
+        thrust::make_zip_iterator(data_.begin(), other.data().begin()),
+        thrust::make_zip_iterator(data_.end(), other.data().end()),
         thrust::make_zip_function(
             [] __host__ __device__(word_type & left, word_type right) {
               left &= ~right;
@@ -105,7 +106,7 @@ struct bitset {
 
   template <typename rng_state>
   void sample(rng_state &rngs, double p) {
-    // TODO: we should be more clever than this and possibly use
+    // TODO: we chould be more clever than this and possibly use
     // fast_bernoulli, like individual does. The obvious way to do that is
     // fully sequential though, so we would want a compromise
     thrust::for_each(
@@ -128,23 +129,34 @@ struct bitset {
     return bitset_view(*this).to_vector();
   }
 
+  mob::ds::span<System, word_type> data() {
+    return data_;
+  }
+
+  mob::ds::span<System, const word_type> data() const {
+    return data_;
+  }
+
+  template <typename rng_state>
+  void choose(rng_state &rngs, size_t k) {
+    return bitset_view<System, false>(*this).choose(rngs, k);
+  }
+
 private:
   size_t capacity_;
   mob::vector<System, word_type> data_;
-
-  friend bitset_view<System>;
 };
 
-template <typename System>
+template <typename System, bool IsConst>
 struct bitset_view {
   using word_type = uint32_t;
+  using storage_type = std::conditional_t<IsConst, const word_type, word_type>;
+
   static constexpr size_t num_bits = sizeof(word_type) * 8;
 
-  mob::ds::span<System, const word_type> data_;
-  size_t capacity_;
-
-  bitset_view(const bitset<System> &bitset)
-      : data_(bitset.data_), capacity_(bitset.capacity_) {}
+  bitset_view(
+      std::conditional_t<IsConst, const bitset<System>, bitset<System>> &bitset)
+      : data_(bitset.data()), capacity_(bitset.capacity()) {}
 
   size_t size() const {
     return thrust::transform_reduce(
@@ -201,10 +213,16 @@ struct bitset_view {
         : parent_(parent), position_(position) {}
 
     __host__ __device__ iterator &operator+=(size_t n) {
-      if (position_ < parent_->capacity_ - n) {
-        position_ = parent_->next_position(position_ + 1, n - 1);
-      } else {
-        position_ = parent_->capacity_;
+      if (position_ + n > parent_->capacity_) {
+        dust::utils::fatal_error("out of bounds bitset iterator skip");
+      }
+
+      if (n != 0) {
+        if (position_ < parent_->capacity_ - n) {
+          position_ = parent_->next_position(position_ + 1, n - 1);
+        } else {
+          position_ = parent_->capacity_;
+        }
       }
       return *this;
     }
@@ -248,6 +266,18 @@ struct bitset_view {
     return iterator{this, static_cast<uint32_t>(capacity_)};
   }
 
+  __host__ __device__ iterator erase(iterator it) const
+    requires(!IsConst)
+  {
+    uint32_t p = *it;
+    ++it;
+    uint32_t bucket = p / num_bits;
+    uint32_t excess = p % num_bits;
+    word_type mask = (static_cast<word_type>(1) << excess);
+    data_[bucket] = data_[bucket] & ~mask;
+    return it;
+  }
+
   __host__ __device__ bool contains(uint32_t p) const {
     uint32_t bucket = p / num_bits;
     uint32_t excess = p % num_bits;
@@ -271,6 +301,50 @@ struct bitset_view {
     uint8_t r = bits::select(word, n);
     return cuda::std::min<uint32_t>(bucket * num_bits + excess + r, capacity_);
   }
+
+  // TODO: parallelize this. This runs completely sequentially. If the data is
+  // on the GPU, the code will run there but it will run as a single thread.
+  //
+  // "Efficient Parallel Random Sampling—Vectorized, Cache-Efficient, and
+  // Online" by Sanders et al suggests using a hypergeometric distribution to
+  // divide-and-conquer the input.
+  template <typename rng_state>
+    requires(!IsConst)
+  void choose(rng_state &rngs, size_t k) {
+    size_t n = size();
+    if (k > n) {
+      dust::utils::fatal_error("invalid bitset choose arguments");
+    }
+
+    auto rng = rngs.front();
+    auto self = *this;
+    mob::execute<System>([self, n, k, rng] __device__ __host__() {
+      iterator it = self.begin();
+      lazy_betabinomial_sampler sampler(n, n - k);
+      while (sampler.has_next()) {
+        it += sampler.next(rng);
+        it = self.erase(it);
+      }
+    });
+  }
+
+  mob::ds::span<System, storage_type> data() const {
+    return data_;
+  };
+
+  size_t capacity() const {
+    return capacity_;
+  }
+
+private:
+  mob::ds::span<System, storage_type> data_;
+  size_t capacity_;
 };
+
+template <typename System>
+bitset_view(bitset<System> &) -> bitset_view<System, false>;
+
+template <typename System>
+bitset_view(const bitset<System> &) -> bitset_view<System, true>;
 
 } // namespace mob

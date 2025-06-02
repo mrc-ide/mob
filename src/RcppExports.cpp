@@ -332,6 +332,18 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// bitset_choose_device
+void bitset_choose_device(Rcpp::XPtr<mob::bitset<mob::system::device>> ptr, Rcpp::XPtr<mob::device_random> rngs, size_t k);
+RcppExport SEXP _mob_bitset_choose_device(SEXP ptrSEXP, SEXP rngsSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::device>> >::type ptr(ptrSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::device_random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
+    bitset_choose_device(ptr, rngs, k);
+    return R_NilValue;
+END_RCPP
+}
 // bitset_to_vector_device
 Rcpp::IntegerVector bitset_to_vector_device(Rcpp::XPtr<mob::bitset<mob::system::device>> ptr);
 RcppExport SEXP _mob_bitset_to_vector_device(SEXP ptrSEXP) {
@@ -664,6 +676,18 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// bitset_choose_host
+void bitset_choose_host(Rcpp::XPtr<mob::bitset<mob::system::host>> ptr, Rcpp::XPtr<mob::host_random> rngs, size_t k);
+RcppExport SEXP _mob_bitset_choose_host(SEXP ptrSEXP, SEXP rngsSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::host>> >::type ptr(ptrSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::host_random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
+    bitset_choose_host(ptr, rngs, k);
+    return R_NilValue;
+END_RCPP
+}
 // bitset_to_vector_host
 Rcpp::IntegerVector bitset_to_vector_host(Rcpp::XPtr<mob::bitset<mob::system::host>> ptr);
 RcppExport SEXP _mob_bitset_to_vector_host(SEXP ptrSEXP) {
@@ -714,6 +738,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_bitset_invert_device", (DL_FUNC) &_mob_bitset_invert_device, 1},
     {"_mob_bitset_insert_device", (DL_FUNC) &_mob_bitset_insert_device, 2},
     {"_mob_bitset_sample_device", (DL_FUNC) &_mob_bitset_sample_device, 3},
+    {"_mob_bitset_choose_device", (DL_FUNC) &_mob_bitset_choose_device, 3},
     {"_mob_bitset_to_vector_device", (DL_FUNC) &_mob_bitset_to_vector_device, 1},
     {"_mob_random_create_host", (DL_FUNC) &_mob_random_create_host, 2},
     {"_mob_random_uniform_host", (DL_FUNC) &_mob_random_uniform_host, 4},
@@ -740,6 +765,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_bitset_invert_host", (DL_FUNC) &_mob_bitset_invert_host, 1},
     {"_mob_bitset_insert_host", (DL_FUNC) &_mob_bitset_insert_host, 2},
     {"_mob_bitset_sample_host", (DL_FUNC) &_mob_bitset_sample_host, 3},
+    {"_mob_bitset_choose_host", (DL_FUNC) &_mob_bitset_choose_host, 3},
     {"_mob_bitset_to_vector_host", (DL_FUNC) &_mob_bitset_to_vector_host, 1},
     {"_mob_run_catch", (DL_FUNC) &_mob_run_catch, 2},
     {NULL, NULL, 0}

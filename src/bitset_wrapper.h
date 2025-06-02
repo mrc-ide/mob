@@ -56,6 +56,12 @@ void bitset_sample(Rcpp::XPtr<mob::bitset<System>> ptr,
 }
 
 template <typename System>
+void bitset_choose(Rcpp::XPtr<mob::bitset<System>> ptr,
+                   Rcpp::XPtr<mob::parallel_random<System>> rngs, size_t k) {
+  (*ptr).choose(*rngs, k);
+}
+
+template <typename System>
 Rcpp::IntegerVector bitset_to_vector(Rcpp::XPtr<mob::bitset<System>> ptr) {
   return asRcppVector(mob::bitset_view(*ptr).to_vector());
 }

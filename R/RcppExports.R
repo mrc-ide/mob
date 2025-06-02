@@ -101,6 +101,10 @@ bitset_sample_device <- function(ptr, rngs, p) {
     invisible(.Call(`_mob_bitset_sample_device`, ptr, rngs, p))
 }
 
+bitset_choose_device <- function(ptr, rngs, k) {
+    invisible(.Call(`_mob_bitset_choose_device`, ptr, rngs, k))
+}
+
 bitset_to_vector_device <- function(ptr) {
     .Call(`_mob_bitset_to_vector_device`, ptr)
 }
@@ -203,6 +207,10 @@ bitset_insert_host <- function(ptr, values) {
 
 bitset_sample_host <- function(ptr, rngs, p) {
     invisible(.Call(`_mob_bitset_sample_host`, ptr, rngs, p))
+}
+
+bitset_choose_host <- function(ptr, rngs, k) {
+    invisible(.Call(`_mob_bitset_choose_host`, ptr, rngs, k))
 }
 
 bitset_to_vector_host <- function(ptr) {

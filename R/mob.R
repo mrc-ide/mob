@@ -33,6 +33,7 @@ bitset_invert <- create_wrapper("bitset_invert")
 bitset_insert <- create_wrapper("bitset_insert")
 bitset_size <- create_wrapper("bitset_size")
 bitset_sample <- create_wrapper("bitset_sample")
+bitset_choose <- create_wrapper("bitset_choose")
 bitset_to_vector <- create_wrapper("bitset_to_vector")
 
 bitset_from_vector <- function(capacity, values) {
