@@ -198,6 +198,12 @@ void bitset_sample_device(Rcpp::XPtr<mob::bitset<mob::system::device>> ptr,
 }
 
 // [[Rcpp::export]]
+void bitset_choose_device(Rcpp::XPtr<mob::bitset<mob::system::device>> ptr,
+                          Rcpp::XPtr<mob::device_random> rngs, size_t k) {
+  return bitset_choose<mob::system::device>(ptr, rngs, k);
+}
+
+// [[Rcpp::export]]
 Rcpp::IntegerVector
 bitset_to_vector_device(Rcpp::XPtr<mob::bitset<mob::system::device>> ptr) {
   return bitset_to_vector<mob::system::device>(ptr);
@@ -370,6 +376,12 @@ void bitset_insert_host(Rcpp::XPtr<mob::bitset<mob::system::host>> ptr,
 void bitset_sample_host(Rcpp::XPtr<mob::bitset<mob::system::host>> ptr,
                         Rcpp::XPtr<mob::host_random> rngs, double p) {
   return bitset_sample<mob::system::host>(ptr, rngs, p);
+}
+
+// [[Rcpp::export]]
+void bitset_choose_host(Rcpp::XPtr<mob::bitset<mob::system::host>> ptr,
+                        Rcpp::XPtr<mob::host_random> rngs, size_t k) {
+  return bitset_choose<mob::system::host>(ptr, rngs, k);
 }
 
 // [[Rcpp::export]]

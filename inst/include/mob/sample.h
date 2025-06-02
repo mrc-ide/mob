@@ -119,4 +119,25 @@ betabinomial_sampler(rng_state_type &rng_state, InputIt input_start,
   }
 }
 
+struct lazy_betabinomial_sampler {
+  __host__ __device__ lazy_betabinomial_sampler(size_t n, size_t k)
+      : n(n), k(k) {}
+
+  __host__ __device__ bool has_next() const {
+    return k != 0;
+  }
+
+  template <typename rng_state_type>
+  __host__ __device__ size_t next(rng_state_type &rng_state) {
+    size_t skip = betabinomial_alpha1<double>(rng_state, k, n - k);
+    n -= skip + 1;
+    k -= 1;
+    return skip;
+  }
+
+private:
+  size_t n;
+  size_t k;
+};
+
 } // namespace mob
