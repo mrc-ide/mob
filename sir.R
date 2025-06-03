@@ -1,5 +1,7 @@
 library(ggplot2)
 library(gganimate)
+library(magrittr)
+library(gridExtra)
 
 options(viewer = function(url) {
     utils::browseURL(url, browser="eog")
@@ -24,11 +26,24 @@ sample_population <- function(map, size) {
     tibble::add_column(i = 0:(size-1))
 }
 
-run <- function(population, dt = 1, timesteps = 200, beta_community = 0.06) {
+run <- function(
+  population,
+  dt = 1,
+  timesteps = 200,
+  beta_community = 0.06,
+  beta_household = 0.06,
+  gamma = 0.05)
+{
   size <- nrow(population)
-  infected <- mob:::bitset_from_vector(size, sample(population$i, 1))
+  rngs <- mob:::random_create(size)
+
+  infected <- mob:::bitset_create(size)
+  mob:::bitset_invert(infected)
+  mob:::bitset_choose(infected, rngs, 1)
+
   susceptible <- mob:::bitset_clone(infected)
   mob:::bitset_invert(susceptible)
+
   recovered <- mob:::bitset_create(size)
 
   nhouseholds <- size %/% 5
@@ -40,19 +55,17 @@ run <- function(population, dt = 1, timesteps = 200, beta_community = 0.06) {
 
   coordinates <- sf::st_coordinates(population)
 
-  p_community <- beta_to_p(0.06, size, dt)
-  p_household <- 0 # beta_to_p(0.06, household_sizes, dt)
-  p_recovery <- 0 # rate_to_p(0.05, dt)
-  r_spatial <- 0.001 / size
+  p_community <- beta_to_p(beta_community, size, dt)
+  p_household <- beta_to_p(beta_household, household_sizes, dt)
+  p_recovery <- rate_to_p(gamma, dt)
+  r_spatial <- 0.01 / size
 
   households <- mob:::partition_create(nhouseholds, households_data)
 
-  rngs <- mob:::random_create(size)
-
   render <- individual::Render$new(timesteps)
 
-  hue <- rep(NA_real_, size)
-  hue[mob:::bitset_to_vector(infected) + 1] <- 0
+  depth <- rep(NA_real_, size)
+  depth[mob:::bitset_to_vector(infected) + 1] <- 0
 
   data <- list()
   for (t in seq_len(timesteps)) {
@@ -62,11 +75,11 @@ run <- function(population, dt = 1, timesteps = 200, beta_community = 0.06) {
     n_household <- mob:::household_infection_process(rngs, infections, susceptible, infected, households, p_household)
     n_spatial <- mob:::spatial_infection_hybrid(
       rngs, infections, susceptible, infected, coordinates[,1], coordinates[,2],
-      base=r_spatial, k=-4, width=0.04)
+      base=r_spatial, k=-4, width=0.1)
 
     infections <- mob:::infections_select(rngs, infections)
     infections_df <- mob:::infections_as_dataframe(infections)
-    print(infections_df)
+    depth[infections_df$victim + 1] <- depth[infections_df$source + 1] + 1 #abs(rnorm(nrow(infections_df)))
 
     victims <- mob:::infection_victims(infections, size)
 
@@ -104,32 +117,48 @@ run <- function(population, dt = 1, timesteps = 200, beta_community = 0.06) {
   }
 
   list(
-    statistics=render$to_dataframe()
-    # state=dplyr::bind_rows(data),
+    statistics = render$to_dataframe(),
+    state = data,
+    depth = data.frame(i=0:(size-1), depth=depth)
   )
 }
 
+render <- function(population, state, ncols=200, nrows=200) {
+  bbox <- sf::st_bbox(population)
+  r <- terra::rast(ncols=ncols, nrows=nrows,
+                   xmin = bbox$xmin,
+                   xmax = bbox$xmax,
+                   ymin = bbox$ymin,
+                   ymax = bbox$ymax,
+                   crs = terra::crs(population))
+
+  r <- terra::rasterize(population, r, field="depth")
+  r
+}
+
+outline <- sf::read_sf("data/CTRY_DEC_2021_UK_BUC/")
 map <- terra::rast("data/uk_residential_population_2021.tif") %>%
   terra::project("OGC:CRS84")
 
-population <- sample_population(map, 100)
-run(population, timesteps = 1, beta_community = 1)
+withr::local_options("mob.system" = "device")
 
-# result <- withr::with_options(list("mob.system" = "device"), {
-#   run(map, size = 1e6)
-# })
+population <- sample_population(map, 1e5)
+result <- run(population, timesteps = 100, beta_community = 0, beta_household = 0, gamma = 0)
 
-# data <- result$state %>%
-#   dplyr::left_join(result$population, dplyr::join_by(i))
-# p <- ggplot(data, aes(geometry=geometry, colour=state)) +
-#  geom_sf(shape = ".") +
-#  labs(title = 't={current_frame}') +
-#  transition_manual(timestep)
+p <- ggplot() +
+  geom_sf(data = outline) +
+  tidyterra::geom_spatraster(
+    data = render(population %>% dplyr::inner_join(result$depth), result$state[[100]]),
+    aes(fill = after_stat(value))
+  ) +
+  scale_fill_viridis_c(option = "plasma", na.value = "transparent")
 
-# df <- result$statistics %>% tidyr::pivot_longer(cols=!timestep)
-# library(gridExtra)
-# base <- ggplot(df, aes(x=timestep, y=value, color=name))
-# p1 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("S","I","R")))
-# p2 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("n_community", "n_household", "n_spatial")))
-# p3 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("n_spatial_local", "n_spatial_distant")))
-# print(grid.arrange(p1, p2, p3, ncol=2))
+ggsave("map.pdf", p)
+
+df <- result$statistics %>% tidyr::pivot_longer(cols=!timestep)
+base <- ggplot(df, aes(x=timestep, y=value, color=name))
+p1 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("S","I","R")))
+p2 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("n_community", "n_household", "n_spatial")))
+p3 <- base + geom_line(data = . %>% dplyr::filter(name %in% c("n_spatial_local", "n_spatial_distant")))
+p <- arrangeGrob(p1, p2, p3, ncol=2)
+ggsave("statistics.pdf", p)
