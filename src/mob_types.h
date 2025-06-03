@@ -42,6 +42,12 @@ Rcpp::NumericVector random_uniform_device(Rcpp::XPtr<mob::device_random> rngs,
 }
 
 // [[Rcpp::export]]
+void random_uniform_benchmark_device(Rcpp::XPtr<mob::device_random> rngs,
+                                     size_t n, double min, double max) {
+  random_uniform_benchmark_wrapper<mob::system::device>(rngs, n, min, max);
+}
+
+// [[Rcpp::export]]
 Rcpp::NumericVector random_binomial_device(Rcpp::XPtr<mob::device_random> rngs,
                                            size_t n, size_t size, double prob) {
   return random_binomial_wrapper<mob::system::device>(rngs, n, size, prob);
@@ -235,6 +241,12 @@ random_create_host(size_t size,
 Rcpp::NumericVector random_uniform_host(Rcpp::XPtr<mob::host_random> rngs,
                                         size_t n, double min, double max) {
   return random_uniform_wrapper<mob::system::host>(rngs, n, min, max);
+}
+
+// [[Rcpp::export]]
+void random_uniform_benchmark_host(Rcpp::XPtr<mob::host_random> rngs, size_t n,
+                                   double min, double max) {
+  random_uniform_benchmark_wrapper<mob::system::host>(rngs, n, min, max);
 }
 
 // [[Rcpp::export]]

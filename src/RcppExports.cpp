@@ -37,6 +37,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// random_uniform_benchmark_device
+void random_uniform_benchmark_device(Rcpp::XPtr<mob::device_random> rngs, size_t n, double min, double max);
+RcppExport SEXP _mob_random_uniform_benchmark_device(SEXP rngsSEXP, SEXP nSEXP, SEXP minSEXP, SEXP maxSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::device_random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type min(minSEXP);
+    Rcpp::traits::input_parameter< double >::type max(maxSEXP);
+    random_uniform_benchmark_device(rngs, n, min, max);
+    return R_NilValue;
+END_RCPP
+}
 // random_binomial_device
 Rcpp::NumericVector random_binomial_device(Rcpp::XPtr<mob::device_random> rngs, size_t n, size_t size, double prob);
 RcppExport SEXP _mob_random_binomial_device(SEXP rngsSEXP, SEXP nSEXP, SEXP sizeSEXP, SEXP probSEXP) {
@@ -381,6 +394,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// random_uniform_benchmark_host
+void random_uniform_benchmark_host(Rcpp::XPtr<mob::host_random> rngs, size_t n, double min, double max);
+RcppExport SEXP _mob_random_uniform_benchmark_host(SEXP rngsSEXP, SEXP nSEXP, SEXP minSEXP, SEXP maxSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::host_random> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
+    Rcpp::traits::input_parameter< double >::type min(minSEXP);
+    Rcpp::traits::input_parameter< double >::type max(maxSEXP);
+    random_uniform_benchmark_host(rngs, n, min, max);
+    return R_NilValue;
+END_RCPP
+}
 // random_binomial_host
 Rcpp::NumericVector random_binomial_host(Rcpp::XPtr<mob::host_random> rngs, size_t n, size_t size, double prob);
 RcppExport SEXP _mob_random_binomial_host(SEXP rngsSEXP, SEXP nSEXP, SEXP sizeSEXP, SEXP probSEXP) {
@@ -715,6 +741,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_mob_random_create_device", (DL_FUNC) &_mob_random_create_device, 2},
     {"_mob_random_uniform_device", (DL_FUNC) &_mob_random_uniform_device, 4},
+    {"_mob_random_uniform_benchmark_device", (DL_FUNC) &_mob_random_uniform_benchmark_device, 4},
     {"_mob_random_binomial_device", (DL_FUNC) &_mob_random_binomial_device, 4},
     {"_mob_bernoulli_sampler_device", (DL_FUNC) &_mob_bernoulli_sampler_device, 3},
     {"_mob_infection_list_create_device", (DL_FUNC) &_mob_infection_list_create_device, 0},
@@ -742,6 +769,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_bitset_to_vector_device", (DL_FUNC) &_mob_bitset_to_vector_device, 1},
     {"_mob_random_create_host", (DL_FUNC) &_mob_random_create_host, 2},
     {"_mob_random_uniform_host", (DL_FUNC) &_mob_random_uniform_host, 4},
+    {"_mob_random_uniform_benchmark_host", (DL_FUNC) &_mob_random_uniform_benchmark_host, 4},
     {"_mob_random_binomial_host", (DL_FUNC) &_mob_random_binomial_host, 4},
     {"_mob_infection_list_create_host", (DL_FUNC) &_mob_infection_list_create_host, 0},
     {"_mob_homogeneous_infection_process_host", (DL_FUNC) &_mob_homogeneous_infection_process_host, 5},
