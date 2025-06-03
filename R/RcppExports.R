@@ -9,6 +9,10 @@ random_uniform_device <- function(rngs, n, min, max) {
     .Call(`_mob_random_uniform_device`, rngs, n, min, max)
 }
 
+random_uniform_benchmark_device <- function(rngs, n, min, max) {
+    invisible(.Call(`_mob_random_uniform_benchmark_device`, rngs, n, min, max))
+}
+
 random_binomial_device <- function(rngs, n, size, prob) {
     .Call(`_mob_random_binomial_device`, rngs, n, size, prob)
 }
@@ -115,6 +119,10 @@ random_create_host <- function(size, seed = NULL) {
 
 random_uniform_host <- function(rngs, n, min, max) {
     .Call(`_mob_random_uniform_host`, rngs, n, min, max)
+}
+
+random_uniform_benchmark_host <- function(rngs, n, min, max) {
+    invisible(.Call(`_mob_random_uniform_benchmark_host`, rngs, n, min, max))
 }
 
 random_binomial_host <- function(rngs, n, size, prob) {

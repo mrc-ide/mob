@@ -43,6 +43,22 @@ random_uniform_wrapper(Rcpp::XPtr<mob::parallel_random<System>> rngs, size_t n,
 }
 
 template <typename System>
+void random_uniform_benchmark_wrapper(
+    Rcpp::XPtr<mob::parallel_random<System>> rngs, size_t n, double min,
+    double max) {
+  if (rngs->size() < n) {
+    Rcpp::stop("RNG state is too small: %d < %d", rngs->size(), n);
+  }
+
+  mob::vector<System, double> result(n);
+  thrust::transform(
+      rngs->begin(), rngs->begin() + n, result.begin(),
+      [min, max] __host__ __device__(mob::random_proxy<System> & rng) {
+        return dust::random::uniform<double>(rng, min, max);
+      });
+}
+
+template <typename System>
 Rcpp::NumericVector
 random_binomial_wrapper(Rcpp::XPtr<mob::parallel_random<System>> rngs, size_t n,
                         size_t size, double prob) {

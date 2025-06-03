@@ -7,6 +7,7 @@ create_wrapper <- function(name, f) {
 
 random_create <- create_wrapper("random_create")
 random_uniform <- create_wrapper("random_uniform")
+random_uniform_benchmark <- create_wrapper("random_uniform_benchmark")
 random_binomial <- create_wrapper("random_binomial")
 
 selection_sampler <- create_wrapper("selection_sampler")
