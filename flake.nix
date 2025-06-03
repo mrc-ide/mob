@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
     reside.url = "github:plietar/reside.nix";
     reside.inputs.nixpkgs.follows = "nixpkgs";
   };
@@ -78,6 +78,7 @@
               pkgs.rPackages.terra
               pkgs.rPackages.tidyterra
               pkgs.rPackages.tidyverse
+              pkgs.rPackages.patrick
             ];
           })
         ];

@@ -34,4 +34,4 @@ RcppExports.cuda.cu: RcppExports.cpp
 # host compiler. We could prefix all of CXXFLAGS with `-Xcompiler`, but then
 # nvcc wouldn't see the flags it does understand such as -O2.
 %.o: %.cu
-	$(NVCC) --forward-unknown-to-host-compiler $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(NVCCFLAGS) -c $< -o $@
+	$(NVCC) --forward-unknown-to-host-compiler $(ALL_CPPFLAGS) $(filter-out -Werror=format-security,$(ALL_CXXFLAGS)) $(NVCCFLAGS) -c $< -o $@

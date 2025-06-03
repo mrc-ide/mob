@@ -7,7 +7,7 @@ mob_test("random_uniform returns a vector of the right size", {
 })
 
 test_that("host and system produce identical numbers", {
-  skip_on_ci() # No CUDA on CI
+  skip_if_no_cuda()
 
   size <- 1e4
   seed <- sample.int(1e9, 1)
