@@ -217,7 +217,3 @@ bitset_to_vector_host <- function(ptr) {
     .Call(`_mob_bitset_to_vector_host`, ptr)
 }
 
-run_catch <- function(args = NULL, fork = TRUE) {
-    invisible(.Call(`_mob_run_catch`, args, fork))
-}
-

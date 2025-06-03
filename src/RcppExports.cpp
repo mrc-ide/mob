@@ -699,18 +699,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// run_catch
-bool run_catch(Rcpp::Nullable<Rcpp::StringVector> args, bool fork);
-RcppExport SEXP _mob_run_catch(SEXP argsSEXP, SEXP forkSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::StringVector> >::type args(argsSEXP);
-    Rcpp::traits::input_parameter< bool >::type fork(forkSEXP);
-    rcpp_result_gen = Rcpp::wrap(run_catch(args, fork));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mob_random_create_device", (DL_FUNC) &_mob_random_create_device, 2},
@@ -767,7 +755,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_bitset_sample_host", (DL_FUNC) &_mob_bitset_sample_host, 3},
     {"_mob_bitset_choose_host", (DL_FUNC) &_mob_bitset_choose_host, 3},
     {"_mob_bitset_to_vector_host", (DL_FUNC) &_mob_bitset_to_vector_host, 1},
-    {"_mob_run_catch", (DL_FUNC) &_mob_run_catch, 2},
     {NULL, NULL, 0}
 };
 

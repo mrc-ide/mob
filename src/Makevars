@@ -1,10 +1,9 @@
 CXX_STD=CXX20
 
 OBJECTS=RcppExports.cuda.o
-OBJECTS+=test-runner.o test-intersection.o
 
 PKG_LIBS=-lcudart -g
-PKG_CXXFLAGS=-I../inst/include -g
+PKG_CXXFLAGS=-I../inst/include -g -fmax-errors=1
 
 # We assume the nvidia-toolkit is available in the environment.
 # TODO: Use CUDA_PATH to find nvcc, if available
@@ -36,46 +35,3 @@ RcppExports.cuda.cu: RcppExports.cpp
 # nvcc wouldn't see the flags it does understand such as -O2.
 %.o: %.cu
 	$(NVCC) --forward-unknown-to-host-compiler $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(NVCCFLAGS) -c $< -o $@
-
-# We have some external C++ dependencies we use in our tests. Both of those are
-# built using CMake and installed into the `.libs` directory. Our PKG_CPPFLAGS
-# and PKG_LIBS variables reference that directory.
-#
-# These exist as ready-built Ubuntu packages, but unfortunately those are not
-# built as position-independent code (`-fPIC`). This is usually fine for static
-# linking into test executables, but we actually need to build our tests as a
-# shared library that R can dlopen. These requires all of our code to be
-# position-independent.
-#
-# As a final catch (pun not intended), rapidcheck defines - but does not
-# install - its own copy of Catch2. This causes issues if we import both
-# RapidCheck and Catch2 in the same CMake build. Two avoid that, we have two
-# separate CMakeLists.txt files, in two separate directories, and we run two
-# separate builds.
-#
-# At some point we might as well consider building the whole package with CMake.
-#
-# TODO: pass CMAKE_BUILD_TYPE as appropriate, possibly also other variables
-# (CC/CXX/CFLAGS/...)
-install-dep-%:
-	cmake \
-		-DCMAKE_INSTALL_PREFIX=$(PWD)/.libs \
-		-DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-		-DCMAKE_BUILD_TYPE=Release \
-		-DCMAKE_INSTALL_MESSAGE=NEVER \
-		-S cmake/$* \
-		-B .deps/$*
-
-	cmake --build .deps/$*
-	cmake --install .deps/$*
-
-install-deps: install-dep-catch2 install-dep-rapidcheck
-
-PKG_CPPFLAGS=-I$(PWD)/.libs/include
-PKG_LIBS+=-L$(PWD)/.libs/lib -lCatch2 -lrapidcheck
-
-$(OBJECTS): install-deps
-
-.PHONY: install-deps
-
-PKG_CXXFLAGS+=-fmax-errors=1
