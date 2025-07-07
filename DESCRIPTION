@@ -25,9 +25,9 @@ Remotes:
     mrc-ide/dust
 Suggests:
     patrick,
+    rlang,
     testthat (>= 3.0.0),
     withr,
-    xml2,
     dplyr
 Config/build/extra-sources:
     src/Makevars,
