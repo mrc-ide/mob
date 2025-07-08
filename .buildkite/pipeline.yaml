@@ -1,5 +1,10 @@
 steps:
   - agents:
       queue: gpu
-    command: |
-      nix develop .#ci -L --command Rscript --vanilla -e 'rcmdcheck::rcmdcheck(error_on="error", args=c("--no-manual", "--as-cran"))'
+
+    command:
+      - nix develop .#ci -L --command Rscript --vanilla -e 'rcmdcheck::rcmdcheck(error_on="error", args=c("--no-manual", "--as-cran"))'
+      - nix develop .#benchmark -L --command Rscript --vanilla benchmark.R
+
+    artifact_paths:
+      - output.pdf
