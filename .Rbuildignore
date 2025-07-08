@@ -2,3 +2,5 @@
 ^\.github$
 ^.clang-format$
 ^.libs$
+^.covrignore$
+^.buildkite$
