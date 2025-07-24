@@ -1,8 +1,12 @@
 BenchmarkReporter <- R6::R6Class("BenchmarkReporter",
   public = list(
     results = list(),
-    add_result = function(desc, data) {
-      self$results <- append(self$results, list(list(description = desc, data = data)))
+    add_result = function(desc, grid, data) {
+      self$results <- append(self$results, list(list(
+        description = desc,
+        grid = grid,
+        data = data
+      )))
     }
   )
 )
@@ -29,7 +33,24 @@ invisible(mob:::bitset_create(1, system = "device"))
 
 results <- run_benchmarks(load_package = "installed")
 
-plots <- purrr::map(results, function(result) {
+expanded_results <- purrr::lmap(results, function(result) {
+  result <- result[[1]]
+  result$grid %>%
+    dplyr::select(-c(system, size)) %>%
+    dplyr::distinct() %>%
+    dplyr::group_split(dplyr::row_number(), .keep = FALSE) %>%
+    purrr::map(function(row) {
+      list(
+        description = glue::glue_data(row, result$description),
+        data = tibble::as_tibble(result$data) %>%
+          dplyr::filter((dplyr::if_all(names(row), function(v) {
+          v == row[[dplyr::cur_column()]]
+        })))
+      )
+    })
+})
+
+plots <- purrr::map(expanded_results, function(result) {
   data <- result$data %>%
     dplyr::select(system, size, time, gc) %>%
     tidyr::unnest_wider(gc) %>%
