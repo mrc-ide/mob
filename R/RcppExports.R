@@ -33,6 +33,10 @@ partition_create_device <- function(capacity, population) {
     .Call(`_mob_partition_create_device`, capacity, population)
 }
 
+partition_sizes_device <- function(p) {
+    .Call(`_mob_partition_sizes_device`, p)
+}
+
 household_infection_process_device <- function(rngs, output, susceptible, infected, households, infection_probability) {
     .Call(`_mob_household_infection_process_device`, rngs, output, susceptible, infected, households, infection_probability)
 }
@@ -139,6 +143,10 @@ homogeneous_infection_process_host <- function(rngs, output, susceptible, infect
 
 partition_create_host <- function(capacity, population) {
     .Call(`_mob_partition_create_host`, capacity, population)
+}
+
+partition_sizes_host <- function(p) {
+    .Call(`_mob_partition_sizes_host`, p)
 }
 
 household_infection_process_host <- function(rngs, output, susceptible, infected, households, infection_probability) {

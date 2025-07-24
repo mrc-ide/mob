@@ -114,6 +114,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// partition_sizes_device
+Rcpp::IntegerVector partition_sizes_device(Rcpp::XPtr<mob::ds::partition<mob::system::device>> p);
+RcppExport SEXP _mob_partition_sizes_device(SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::ds::partition<mob::system::device>> >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(partition_sizes_device(p));
+    return rcpp_result_gen;
+END_RCPP
+}
 // household_infection_process_device
 size_t household_infection_process_device(Rcpp::XPtr<mob::device_random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::device>> output, Rcpp::XPtr<mob::bitset<mob::system::device>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::device>> infected, Rcpp::XPtr<mob::ds::partition<mob::system::device>> households, Rcpp::DoubleVector infection_probability);
 RcppExport SEXP _mob_household_infection_process_device(SEXP rngsSEXP, SEXP outputSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP householdsSEXP, SEXP infection_probabilitySEXP) {
@@ -458,6 +469,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// partition_sizes_host
+Rcpp::IntegerVector partition_sizes_host(Rcpp::XPtr<mob::ds::partition<mob::system::host>> p);
+RcppExport SEXP _mob_partition_sizes_host(SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::ds::partition<mob::system::host>> >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(partition_sizes_host(p));
+    return rcpp_result_gen;
+END_RCPP
+}
 // household_infection_process_host
 size_t household_infection_process_host(Rcpp::XPtr<mob::host_random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::host>> output, Rcpp::XPtr<mob::bitset<mob::system::host>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::host>> infected, Rcpp::XPtr<mob::ds::partition<mob::system::host>> households, Rcpp::DoubleVector infection_probability);
 RcppExport SEXP _mob_household_infection_process_host(SEXP rngsSEXP, SEXP outputSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP householdsSEXP, SEXP infection_probabilitySEXP) {
@@ -735,6 +757,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_infection_list_create_device", (DL_FUNC) &_mob_infection_list_create_device, 0},
     {"_mob_homogeneous_infection_process_device", (DL_FUNC) &_mob_homogeneous_infection_process_device, 5},
     {"_mob_partition_create_device", (DL_FUNC) &_mob_partition_create_device, 2},
+    {"_mob_partition_sizes_device", (DL_FUNC) &_mob_partition_sizes_device, 1},
     {"_mob_household_infection_process_device", (DL_FUNC) &_mob_household_infection_process_device, 6},
     {"_mob_spatial_infection_naive_device", (DL_FUNC) &_mob_spatial_infection_naive_device, 8},
     {"_mob_spatial_infection_sieve_device", (DL_FUNC) &_mob_spatial_infection_sieve_device, 8},
@@ -762,6 +785,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_infection_list_create_host", (DL_FUNC) &_mob_infection_list_create_host, 0},
     {"_mob_homogeneous_infection_process_host", (DL_FUNC) &_mob_homogeneous_infection_process_host, 5},
     {"_mob_partition_create_host", (DL_FUNC) &_mob_partition_create_host, 2},
+    {"_mob_partition_sizes_host", (DL_FUNC) &_mob_partition_sizes_host, 1},
     {"_mob_household_infection_process_host", (DL_FUNC) &_mob_household_infection_process_host, 6},
     {"_mob_spatial_infection_naive_host", (DL_FUNC) &_mob_spatial_infection_naive_host, 8},
     {"_mob_spatial_infection_sieve_host", (DL_FUNC) &_mob_spatial_infection_sieve_host, 8},
