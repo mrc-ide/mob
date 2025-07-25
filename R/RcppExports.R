@@ -37,6 +37,18 @@ partition_sizes_device <- function(p) {
     .Call(`_mob_partition_sizes_device`, p)
 }
 
+ragged_vector_create_device <- function(values) {
+    .Call(`_mob_ragged_vector_create_device`, values)
+}
+
+ragged_vector_get_device <- function(v, i) {
+    .Call(`_mob_ragged_vector_get_device`, v, i)
+}
+
+ragged_vector_random_select_device <- function(rngs, data) {
+    .Call(`_mob_ragged_vector_random_select_device`, rngs, data)
+}
+
 household_infection_process_device <- function(rngs, output, susceptible, infected, households, infection_probability) {
     .Call(`_mob_household_infection_process_device`, rngs, output, susceptible, infected, households, infection_probability)
 }
@@ -147,6 +159,18 @@ partition_create_host <- function(capacity, population) {
 
 partition_sizes_host <- function(p) {
     .Call(`_mob_partition_sizes_host`, p)
+}
+
+ragged_vector_create_host <- function(values) {
+    .Call(`_mob_ragged_vector_create_host`, values)
+}
+
+ragged_vector_get_host <- function(v, i) {
+    .Call(`_mob_ragged_vector_get_host`, v, i)
+}
+
+ragged_vector_random_select_host <- function(rngs, data) {
+    .Call(`_mob_ragged_vector_random_select_host`, rngs, data)
 }
 
 household_infection_process_host <- function(rngs, output, susceptible, infected, households, infection_probability) {

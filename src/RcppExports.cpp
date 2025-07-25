@@ -125,6 +125,41 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ragged_vector_create_device
+Rcpp::XPtr<mob::ds::ragged_vector<mob::system::device, uint32_t>> ragged_vector_create_device(Rcpp::List values);
+RcppExport SEXP _mob_ragged_vector_create_device(SEXP valuesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type values(valuesSEXP);
+    rcpp_result_gen = Rcpp::wrap(ragged_vector_create_device(values));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ragged_vector_get_device
+Rcpp::IntegerVector ragged_vector_get_device(Rcpp::XPtr<mob::ds::ragged_vector<mob::system::device, uint32_t>> v, size_t i);
+RcppExport SEXP _mob_ragged_vector_get_device(SEXP vSEXP, SEXP iSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::ds::ragged_vector<mob::system::device, uint32_t>> >::type v(vSEXP);
+    Rcpp::traits::input_parameter< size_t >::type i(iSEXP);
+    rcpp_result_gen = Rcpp::wrap(ragged_vector_get_device(v, i));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ragged_vector_random_select_device
+Rcpp::IntegerVector ragged_vector_random_select_device(Rcpp::XPtr<mob::parallel_random<mob::system::device>> rngs, Rcpp::XPtr<mob::ds::ragged_vector<mob::system::device, uint32_t>> data);
+RcppExport SEXP _mob_ragged_vector_random_select_device(SEXP rngsSEXP, SEXP dataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::parallel_random<mob::system::device>> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::ds::ragged_vector<mob::system::device, uint32_t>> >::type data(dataSEXP);
+    rcpp_result_gen = Rcpp::wrap(ragged_vector_random_select_device(rngs, data));
+    return rcpp_result_gen;
+END_RCPP
+}
 // household_infection_process_device
 size_t household_infection_process_device(Rcpp::XPtr<mob::device_random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::device>> output, Rcpp::XPtr<mob::bitset<mob::system::device>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::device>> infected, Rcpp::XPtr<mob::ds::partition<mob::system::device>> households, Rcpp::DoubleVector infection_probability);
 RcppExport SEXP _mob_household_infection_process_device(SEXP rngsSEXP, SEXP outputSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP householdsSEXP, SEXP infection_probabilitySEXP) {
@@ -480,6 +515,41 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ragged_vector_create_host
+Rcpp::XPtr<mob::ds::ragged_vector<mob::system::host, uint32_t>> ragged_vector_create_host(Rcpp::List values);
+RcppExport SEXP _mob_ragged_vector_create_host(SEXP valuesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type values(valuesSEXP);
+    rcpp_result_gen = Rcpp::wrap(ragged_vector_create_host(values));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ragged_vector_get_host
+Rcpp::IntegerVector ragged_vector_get_host(Rcpp::XPtr<mob::ds::ragged_vector<mob::system::host, uint32_t>> v, size_t i);
+RcppExport SEXP _mob_ragged_vector_get_host(SEXP vSEXP, SEXP iSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::ds::ragged_vector<mob::system::host, uint32_t>> >::type v(vSEXP);
+    Rcpp::traits::input_parameter< size_t >::type i(iSEXP);
+    rcpp_result_gen = Rcpp::wrap(ragged_vector_get_host(v, i));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ragged_vector_random_select_host
+Rcpp::IntegerVector ragged_vector_random_select_host(Rcpp::XPtr<mob::parallel_random<mob::system::host>> rngs, Rcpp::XPtr<mob::ds::ragged_vector<mob::system::host, uint32_t>> data);
+RcppExport SEXP _mob_ragged_vector_random_select_host(SEXP rngsSEXP, SEXP dataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::parallel_random<mob::system::host>> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::ds::ragged_vector<mob::system::host, uint32_t>> >::type data(dataSEXP);
+    rcpp_result_gen = Rcpp::wrap(ragged_vector_random_select_host(rngs, data));
+    return rcpp_result_gen;
+END_RCPP
+}
 // household_infection_process_host
 size_t household_infection_process_host(Rcpp::XPtr<mob::host_random> rngs, Rcpp::XPtr<mob::infection_list<mob::system::host>> output, Rcpp::XPtr<mob::bitset<mob::system::host>> susceptible, Rcpp::XPtr<mob::bitset<mob::system::host>> infected, Rcpp::XPtr<mob::ds::partition<mob::system::host>> households, Rcpp::DoubleVector infection_probability);
 RcppExport SEXP _mob_household_infection_process_host(SEXP rngsSEXP, SEXP outputSEXP, SEXP susceptibleSEXP, SEXP infectedSEXP, SEXP householdsSEXP, SEXP infection_probabilitySEXP) {
@@ -758,6 +828,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_homogeneous_infection_process_device", (DL_FUNC) &_mob_homogeneous_infection_process_device, 5},
     {"_mob_partition_create_device", (DL_FUNC) &_mob_partition_create_device, 2},
     {"_mob_partition_sizes_device", (DL_FUNC) &_mob_partition_sizes_device, 1},
+    {"_mob_ragged_vector_create_device", (DL_FUNC) &_mob_ragged_vector_create_device, 1},
+    {"_mob_ragged_vector_get_device", (DL_FUNC) &_mob_ragged_vector_get_device, 2},
+    {"_mob_ragged_vector_random_select_device", (DL_FUNC) &_mob_ragged_vector_random_select_device, 2},
     {"_mob_household_infection_process_device", (DL_FUNC) &_mob_household_infection_process_device, 6},
     {"_mob_spatial_infection_naive_device", (DL_FUNC) &_mob_spatial_infection_naive_device, 8},
     {"_mob_spatial_infection_sieve_device", (DL_FUNC) &_mob_spatial_infection_sieve_device, 8},
@@ -786,6 +859,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_homogeneous_infection_process_host", (DL_FUNC) &_mob_homogeneous_infection_process_host, 5},
     {"_mob_partition_create_host", (DL_FUNC) &_mob_partition_create_host, 2},
     {"_mob_partition_sizes_host", (DL_FUNC) &_mob_partition_sizes_host, 1},
+    {"_mob_ragged_vector_create_host", (DL_FUNC) &_mob_ragged_vector_create_host, 1},
+    {"_mob_ragged_vector_get_host", (DL_FUNC) &_mob_ragged_vector_get_host, 2},
+    {"_mob_ragged_vector_random_select_host", (DL_FUNC) &_mob_ragged_vector_random_select_host, 2},
     {"_mob_household_infection_process_host", (DL_FUNC) &_mob_household_infection_process_host, 6},
     {"_mob_spatial_infection_naive_host", (DL_FUNC) &_mob_spatial_infection_naive_host, 8},
     {"_mob_spatial_infection_sieve_host", (DL_FUNC) &_mob_spatial_infection_sieve_host, 8},

@@ -71,6 +71,12 @@ __host__ __device__ T random_bounded_int(R &rng, T lower, T upper) {
   return random_bounded_int<T>(rng, upper - lower) + lower;
 }
 
+template <random_state R, cuda::std::ranges::random_access_range T>
+__host__ __device__ auto random_select(R &rng, T range) {
+  auto i = random_bounded_int(rng, cuda::std::ranges::size(range));
+  return *(cuda::std::ranges::begin(range) + i);
+}
+
 } // namespace mob
 
 #ifdef __NVCC__

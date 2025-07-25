@@ -315,7 +315,7 @@ struct spatial_partition {
 
   spatial_partition(spatial_hash hash, spatial_view<System> coordinates,
                     mob::vector<System, uint32_t> individuals)
-      : hash(hash), data(hash.size()) {
+      : hash(hash) {
     assign(coordinates, individuals);
   }
 
@@ -328,7 +328,8 @@ struct spatial_partition {
         individuals.begin(), individuals.end(), cells.begin(),
         [=] __host__ __device__(uint32_t i) { return hash(coordinates[i]); });
 
-    data.assign(std::move(cells), std::move(individuals));
+    data = mob::ds::prepare_ragged_vector<System>(hash.size(), std::move(cells),
+                                                  std::move(individuals));
   }
 };
 

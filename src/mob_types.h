@@ -92,6 +92,26 @@ partition_sizes_device(Rcpp::XPtr<mob::ds::partition<mob::system::device>> p) {
 }
 
 // [[Rcpp::export]]
+Rcpp::XPtr<mob::ds::ragged_vector<mob::system::device, uint32_t>>
+ragged_vector_create_device(Rcpp::List values) {
+  return ragged_vector_create_wrapper<mob::system::device>(values);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector ragged_vector_get_device(
+    Rcpp::XPtr<mob::ds::ragged_vector<mob::system::device, uint32_t>> v,
+    size_t i) {
+  return ragged_vector_get_wrapper<mob::system::device>(v, i);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector ragged_vector_random_select_device(
+    Rcpp::XPtr<mob::parallel_random<mob::system::device>> rngs,
+    Rcpp::XPtr<mob::ds::ragged_vector<mob::system::device, uint32_t>> data) {
+  return ragged_vector_random_select_wrapper<mob::system::device>(rngs, data);
+}
+
+// [[Rcpp::export]]
 size_t household_infection_process_device(
     Rcpp::XPtr<mob::device_random> rngs,
     Rcpp::XPtr<mob::infection_list<mob::system::device>> output,
@@ -290,6 +310,26 @@ partition_create_host(size_t capacity, std::vector<uint32_t> population) {
 Rcpp::IntegerVector
 partition_sizes_host(Rcpp::XPtr<mob::ds::partition<mob::system::host>> p) {
   return partition_sizes_wrapper<mob::system::host>(p);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::ds::ragged_vector<mob::system::host, uint32_t>>
+ragged_vector_create_host(Rcpp::List values) {
+  return ragged_vector_create_wrapper<mob::system::host>(values);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector ragged_vector_get_host(
+    Rcpp::XPtr<mob::ds::ragged_vector<mob::system::host, uint32_t>> v,
+    size_t i) {
+  return ragged_vector_get_wrapper<mob::system::host>(v, i);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector ragged_vector_random_select_host(
+    Rcpp::XPtr<mob::parallel_random<mob::system::host>> rngs,
+    Rcpp::XPtr<mob::ds::ragged_vector<mob::system::host, uint32_t>> data) {
+  return ragged_vector_random_select_wrapper<mob::system::host>(rngs, data);
 }
 
 // [[Rcpp::export]]

@@ -44,3 +44,7 @@ bitset_from_vector <- function(capacity, values) {
   bitset_insert(b, values)
   b
 }
+
+ragged_vector_create <- create_wrapper("ragged_vector_create")
+ragged_vector_get <- create_wrapper("ragged_vector_get")
+ragged_vector_random_select <- create_wrapper("ragged_vector_random_select")
