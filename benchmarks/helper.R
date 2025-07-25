@@ -35,7 +35,7 @@ mob_bench <- function(name, code, ...) {
     }, .grid = grid, .quiet = TRUE)
 
     if (!is.null(reporter)) {
-      reporter$add_result(name, result)
+      reporter$add_result(name, grid, result)
     }
   })
 }
