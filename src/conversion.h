@@ -3,19 +3,24 @@
 #include <Rcpp.h>
 #include <thrust/host_vector.h>
 
-// Rcpp supports converting a device_vector<T> natively already, but it does
-// so by iterating over the elements and copying them one by one. The latency
-// of each copy is very large making the overall operation very slow. It is
-// much faster to do a single copy into a host_vector<T>, and then let Rcpp
-// wrap that entirely within CPU memory.
+// Rcpp supports converting a device_vector<T> natively already, but it does so
+// by iterating over the elements and copying them one by one. The latency of
+// each copy is very large, making the overall operation very slow.
 //
-// An even faster option would be to copy directly from device memory to R
-// memory, in cases where the underlying element type matches.
-//
-// TODO: use thrust::copy, which already takes care of these details. If a type
-// conversion is needed, it can do it in parallel, device-side.
+// thrust::copy issues a single copy operation instead. If necessary, it will
+// apply a type conversion which can execute in parallel device-side.
 template <typename T>
+  requires std::integral<cuda::std::ranges::range_value_t<T>>
 SEXP asRcppVector(T &&data) {
-  using value_type = typename std::remove_cvref_t<T>::value_type;
-  return Rcpp::wrap(thrust::host_vector<value_type>{std::forward<T>(data)});
+  Rcpp::IntegerVector v(data.size());
+  thrust::copy(data.begin(), data.end(), v.begin());
+  return v;
+}
+
+template <typename T>
+  requires std::floating_point<cuda::std::ranges::range_value_t<T>>
+SEXP asRcppVector(T &&data) {
+  Rcpp::NumericVector v(data.size());
+  thrust::copy(data.begin(), data.end(), v.begin());
+  return v;
 }
