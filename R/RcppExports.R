@@ -13,6 +13,10 @@ random_uniform_benchmark_device <- function(rngs, n, min, max) {
     invisible(.Call(`_mob_random_uniform_benchmark_device`, rngs, n, min, max))
 }
 
+random_poisson_device <- function(rngs, n, lambda) {
+    .Call(`_mob_random_poisson_device`, rngs, n, lambda)
+}
+
 random_binomial_device <- function(rngs, n, size, prob) {
     .Call(`_mob_random_binomial_device`, rngs, n, size, prob)
 }
@@ -139,6 +143,10 @@ random_uniform_host <- function(rngs, n, min, max) {
 
 random_uniform_benchmark_host <- function(rngs, n, min, max) {
     invisible(.Call(`_mob_random_uniform_benchmark_host`, rngs, n, min, max))
+}
+
+random_poisson_host <- function(rngs, n, lambda) {
+    .Call(`_mob_random_poisson_host`, rngs, n, lambda)
 }
 
 random_binomial_host <- function(rngs, n, size, prob) {
