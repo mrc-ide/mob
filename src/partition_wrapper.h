@@ -6,7 +6,7 @@
 
 template <typename System>
 Rcpp::XPtr<mob::ds::partition<System>>
-partition_create_wrapper(size_t capacity, std::vector<uint32_t> population) {
+partition_create_wrapper(std::vector<uint32_t> population, size_t capacity) {
   if (std::ranges::any_of(population, [=](auto i) { return i >= capacity; })) {
     Rcpp::stop("out-of-range population");
   }

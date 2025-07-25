@@ -103,14 +103,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // partition_create_device
-Rcpp::XPtr<mob::ds::partition<mob::system::device>> partition_create_device(size_t capacity, std::vector<uint32_t> population);
-RcppExport SEXP _mob_partition_create_device(SEXP capacitySEXP, SEXP populationSEXP) {
+Rcpp::XPtr<mob::ds::partition<mob::system::device>> partition_create_device(std::vector<uint32_t> population, size_t capacity);
+RcppExport SEXP _mob_partition_create_device(SEXP populationSEXP, SEXP capacitySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< size_t >::type capacity(capacitySEXP);
     Rcpp::traits::input_parameter< std::vector<uint32_t> >::type population(populationSEXP);
-    rcpp_result_gen = Rcpp::wrap(partition_create_device(capacity, population));
+    Rcpp::traits::input_parameter< size_t >::type capacity(capacitySEXP);
+    rcpp_result_gen = Rcpp::wrap(partition_create_device(population, capacity));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -493,14 +493,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // partition_create_host
-Rcpp::XPtr<mob::ds::partition<mob::system::host>> partition_create_host(size_t capacity, std::vector<uint32_t> population);
-RcppExport SEXP _mob_partition_create_host(SEXP capacitySEXP, SEXP populationSEXP) {
+Rcpp::XPtr<mob::ds::partition<mob::system::host>> partition_create_host(std::vector<uint32_t> population, size_t capacity);
+RcppExport SEXP _mob_partition_create_host(SEXP populationSEXP, SEXP capacitySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< size_t >::type capacity(capacitySEXP);
     Rcpp::traits::input_parameter< std::vector<uint32_t> >::type population(populationSEXP);
-    rcpp_result_gen = Rcpp::wrap(partition_create_host(capacity, population));
+    Rcpp::traits::input_parameter< size_t >::type capacity(capacitySEXP);
+    rcpp_result_gen = Rcpp::wrap(partition_create_host(population, capacity));
     return rcpp_result_gen;
 END_RCPP
 }

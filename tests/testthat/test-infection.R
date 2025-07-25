@@ -55,11 +55,12 @@ mob_test("homogeneous_infection_process", {
 
 mob_test("household_infection_process", {
   population <- 0:99
+  n_households <- 50
 
   susceptible <- sample(population, length(population) / 2)
   infected <- setdiff(population, susceptible)
-  households <- sample.int(50, length(population), replace = TRUE) - 1
-  households_partition <- partition_create(50, households)
+  households <- sample.int(n_households, length(population), replace = TRUE) - 1
+  households_partition <- partition_create(households, capacity = n_households)
 
   rngs <- random_create(length(population))
 
@@ -78,7 +79,7 @@ mob_test("household_infection_process", {
 })
 
 mob_test("household_infection_process can use different probabilities per household", {
-  households <- partition_create(2, c(0,1,0,1,0,1,0,1))
+  households <- partition_create(c(0,1,0,1,0,1,0,1), capacity = 2)
   probabilities <- c(0, 1)
 
   susceptible <- bitset_create(8)

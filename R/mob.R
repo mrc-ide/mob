@@ -14,7 +14,11 @@ selection_sampler <- create_wrapper("selection_sampler")
 betabinomial_sampler <- create_wrapper("betabinomial_sampler")
 bernoulli_sampler <- create_wrapper("bernoulli_sampler")
 
-partition_create <- create_wrapper("partition_create")
+partition_create_inner <- create_wrapper("partition_create")
+partition_create <- function(values, capacity = max(values) + 1) {
+  partition_create_inner(values, capacity)
+}
+
 partition_sizes <- create_wrapper("partition_sizes")
 
 infection_list_create <- create_wrapper("infection_list_create")
