@@ -22,6 +22,7 @@
 
 #include "bitset_wrapper.h"
 #include "infection_wrapper.h"
+#include "partition_wrapper.h"
 #include "random_wrapper.h"
 #include "sample_wrapper.h"
 #include <mob/system.h>
@@ -82,6 +83,12 @@ Rcpp::XPtr<mob::ds::partition<mob::system::device>>
 partition_create_device(size_t capacity, std::vector<uint32_t> population) {
   return partition_create_wrapper<mob::system::device>(capacity,
                                                        std::move(population));
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector
+partition_sizes_device(Rcpp::XPtr<mob::ds::partition<mob::system::device>> p) {
+  return partition_sizes_wrapper<mob::system::device>(p);
 }
 
 // [[Rcpp::export]]
@@ -277,6 +284,12 @@ Rcpp::XPtr<mob::ds::partition<mob::system::host>>
 partition_create_host(size_t capacity, std::vector<uint32_t> population) {
   return partition_create_wrapper<mob::system::host>(capacity,
                                                      std::move(population));
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector
+partition_sizes_host(Rcpp::XPtr<mob::ds::partition<mob::system::host>> p) {
+  return partition_sizes_wrapper<mob::system::host>(p);
 }
 
 // [[Rcpp::export]]

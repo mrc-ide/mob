@@ -31,16 +31,6 @@ size_t homogeneous_infection_process_wrapper(
 }
 
 template <typename System>
-Rcpp::XPtr<mob::ds::partition<System>>
-partition_create_wrapper(size_t capacity, std::vector<uint32_t> population) {
-  if (std::ranges::any_of(population, [=](auto i) { return i >= capacity; })) {
-    Rcpp::stop("out-of-range population");
-  }
-  return Rcpp::XPtr(
-      new mob::ds::partition<System>(capacity, std::move(population)));
-}
-
-template <typename System>
 size_t household_infection_process_wrapper(
     Rcpp::XPtr<mob::parallel_random<System>> rngs,
     Rcpp::XPtr<mob::infection_list<System>> output,

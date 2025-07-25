@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <thrust/binary_search.h>
 #include <thrust/sequence.h>
+#include <thrust/adjacent_difference.h>
 #include <thrust/sort.h>
 #include <vector>
 
@@ -65,6 +66,12 @@ public:
 
   size_t size() const {
     return offsets_.size() - 1;
+  }
+
+  mob::vector<System, size_t> sizes() const {
+    mob::vector<System, size_t> result(offsets_.size() - 1);
+    thrust::adjacent_difference(offsets_.begin() + 1, offsets_.end(), result.begin());
+    return result;
   }
 
 private:
@@ -140,12 +147,17 @@ struct partition {
     return members_[i];
   }
 
+  ds::span<System, const uint32_t> neighbours(uint32_t i) const {
+    return get_members(get_partition(i));
+  }
+
   ds::span<System, const uint32_t> get_members(uint32_t p) const {
     return partitions_[p];
   }
 
-  ds::span<System, const uint32_t> neighbours(uint32_t i) const {
-    return get_members(get_partition(i));
+  // Get the number of individual in each segment of the population.
+  mob::vector<System, size_t> sizes() const {
+    return partitions_.sizes();
   }
 };
 

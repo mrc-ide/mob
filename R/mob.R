@@ -15,6 +15,8 @@ betabinomial_sampler <- create_wrapper("betabinomial_sampler")
 bernoulli_sampler <- create_wrapper("bernoulli_sampler")
 
 partition_create <- create_wrapper("partition_create")
+partition_sizes <- create_wrapper("partition_sizes")
+
 infection_list_create <- create_wrapper("infection_list_create")
 homogeneous_infection_process <- create_wrapper("homogeneous_infection_process")
 household_infection_process <- create_wrapper("household_infection_process")
