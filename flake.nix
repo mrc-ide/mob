@@ -171,17 +171,18 @@
                 pkgs.rPackages.devtools
                 pkgs.rPackages.dplyr
                 pkgs.rPackages.dust
-                pkgs.rPackages.individual
                 pkgs.rPackages.gganimate
                 pkgs.rPackages.ggbeeswarm
                 pkgs.rPackages.ggpubr
                 pkgs.rPackages.gifski
+                pkgs.rPackages.individual
+                pkgs.rPackages.patrick
                 pkgs.rPackages.pkgdepends
                 pkgs.rPackages.proffer
                 pkgs.rPackages.terra
                 pkgs.rPackages.tidyterra
                 pkgs.rPackages.tidyverse
-                pkgs.rPackages.patrick
+                pkgs.rPackages.wrswoR
               ];
             })
           ];
