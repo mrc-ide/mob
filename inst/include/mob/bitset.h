@@ -106,9 +106,13 @@ struct bitset {
 
   template <typename rng_state>
   void sample(rng_state &rngs, double p) {
-    // TODO: we chould be more clever than this and possibly use
+    // TODO: we should be more clever than this and possibly use
     // fast_bernoulli, like individual does. The obvious way to do that is
     // fully sequential though, so we would want a compromise
+    //
+    // Use https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__OCCUPANCY.html
+    // and https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__HIGHLEVEL.html#group__CUDART__HIGHLEVEL_1g5a5d67a3c907371559ba692195e8a38c
+    // to figure out the optimal amount of parallelism how how to break this up.
     thrust::for_each(
         thrust::make_zip_iterator(data_.begin(), rngs.begin()),
         thrust::make_zip_iterator(data_.end(), rngs.begin() + data_.size()),

@@ -30,6 +30,7 @@ size_t homogeneous_infection_process_wrapper(
       *rngs, *output, infected_data, *susceptible, infection_probability);
 }
 
+// TODO: why does this not cause an error when infection_probability is NULL?
 template <typename System>
 size_t household_infection_process_wrapper(
     Rcpp::XPtr<mob::parallel_random<System>> rngs,
