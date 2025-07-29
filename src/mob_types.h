@@ -86,9 +86,8 @@ size_t homogeneous_infection_process_device(
 
 // [[Rcpp::export]]
 Rcpp::XPtr<mob::ds::partition<mob::system::device>>
-partition_create_device(size_t capacity, std::vector<uint32_t> population) {
-  return partition_create_wrapper<mob::system::device>(capacity,
-                                                       std::move(population));
+partition_create_device(size_t capacity, Rcpp::IntegerVector population) {
+  return partition_create_wrapper<mob::system::device>(capacity, population);
 }
 
 // [[Rcpp::export]]
@@ -313,9 +312,8 @@ size_t homogeneous_infection_process_host(
 
 // [[Rcpp::export]]
 Rcpp::XPtr<mob::ds::partition<mob::system::host>>
-partition_create_host(size_t capacity, std::vector<uint32_t> population) {
-  return partition_create_wrapper<mob::system::host>(capacity,
-                                                     std::move(population));
+partition_create_host(size_t capacity, Rcpp::IntegerVector population) {
+  return partition_create_wrapper<mob::system::host>(capacity, population);
 }
 
 // [[Rcpp::export]]

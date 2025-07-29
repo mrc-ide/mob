@@ -17,7 +17,7 @@ mob_test("partition_sizes random", {
 })
 
 mob_test("ragged_vector", {
-  data <- list(c(1, 3, 2, 45), c(4, 1), c(0, 6, 1, 7))
+  data <- list(c(1L, 3L, 2L, 45L), c(4L, 1L), c(0L, 6L, 1L, 7L))
   v <- ragged_vector_create(data)
 
   expect_equal(ragged_vector_get(v, 0), c(1, 3, 2, 45))
