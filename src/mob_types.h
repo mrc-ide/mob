@@ -26,6 +26,7 @@
 #include "partition_wrapper.h"
 #include "random_wrapper.h"
 #include "sample_wrapper.h"
+#include "vector_wrapper.h"
 #include <mob/system.h>
 
 #ifdef __NVCC__
@@ -298,6 +299,45 @@ Rcpp::IntegerMatrix alias_table_sample_wor_ragged_matrix_device(
       table, rngs, ks, maxk);
 }
 
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::vector<mob::system::device, size_t>>
+integer_vector_create_device(Rcpp::IntegerVector values) {
+  return integer_vector_create<mob::system::device>(values);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector integer_vector_values_device(
+    Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v) {
+  return integer_vector_values<mob::system::device>(v);
+}
+
+// [[Rcpp::export]]
+void integer_vector_scatter_device(
+    Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v,
+    Rcpp::IntegerVector indices, Rcpp::IntegerVector values) {
+  integer_vector_scatter<mob::system::device>(v, indices, values);
+}
+
+// [[Rcpp::export]]
+void integer_vector_scatter_scalar_device(
+    Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v,
+    Rcpp::IntegerVector indices, size_t value) {
+  integer_vector_scatter_scalar<mob::system::device>(v, indices, value);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector integer_vector_gather_device(
+    Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v,
+    Rcpp::IntegerVector indices) {
+  return integer_vector_gather<mob::system::device>(v, indices);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector integer_vector_match_device(
+    Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v, size_t value) {
+  return integer_vector_match<mob::system::device>(v, value);
+}
+
 #endif // __NVCC__
 
 // [[Rcpp::export]]
@@ -564,4 +604,44 @@ Rcpp::IntegerMatrix alias_table_sample_wor_ragged_matrix_host(
     Rcpp::IntegerVector ks, size_t maxk) {
   return alias_table_sample_wor_ragged_matrix_wrapper<mob::system::host>(
       table, rngs, ks, maxk);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::vector<mob::system::host, size_t>>
+integer_vector_create_host(Rcpp::IntegerVector values) {
+  return integer_vector_create<mob::system::host>(values);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector integer_vector_values_host(
+    Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v) {
+  return integer_vector_values<mob::system::host>(v);
+}
+
+// [[Rcpp::export]]
+void integer_vector_scatter_host(
+    Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v,
+    Rcpp::IntegerVector indices, Rcpp::IntegerVector values) {
+  integer_vector_scatter<mob::system::host>(v, indices, values);
+}
+
+// [[Rcpp::export]]
+void integer_vector_scatter_scalar_host(
+    Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v,
+    Rcpp::IntegerVector indices, size_t value) {
+  integer_vector_scatter_scalar<mob::system::host>(v, indices, value);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector
+integer_vector_gather_host(Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v,
+                           Rcpp::IntegerVector indices) {
+  return integer_vector_gather<mob::system::host>(v, indices);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector
+integer_vector_match_host(Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v,
+                          size_t value) {
+  return integer_vector_match<mob::system::host>(v, value);
 }
