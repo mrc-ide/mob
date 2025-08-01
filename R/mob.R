@@ -49,3 +49,9 @@ bitset_from_vector <- function(capacity, values) {
 ragged_vector_create <- create_wrapper("ragged_vector_create")
 ragged_vector_get <- create_wrapper("ragged_vector_get")
 ragged_vector_random_select <- create_wrapper("ragged_vector_random_select")
+
+alias_table_create <- create_wrapper("alias_table_create")
+alias_table_values <- create_wrapper("alias_table_values")
+alias_table_sample <- create_wrapper("alias_table_sample")
+alias_table_sample_wor <- create_wrapper("alias_table_sample_wor")
+alias_table_sample_wor_ragged_matrix <- create_wrapper("alias_table_sample_wor_ragged_matrix")

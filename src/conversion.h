@@ -11,7 +11,7 @@
 // apply a type conversion which can execute in parallel device-side.
 template <typename T>
   requires std::integral<cuda::std::ranges::range_value_t<T>>
-SEXP asRcppVector(T &&data) {
+Rcpp::IntegerVector asRcppVector(T &&data) {
   Rcpp::IntegerVector v(data.size());
   thrust::copy(data.begin(), data.end(), v.begin());
   return v;
@@ -19,7 +19,7 @@ SEXP asRcppVector(T &&data) {
 
 template <typename T>
   requires std::floating_point<cuda::std::ranges::range_value_t<T>>
-SEXP asRcppVector(T &&data) {
+Rcpp::NumericVector asRcppVector(T &&data) {
   Rcpp::NumericVector v(data.size());
   thrust::copy(data.begin(), data.end(), v.begin());
   return v;

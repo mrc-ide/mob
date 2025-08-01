@@ -20,6 +20,7 @@
 #include <dust/random/cuda_compatibility.hpp>
 // clang-format: on
 
+#include "alias_table_wrapper.h"
 #include "bitset_wrapper.h"
 #include "infection_wrapper.h"
 #include "partition_wrapper.h"
@@ -260,6 +261,43 @@ bitset_to_vector_device(Rcpp::XPtr<mob::bitset<mob::system::device>> ptr) {
   return bitset_to_vector<mob::system::device>(ptr);
 }
 
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::alias_table<mob::system::device>>
+alias_table_create_device(Rcpp::DoubleVector weights) {
+  return alias_table_create_wrapper<mob::system::device>(weights);
+}
+
+// [[Rcpp::export]]
+Rcpp::DataFrame alias_table_values_device(
+    Rcpp::XPtr<mob::alias_table<mob::system::device>> table) {
+  return alias_table_values_wrapper<mob::system::device>(table);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector alias_table_sample_device(
+    Rcpp::XPtr<mob::alias_table<mob::system::device>> table,
+    Rcpp::XPtr<mob::parallel_random<mob::system::device>> rngs, size_t k) {
+  return alias_table_sample_wrapper<mob::system::device>(table, rngs, k);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerMatrix alias_table_sample_wor_device(
+    Rcpp::XPtr<mob::alias_table<mob::system::device>> table,
+    Rcpp::XPtr<mob::parallel_random<mob::system::device>> rngs, size_t rows,
+    size_t k) {
+  return alias_table_sample_wor_wrapper<mob::system::device>(table, rngs, rows,
+                                                             k);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerMatrix alias_table_sample_wor_ragged_matrix_device(
+    Rcpp::XPtr<mob::alias_table<mob::system::device>> table,
+    Rcpp::XPtr<mob::parallel_random<mob::system::device>> rngs,
+    Rcpp::IntegerVector ks, size_t maxk) {
+  return alias_table_sample_wor_ragged_matrix_wrapper<mob::system::device>(
+      table, rngs, ks, maxk);
+}
+
 #endif // __NVCC__
 
 // [[Rcpp::export]]
@@ -489,4 +527,41 @@ void bitset_choose_host(Rcpp::XPtr<mob::bitset<mob::system::host>> ptr,
 Rcpp::IntegerVector
 bitset_to_vector_host(Rcpp::XPtr<mob::bitset<mob::system::host>> ptr) {
   return bitset_to_vector<mob::system::host>(ptr);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::alias_table<mob::system::host>>
+alias_table_create_host(Rcpp::DoubleVector weights) {
+  return alias_table_create_wrapper<mob::system::host>(weights);
+}
+
+// [[Rcpp::export]]
+Rcpp::DataFrame
+alias_table_values_host(Rcpp::XPtr<mob::alias_table<mob::system::host>> table) {
+  return alias_table_values_wrapper<mob::system::host>(table);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector alias_table_sample_host(
+    Rcpp::XPtr<mob::alias_table<mob::system::host>> table,
+    Rcpp::XPtr<mob::parallel_random<mob::system::host>> rngs, size_t k) {
+  return alias_table_sample_wrapper<mob::system::host>(table, rngs, k);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerMatrix alias_table_sample_wor_host(
+    Rcpp::XPtr<mob::alias_table<mob::system::host>> table,
+    Rcpp::XPtr<mob::parallel_random<mob::system::host>> rngs, size_t rows,
+    size_t k) {
+  return alias_table_sample_wor_wrapper<mob::system::host>(table, rngs, rows,
+                                                           k);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerMatrix alias_table_sample_wor_ragged_matrix_host(
+    Rcpp::XPtr<mob::alias_table<mob::system::host>> table,
+    Rcpp::XPtr<mob::parallel_random<mob::system::host>> rngs,
+    Rcpp::IntegerVector ks, size_t maxk) {
+  return alias_table_sample_wor_ragged_matrix_wrapper<mob::system::host>(
+      table, rngs, ks, maxk);
 }

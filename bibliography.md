@@ -130,6 +130,14 @@ use auxiliary datastructures (usually a hash set).
 [shekelyan2021]: https://www.dimacs.rutgers.edu/~graham/pubs/papers/hiddenshuffle.pdf
 [cicirello2025]: https://onlinelibrary.wiley.com/doi/pdf/10.1002/spe.3379
 
+# Weighted random sampling
+
+- ["Weighted Random Sampling on GPUs" Lehmann et al][lehmann2022]
+- ["Parallel Weighted Random Sampling" Hübschle-Schneider et al][hubschle2022]
+
+[lehmann2022]: https://arxiv.org/pdf/2106.12270
+[hubschle2022]: https://dl.acm.org/doi/pdf/10.1145/3549934
+
 # Compressed bitsets
 
 - ["Better bitmap performance with Roaring bitmaps" Chambi et al][chambi2014]
