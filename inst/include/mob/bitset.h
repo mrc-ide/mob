@@ -110,9 +110,10 @@ struct bitset {
     // fast_bernoulli, like individual does. The obvious way to do that is
     // fully sequential though, so we would want a compromise
     //
-    // Use https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__OCCUPANCY.html
-    // and https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__HIGHLEVEL.html#group__CUDART__HIGHLEVEL_1g5a5d67a3c907371559ba692195e8a38c
-    // to figure out the optimal amount of parallelism how how to break this up.
+    // It might be able to figure out the optimal amount of parallelism how how
+    // to break this up using the CUDA occupancy APIs:
+    // https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__OCCUPANCY.html
+    // https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__HIGHLEVEL.html#group__CUDART__HIGHLEVEL_1g5a5d67a3c907371559ba692195e8a38c
     thrust::for_each(
         thrust::make_zip_iterator(data_.begin(), rngs.begin()),
         thrust::make_zip_iterator(data_.end(), rngs.begin() + data_.size()),

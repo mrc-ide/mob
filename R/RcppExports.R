@@ -133,6 +133,26 @@ bitset_to_vector_device <- function(ptr) {
     .Call(`_mob_bitset_to_vector_device`, ptr)
 }
 
+alias_table_create_device <- function(weights) {
+    .Call(`_mob_alias_table_create_device`, weights)
+}
+
+alias_table_values_device <- function(table) {
+    .Call(`_mob_alias_table_values_device`, table)
+}
+
+alias_table_sample_device <- function(table, rngs, k) {
+    .Call(`_mob_alias_table_sample_device`, table, rngs, k)
+}
+
+alias_table_sample_wor_device <- function(table, rngs, rows, k) {
+    .Call(`_mob_alias_table_sample_wor_device`, table, rngs, rows, k)
+}
+
+alias_table_sample_wor_ragged_matrix_device <- function(table, rngs, ks, maxk) {
+    .Call(`_mob_alias_table_sample_wor_ragged_matrix_device`, table, rngs, ks, maxk)
+}
+
 random_create_host <- function(size, seed = NULL) {
     .Call(`_mob_random_create_host`, size, seed)
 }
@@ -263,5 +283,25 @@ bitset_choose_host <- function(ptr, rngs, k) {
 
 bitset_to_vector_host <- function(ptr) {
     .Call(`_mob_bitset_to_vector_host`, ptr)
+}
+
+alias_table_create_host <- function(weights) {
+    .Call(`_mob_alias_table_create_host`, weights)
+}
+
+alias_table_values_host <- function(table) {
+    .Call(`_mob_alias_table_values_host`, table)
+}
+
+alias_table_sample_host <- function(table, rngs, k) {
+    .Call(`_mob_alias_table_sample_host`, table, rngs, k)
+}
+
+alias_table_sample_wor_host <- function(table, rngs, rows, k) {
+    .Call(`_mob_alias_table_sample_wor_host`, table, rngs, rows, k)
+}
+
+alias_table_sample_wor_ragged_matrix_host <- function(table, rngs, ks, maxk) {
+    .Call(`_mob_alias_table_sample_wor_ragged_matrix_host`, table, rngs, ks, maxk)
 }
 

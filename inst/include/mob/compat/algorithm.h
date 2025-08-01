@@ -84,5 +84,16 @@ __host__ __device__ O copy(R &&r, O output) {
   return output;
 }
 
+// https://en.cppreference.com/w/cpp/algorithm/ranges/contains
+template <cuda::std::input_iterator I, cuda::std::sentinel_for<I> S, class T>
+__host__ __device__ constexpr bool contains(I first, S last, const T &value) {
+  for (auto it = first; it != last; ++it) {
+    if (*it == value) {
+      return true;
+    }
+  }
+  return false;
+}
+
 } // namespace compat
 } // namespace mob

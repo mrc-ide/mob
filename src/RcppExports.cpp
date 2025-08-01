@@ -427,6 +427,69 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// alias_table_create_device
+Rcpp::XPtr<mob::alias_table<mob::system::device>> alias_table_create_device(Rcpp::DoubleVector weights);
+RcppExport SEXP _mob_alias_table_create_device(SEXP weightsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::DoubleVector >::type weights(weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(alias_table_create_device(weights));
+    return rcpp_result_gen;
+END_RCPP
+}
+// alias_table_values_device
+Rcpp::DataFrame alias_table_values_device(Rcpp::XPtr<mob::alias_table<mob::system::device>> table);
+RcppExport SEXP _mob_alias_table_values_device(SEXP tableSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::alias_table<mob::system::device>> >::type table(tableSEXP);
+    rcpp_result_gen = Rcpp::wrap(alias_table_values_device(table));
+    return rcpp_result_gen;
+END_RCPP
+}
+// alias_table_sample_device
+Rcpp::IntegerVector alias_table_sample_device(Rcpp::XPtr<mob::alias_table<mob::system::device>> table, Rcpp::XPtr<mob::parallel_random<mob::system::device>> rngs, size_t k);
+RcppExport SEXP _mob_alias_table_sample_device(SEXP tableSEXP, SEXP rngsSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::alias_table<mob::system::device>> >::type table(tableSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::parallel_random<mob::system::device>> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(alias_table_sample_device(table, rngs, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// alias_table_sample_wor_device
+Rcpp::IntegerMatrix alias_table_sample_wor_device(Rcpp::XPtr<mob::alias_table<mob::system::device>> table, Rcpp::XPtr<mob::parallel_random<mob::system::device>> rngs, size_t rows, size_t k);
+RcppExport SEXP _mob_alias_table_sample_wor_device(SEXP tableSEXP, SEXP rngsSEXP, SEXP rowsSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::alias_table<mob::system::device>> >::type table(tableSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::parallel_random<mob::system::device>> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< size_t >::type rows(rowsSEXP);
+    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(alias_table_sample_wor_device(table, rngs, rows, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// alias_table_sample_wor_ragged_matrix_device
+Rcpp::IntegerMatrix alias_table_sample_wor_ragged_matrix_device(Rcpp::XPtr<mob::alias_table<mob::system::device>> table, Rcpp::XPtr<mob::parallel_random<mob::system::device>> rngs, Rcpp::IntegerVector ks, size_t maxk);
+RcppExport SEXP _mob_alias_table_sample_wor_ragged_matrix_device(SEXP tableSEXP, SEXP rngsSEXP, SEXP ksSEXP, SEXP maxkSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::alias_table<mob::system::device>> >::type table(tableSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::parallel_random<mob::system::device>> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type ks(ksSEXP);
+    Rcpp::traits::input_parameter< size_t >::type maxk(maxkSEXP);
+    rcpp_result_gen = Rcpp::wrap(alias_table_sample_wor_ragged_matrix_device(table, rngs, ks, maxk));
+    return rcpp_result_gen;
+END_RCPP
+}
 // random_create_host
 Rcpp::XPtr<mob::host_random> random_create_host(size_t size, Rcpp::Nullable<Rcpp::NumericVector> seed);
 RcppExport SEXP _mob_random_create_host(SEXP sizeSEXP, SEXP seedSEXP) {
@@ -843,6 +906,69 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// alias_table_create_host
+Rcpp::XPtr<mob::alias_table<mob::system::host>> alias_table_create_host(Rcpp::DoubleVector weights);
+RcppExport SEXP _mob_alias_table_create_host(SEXP weightsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::DoubleVector >::type weights(weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(alias_table_create_host(weights));
+    return rcpp_result_gen;
+END_RCPP
+}
+// alias_table_values_host
+Rcpp::DataFrame alias_table_values_host(Rcpp::XPtr<mob::alias_table<mob::system::host>> table);
+RcppExport SEXP _mob_alias_table_values_host(SEXP tableSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::alias_table<mob::system::host>> >::type table(tableSEXP);
+    rcpp_result_gen = Rcpp::wrap(alias_table_values_host(table));
+    return rcpp_result_gen;
+END_RCPP
+}
+// alias_table_sample_host
+Rcpp::IntegerVector alias_table_sample_host(Rcpp::XPtr<mob::alias_table<mob::system::host>> table, Rcpp::XPtr<mob::parallel_random<mob::system::host>> rngs, size_t k);
+RcppExport SEXP _mob_alias_table_sample_host(SEXP tableSEXP, SEXP rngsSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::alias_table<mob::system::host>> >::type table(tableSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::parallel_random<mob::system::host>> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(alias_table_sample_host(table, rngs, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// alias_table_sample_wor_host
+Rcpp::IntegerMatrix alias_table_sample_wor_host(Rcpp::XPtr<mob::alias_table<mob::system::host>> table, Rcpp::XPtr<mob::parallel_random<mob::system::host>> rngs, size_t rows, size_t k);
+RcppExport SEXP _mob_alias_table_sample_wor_host(SEXP tableSEXP, SEXP rngsSEXP, SEXP rowsSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::alias_table<mob::system::host>> >::type table(tableSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::parallel_random<mob::system::host>> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< size_t >::type rows(rowsSEXP);
+    Rcpp::traits::input_parameter< size_t >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(alias_table_sample_wor_host(table, rngs, rows, k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// alias_table_sample_wor_ragged_matrix_host
+Rcpp::IntegerMatrix alias_table_sample_wor_ragged_matrix_host(Rcpp::XPtr<mob::alias_table<mob::system::host>> table, Rcpp::XPtr<mob::parallel_random<mob::system::host>> rngs, Rcpp::IntegerVector ks, size_t maxk);
+RcppExport SEXP _mob_alias_table_sample_wor_ragged_matrix_host(SEXP tableSEXP, SEXP rngsSEXP, SEXP ksSEXP, SEXP maxkSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::alias_table<mob::system::host>> >::type table(tableSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::parallel_random<mob::system::host>> >::type rngs(rngsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type ks(ksSEXP);
+    Rcpp::traits::input_parameter< size_t >::type maxk(maxkSEXP);
+    rcpp_result_gen = Rcpp::wrap(alias_table_sample_wor_ragged_matrix_host(table, rngs, ks, maxk));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_mob_random_create_device", (DL_FUNC) &_mob_random_create_device, 2},
@@ -878,6 +1004,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_bitset_sample_device", (DL_FUNC) &_mob_bitset_sample_device, 3},
     {"_mob_bitset_choose_device", (DL_FUNC) &_mob_bitset_choose_device, 3},
     {"_mob_bitset_to_vector_device", (DL_FUNC) &_mob_bitset_to_vector_device, 1},
+    {"_mob_alias_table_create_device", (DL_FUNC) &_mob_alias_table_create_device, 1},
+    {"_mob_alias_table_values_device", (DL_FUNC) &_mob_alias_table_values_device, 1},
+    {"_mob_alias_table_sample_device", (DL_FUNC) &_mob_alias_table_sample_device, 3},
+    {"_mob_alias_table_sample_wor_device", (DL_FUNC) &_mob_alias_table_sample_wor_device, 4},
+    {"_mob_alias_table_sample_wor_ragged_matrix_device", (DL_FUNC) &_mob_alias_table_sample_wor_ragged_matrix_device, 4},
     {"_mob_random_create_host", (DL_FUNC) &_mob_random_create_host, 2},
     {"_mob_random_uniform_host", (DL_FUNC) &_mob_random_uniform_host, 4},
     {"_mob_random_uniform_benchmark_host", (DL_FUNC) &_mob_random_uniform_benchmark_host, 4},
@@ -911,6 +1042,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_bitset_sample_host", (DL_FUNC) &_mob_bitset_sample_host, 3},
     {"_mob_bitset_choose_host", (DL_FUNC) &_mob_bitset_choose_host, 3},
     {"_mob_bitset_to_vector_host", (DL_FUNC) &_mob_bitset_to_vector_host, 1},
+    {"_mob_alias_table_create_host", (DL_FUNC) &_mob_alias_table_create_host, 1},
+    {"_mob_alias_table_values_host", (DL_FUNC) &_mob_alias_table_values_host, 1},
+    {"_mob_alias_table_sample_host", (DL_FUNC) &_mob_alias_table_sample_host, 3},
+    {"_mob_alias_table_sample_wor_host", (DL_FUNC) &_mob_alias_table_sample_wor_host, 4},
+    {"_mob_alias_table_sample_wor_ragged_matrix_host", (DL_FUNC) &_mob_alias_table_sample_wor_ragged_matrix_host, 4},
     {NULL, NULL, 0}
 };
 

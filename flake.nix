@@ -161,8 +161,10 @@
             pkgs.gdb
             pkgs.eog
             pkgs.pprof
+            pkgs.valgrind
             pkgs.gperftools
             pkgs.go
+            pkgs.air-formatter
 
             (pkgs.radianWrapper.override {
               wrapR = true;
