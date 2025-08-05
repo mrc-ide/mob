@@ -34,3 +34,4 @@ Config/build/extra-sources:
     src/*.cu
 Config/testthat/edition: 3
 SystemRequirements: C++20
+URL: https://mrc-ide.github.io/mob/
