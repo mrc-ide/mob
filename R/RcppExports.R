@@ -169,12 +169,20 @@ integer_vector_scatter_scalar_device <- function(v, indices, value) {
     invisible(.Call(`_mob_integer_vector_scatter_scalar_device`, v, indices, value))
 }
 
+integer_vector_scatter_bitset_device <- function(v, indices, values) {
+    invisible(.Call(`_mob_integer_vector_scatter_bitset_device`, v, indices, values))
+}
+
 integer_vector_gather_device <- function(v, indices) {
     .Call(`_mob_integer_vector_gather_device`, v, indices)
 }
 
 integer_vector_match_device <- function(v, value) {
     .Call(`_mob_integer_vector_match_device`, v, value)
+}
+
+integer_vector_match_bitset_device <- function(v, value) {
+    .Call(`_mob_integer_vector_match_bitset_device`, v, value)
 }
 
 random_create_host <- function(size, seed = NULL) {
@@ -345,11 +353,19 @@ integer_vector_scatter_scalar_host <- function(v, indices, value) {
     invisible(.Call(`_mob_integer_vector_scatter_scalar_host`, v, indices, value))
 }
 
+integer_vector_scatter_bitset_host <- function(v, indices, values) {
+    invisible(.Call(`_mob_integer_vector_scatter_bitset_host`, v, indices, values))
+}
+
 integer_vector_gather_host <- function(v, indices) {
     .Call(`_mob_integer_vector_gather_host`, v, indices)
 }
 
 integer_vector_match_host <- function(v, value) {
     .Call(`_mob_integer_vector_match_host`, v, value)
+}
+
+integer_vector_match_bitset_host <- function(v, value) {
+    .Call(`_mob_integer_vector_match_bitset_host`, v, value)
 }
 

@@ -536,6 +536,18 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// integer_vector_scatter_bitset_device
+void integer_vector_scatter_bitset_device(Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v, Rcpp::XPtr<mob::bitset<mob::system::device>> indices, Rcpp::IntegerVector values);
+RcppExport SEXP _mob_integer_vector_scatter_bitset_device(SEXP vSEXP, SEXP indicesSEXP, SEXP valuesSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::vector<mob::system::device, size_t>> >::type v(vSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::device>> >::type indices(indicesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type values(valuesSEXP);
+    integer_vector_scatter_bitset_device(v, indices, values);
+    return R_NilValue;
+END_RCPP
+}
 // integer_vector_gather_device
 Rcpp::IntegerVector integer_vector_gather_device(Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v, Rcpp::IntegerVector indices);
 RcppExport SEXP _mob_integer_vector_gather_device(SEXP vSEXP, SEXP indicesSEXP) {
@@ -557,6 +569,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::vector<mob::system::device, size_t>> >::type v(vSEXP);
     Rcpp::traits::input_parameter< size_t >::type value(valueSEXP);
     rcpp_result_gen = Rcpp::wrap(integer_vector_match_device(v, value));
+    return rcpp_result_gen;
+END_RCPP
+}
+// integer_vector_match_bitset_device
+Rcpp::XPtr<mob::bitset<mob::system::device>> integer_vector_match_bitset_device(Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v, size_t value);
+RcppExport SEXP _mob_integer_vector_match_bitset_device(SEXP vSEXP, SEXP valueSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::vector<mob::system::device, size_t>> >::type v(vSEXP);
+    Rcpp::traits::input_parameter< size_t >::type value(valueSEXP);
+    rcpp_result_gen = Rcpp::wrap(integer_vector_match_bitset_device(v, value));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1085,6 +1109,18 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// integer_vector_scatter_bitset_host
+void integer_vector_scatter_bitset_host(Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v, Rcpp::XPtr<mob::bitset<mob::system::host>> indices, Rcpp::IntegerVector values);
+RcppExport SEXP _mob_integer_vector_scatter_bitset_host(SEXP vSEXP, SEXP indicesSEXP, SEXP valuesSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::vector<mob::system::host, size_t>> >::type v(vSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::bitset<mob::system::host>> >::type indices(indicesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type values(valuesSEXP);
+    integer_vector_scatter_bitset_host(v, indices, values);
+    return R_NilValue;
+END_RCPP
+}
 // integer_vector_gather_host
 Rcpp::IntegerVector integer_vector_gather_host(Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v, Rcpp::IntegerVector indices);
 RcppExport SEXP _mob_integer_vector_gather_host(SEXP vSEXP, SEXP indicesSEXP) {
@@ -1106,6 +1142,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::XPtr<mob::vector<mob::system::host, size_t>> >::type v(vSEXP);
     Rcpp::traits::input_parameter< size_t >::type value(valueSEXP);
     rcpp_result_gen = Rcpp::wrap(integer_vector_match_host(v, value));
+    return rcpp_result_gen;
+END_RCPP
+}
+// integer_vector_match_bitset_host
+Rcpp::XPtr<mob::bitset<mob::system::host>> integer_vector_match_bitset_host(Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v, size_t value);
+RcppExport SEXP _mob_integer_vector_match_bitset_host(SEXP vSEXP, SEXP valueSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::vector<mob::system::host, size_t>> >::type v(vSEXP);
+    Rcpp::traits::input_parameter< size_t >::type value(valueSEXP);
+    rcpp_result_gen = Rcpp::wrap(integer_vector_match_bitset_host(v, value));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1153,8 +1201,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_integer_vector_values_device", (DL_FUNC) &_mob_integer_vector_values_device, 1},
     {"_mob_integer_vector_scatter_device", (DL_FUNC) &_mob_integer_vector_scatter_device, 3},
     {"_mob_integer_vector_scatter_scalar_device", (DL_FUNC) &_mob_integer_vector_scatter_scalar_device, 3},
+    {"_mob_integer_vector_scatter_bitset_device", (DL_FUNC) &_mob_integer_vector_scatter_bitset_device, 3},
     {"_mob_integer_vector_gather_device", (DL_FUNC) &_mob_integer_vector_gather_device, 2},
     {"_mob_integer_vector_match_device", (DL_FUNC) &_mob_integer_vector_match_device, 2},
+    {"_mob_integer_vector_match_bitset_device", (DL_FUNC) &_mob_integer_vector_match_bitset_device, 2},
     {"_mob_random_create_host", (DL_FUNC) &_mob_random_create_host, 2},
     {"_mob_random_uniform_host", (DL_FUNC) &_mob_random_uniform_host, 4},
     {"_mob_random_uniform_benchmark_host", (DL_FUNC) &_mob_random_uniform_benchmark_host, 4},
@@ -1197,8 +1247,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_integer_vector_values_host", (DL_FUNC) &_mob_integer_vector_values_host, 1},
     {"_mob_integer_vector_scatter_host", (DL_FUNC) &_mob_integer_vector_scatter_host, 3},
     {"_mob_integer_vector_scatter_scalar_host", (DL_FUNC) &_mob_integer_vector_scatter_scalar_host, 3},
+    {"_mob_integer_vector_scatter_bitset_host", (DL_FUNC) &_mob_integer_vector_scatter_bitset_host, 3},
     {"_mob_integer_vector_gather_host", (DL_FUNC) &_mob_integer_vector_gather_host, 2},
     {"_mob_integer_vector_match_host", (DL_FUNC) &_mob_integer_vector_match_host, 2},
+    {"_mob_integer_vector_match_bitset_host", (DL_FUNC) &_mob_integer_vector_match_bitset_host, 2},
     {NULL, NULL, 0}
 };
 

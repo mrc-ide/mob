@@ -326,6 +326,14 @@ void integer_vector_scatter_scalar_device(
 }
 
 // [[Rcpp::export]]
+void integer_vector_scatter_bitset_device(
+    Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v,
+    Rcpp::XPtr<mob::bitset<mob::system::device>> indices,
+    Rcpp::IntegerVector values) {
+  integer_vector_scatter_bitset<mob::system::device>(v, indices, values);
+}
+
+// [[Rcpp::export]]
 Rcpp::IntegerVector integer_vector_gather_device(
     Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v,
     Rcpp::IntegerVector indices) {
@@ -336,6 +344,12 @@ Rcpp::IntegerVector integer_vector_gather_device(
 Rcpp::IntegerVector integer_vector_match_device(
     Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v, size_t value) {
   return integer_vector_match<mob::system::device>(v, value);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::bitset<mob::system::device>> integer_vector_match_bitset_device(
+    Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v, size_t value) {
+  return integer_vector_match_bitset<mob::system::device>(v, value);
 }
 
 #endif // __NVCC__
@@ -633,6 +647,14 @@ void integer_vector_scatter_scalar_host(
 }
 
 // [[Rcpp::export]]
+void integer_vector_scatter_bitset_host(
+    Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v,
+    Rcpp::XPtr<mob::bitset<mob::system::host>> indices,
+    Rcpp::IntegerVector values) {
+  integer_vector_scatter_bitset<mob::system::host>(v, indices, values);
+}
+
+// [[Rcpp::export]]
 Rcpp::IntegerVector
 integer_vector_gather_host(Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v,
                            Rcpp::IntegerVector indices) {
@@ -644,4 +666,10 @@ Rcpp::IntegerVector
 integer_vector_match_host(Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v,
                           size_t value) {
   return integer_vector_match<mob::system::host>(v, value);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::bitset<mob::system::host>> integer_vector_match_bitset_host(
+    Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v, size_t value) {
+  return integer_vector_match_bitset<mob::system::host>(v, value);
 }

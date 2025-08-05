@@ -191,18 +191,59 @@ struct bitset_view {
                                                                word_type word,
                                                                size_t offset) {
           auto it = output + offset;
+
           // TODO: on the GPU it might just be faster to loop 0..num_bits and
-          // test each value?
+          // test each value? Alternatively use one thread per bit (set or not)
+          // instead of one thread per bucket.
           while (word != 0) {
             uint32_t excess = cuda::std::countr_zero(word);
             word_type mask = (static_cast<word_type>(1) << excess);
-            *it = (bucket * num_bits) | excess;
+            *it = (bucket * num_bits) + excess;
             it++;
             word &= ~mask;
           }
         }));
 
     return result;
+  }
+
+  /**
+   * Scatter values from one random-access iterator to another, using the
+   * positions specified by this bitset.
+   *
+   * For each ith set bit with value b, this will do `output[b] = input[i]`.
+   *
+   * `output` is assumed to be at least as big as `capacity()`, and `input` is
+   * as big as `size()`.
+   */
+  template <typename OutputIt, typename InputIt>
+    requires std::random_access_iterator<InputIt> &&
+             std::random_access_iterator<OutputIt>
+  void scatter(OutputIt output, InputIt input) {
+    mob::vector<System, uint32_t> offsets(data_.size());
+    thrust::transform(data_.begin(), data_.end(), offsets.begin(),
+                      [] __host__ __device__(word_type bits) {
+                        return cuda::std::popcount(bits);
+                      });
+
+    thrust::exclusive_scan(offsets.begin(), offsets.end(), offsets.begin());
+
+    thrust::for_each_n(
+        thrust::make_zip_iterator(thrust::counting_iterator<size_t>(0),
+                                  data_.begin(), offsets.begin()),
+        data_.size(),
+        thrust::make_zip_function(
+            [output, input] __host__ __device__(size_t bucket, word_type bits,
+                                                size_t offset) {
+              auto input_it = input + offset;
+              while (bits != 0) {
+                uint32_t excess = cuda::std::countr_zero(bits);
+                word_type mask = (static_cast<word_type>(1) << excess);
+                output[(bucket * num_bits) + excess] = *input_it;
+                bits &= ~mask;
+                ++input_it;
+              }
+            }));
   }
 
   struct iterator {
