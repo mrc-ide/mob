@@ -3,7 +3,7 @@ check_table_invariant <- function(weights) {
   values <- alias_table_values(table)
 
   expect_true(all(values$probability >= 0 & values$probability <= 1))
-  expect_true(all(values$alias >= 0L & values$alias < length(weights)))
+  expect_true(all(values$alias > 0L & values$alias <= length(weights)))
 
   # Figure out how much external contributions each item receives
   extra <- values %>%
@@ -12,7 +12,7 @@ check_table_invariant <- function(weights) {
 
   # Add up an item's own probability with the external contributions
   result <- values %>%
-    dplyr::mutate(index = dplyr::row_number() - 1) %>% # adjust for 1 indexing
+    dplyr::mutate(index = dplyr::row_number()) %>% # adjust for 1 indexing
     dplyr::left_join(extra, by = dplyr::join_by(index == alias)) %>%
     dplyr::mutate(total = probability + replace(extra, is.na(extra), 0))
 

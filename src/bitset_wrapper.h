@@ -45,8 +45,8 @@ void bitset_insert(Rcpp::XPtr<mob::bitset<System>> ptr,
   if (!std::is_sorted(values.begin(), values.end())) {
     Rcpp::stop("values must be sorted before insertion");
   }
-  mob::vector<System, uint32_t> data(values.begin(), values.end());
-  (*ptr).insert(data);
+  checkIndices(values, ptr->capacity());
+  (*ptr).insert(fromRcppVector<System, uint32_t, ConvertIndex::Yes>(values));
 }
 
 template <typename System>
@@ -63,5 +63,5 @@ void bitset_choose(Rcpp::XPtr<mob::bitset<System>> ptr,
 
 template <typename System>
 Rcpp::IntegerVector bitset_to_vector(Rcpp::XPtr<mob::bitset<System>> ptr) {
-  return asRcppVector(mob::bitset_view(*ptr).to_vector());
+  return asRcppVector<ConvertIndex::Yes>(mob::bitset_view(*ptr).to_vector());
 }

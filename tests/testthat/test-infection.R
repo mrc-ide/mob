@@ -1,5 +1,5 @@
 mob_test("homogeneous_infection_process with empty I", {
-  population <- 0:99
+  population <- 1:100
   susceptible <- bitset_from_vector(length(population), population)
   infected <- bitset_create(length(population))
 
@@ -17,7 +17,7 @@ mob_test("homogeneous_infection_process with empty I", {
 })
 
 mob_test("homogeneous_infection_process with p = 0", {
-  population <- 0:99
+  population <- 1:100
   susceptible <- sample(population, length(population) / 2)
   infected <- setdiff(population, susceptible)
 
@@ -35,7 +35,7 @@ mob_test("homogeneous_infection_process with p = 0", {
 })
 
 mob_test("homogeneous_infection_process", {
-  population <- 0:99
+  population <- 1:100
   susceptible <- sample(population, length(population) / 2)
   infected <- setdiff(population, susceptible)
 
@@ -54,11 +54,11 @@ mob_test("homogeneous_infection_process", {
 })
 
 mob_test("household_infection_process", {
-  population <- 0:99
+  population <- 1:100
 
   susceptible <- sample(population, length(population) / 2)
   infected <- setdiff(population, susceptible)
-  households <- sample.int(50, length(population), replace = TRUE) - 1
+  households <- sample.int(50, length(population), replace = TRUE)
   households_partition <- partition_create(50, households)
 
   rngs <- random_create(length(population))
@@ -73,31 +73,31 @@ mob_test("household_infection_process", {
   df <- infections_as_dataframe(result)
   expect_in(df$source, infected)
   expect_in(df$victim, susceptible)
-  expect_equal(households[df$source + 1],
-               households[df$victim + 1])
+  expect_equal(households[df$source],
+               households[df$victim])
 })
 
 mob_test("household_infection_process can use different probabilities per household", {
-  households <- partition_create(2, c(0,1,0,1,0,1,0,1))
+  households <- partition_create(2, c(1,2,1,2,1,2,1,2))
   probabilities <- c(0, 1)
 
   susceptible <- bitset_create(8)
-  bitset_insert(susceptible, 0:3)
+  bitset_insert(susceptible, 1:4)
 
   infected <- bitset_create(8)
-  bitset_insert(infected, 4:7)
+  bitset_insert(infected, 5:8)
 
   rngs <- random_create(8)
   result <- infection_list_create()
   household_infection_process(rngs, result, susceptible, infected, households,
                               probabilities)
 
-  # Household 0 sees no infection at all.
-  # Household 1 sees complete infection, eg. both 5 & 7 infect 1 & 3.
+  # Household 1 sees no infection at all.
+  # Household 2 sees complete infection, eg. both 6 & 8 infect 2 & 4.
   df <- infections_as_dataframe(result)
-  expect_equal(df$source, c(5, 5, 7, 7))
-  expect_equal(df$victim, c(1, 3, 1, 3))
-  expect_equal(bitset_to_vector(infection_victims(result, 8)), c(1, 3))
+  expect_equal(df$source, c(6, 6, 8, 8))
+  expect_equal(df$victim, c(2, 4, 2, 4))
+  expect_equal(bitset_to_vector(infection_victims(result, 8)), c(2, 4))
 })
 
 mob_test("infection_list", {

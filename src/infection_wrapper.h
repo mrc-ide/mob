@@ -170,8 +170,11 @@ template <typename System>
 Rcpp::DataFrame
 infections_as_dataframe(Rcpp::XPtr<mob::infection_list<System>> infections) {
   return Rcpp::DataFrame::create(
-      Rcpp::Named("source") = asRcppVector(infections->sources),
-      Rcpp::Named("victim") = asRcppVector(infections->victims));
+      Rcpp::Named("source") =
+          asRcppVector<ConvertIndex::Yes>(infections->sources),
+
+      Rcpp::Named("victim") =
+          asRcppVector<ConvertIndex::Yes>(infections->victims));
 }
 
 template <typename System>
@@ -179,9 +182,10 @@ Rcpp::XPtr<mob::infection_list<System>>
 infections_from_dataframe(Rcpp::DataFrame df) {
   Rcpp::IntegerVector sources = df["source"];
   Rcpp::IntegerVector victims = df["victim"];
+
   return Rcpp::XPtr(new mob::infection_list<System>(
-      mob::vector<System, uint32_t>(sources.begin(), sources.end()),
-      mob::vector<System, uint32_t>(victims.begin(), victims.end())));
+      fromRcppVector<System, uint32_t, ConvertIndex::Yes>(sources),
+      fromRcppVector<System, uint32_t, ConvertIndex::Yes>(victims)));
 }
 
 template <typename System>
