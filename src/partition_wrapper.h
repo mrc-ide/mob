@@ -7,20 +7,15 @@
 template <typename System>
 Rcpp::XPtr<mob::ds::partition<System>>
 partition_create_wrapper(size_t capacity, Rcpp::IntegerVector population) {
-  if (std::ranges::any_of(population, [=](auto i) {
-        return static_cast<size_t>(i) >= capacity;
-      })) {
-    Rcpp::stop("out-of-range population");
-  }
-
-  mob::vector<System, uint32_t> data(population.begin(), population.end());
+  checkIndices(population, capacity);
+  auto data = fromRcppVector<System, uint32_t, ConvertIndex::Yes>(population);
   return Rcpp::XPtr(new mob::ds::partition<System>(capacity, std::move(data)));
 }
 
 template <typename System>
 Rcpp::IntegerVector
 partition_sizes_wrapper(Rcpp::XPtr<mob::ds::partition<System>> p) {
-  return asRcppVector(p->sizes());
+  return asRcppVector<ConvertIndex::No>(p->sizes());
 }
 
 template <typename System>
@@ -70,7 +65,7 @@ ragged_vector_create_wrapper(Rcpp::List values) {
 template <typename System>
 Rcpp::IntegerVector ragged_vector_get_wrapper(
     Rcpp::XPtr<mob::ds::ragged_vector<System, uint32_t>> v, size_t i) {
-  return asRcppVector((*v)[i]);
+  return asRcppVector<ConvertIndex::No>((*v)[i]);
 }
 
 template <typename System>
@@ -93,5 +88,5 @@ Rcpp::IntegerVector ragged_vector_random_select_wrapper(
         return mob::random_select(rng, data_view[i]);
       }));
 
-  return asRcppVector(result);
+  return asRcppVector<ConvertIndex::No>(std::move(result));
 }

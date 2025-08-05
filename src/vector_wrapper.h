@@ -4,14 +4,14 @@
 template <typename System>
 Rcpp::XPtr<mob::vector<System, size_t>>
 integer_vector_create(Rcpp::IntegerVector values) {
-  return Rcpp::XPtr(
-      new mob::vector<System, size_t>(values.begin(), values.end()));
+  auto v = fromRcppVector<System, size_t, ConvertIndex::No>(values);
+  return Rcpp::XPtr(new mob::vector<System, size_t>(std::move(v)));
 }
 
 template <typename System>
 Rcpp::IntegerVector
 integer_vector_values(Rcpp::XPtr<mob::vector<System, size_t>> v) {
-  return asRcppVector(*v);
+  return asRcppVector<ConvertIndex::No>(*v);
 }
 
 template <typename System>
@@ -22,14 +22,10 @@ void integer_vector_scatter(Rcpp::XPtr<mob::vector<System, size_t>> v,
     Rcpp::stop("argument sizes mismatch: %d != %d", indices.size(),
                values.size());
   }
-  for (size_t i : indices) {
-    if (i >= v->size()) {
-      Rcpp::stop("index out-of-bound: %d >= %d", i, v->size());
-    }
-  }
+  checkIndices(indices, v->size());
 
-  mob::vector<System, size_t> indices_v(indices.begin(), indices.end());
-  mob::vector<System, size_t> values_v(values.begin(), values.end());
+  auto indices_v = fromRcppVector<System, size_t, ConvertIndex::Yes>(indices);
+  auto values_v = fromRcppVector<System, size_t, ConvertIndex::No>(values);
 
   thrust::scatter(values_v.begin(), values_v.end(), indices_v.begin(),
                   v->begin());
@@ -38,13 +34,9 @@ void integer_vector_scatter(Rcpp::XPtr<mob::vector<System, size_t>> v,
 template <typename System>
 void integer_vector_scatter_scalar(Rcpp::XPtr<mob::vector<System, size_t>> v,
                                    Rcpp::IntegerVector indices, size_t value) {
-  for (size_t i : indices) {
-    if (i >= v->size()) {
-      Rcpp::stop("index out-of-bound: %d >= %d", i, v->size());
-    }
-  }
+  checkIndices(indices, v->size());
 
-  mob::vector<System, size_t> indices_v(indices.begin(), indices.end());
+  auto indices_v = fromRcppVector<System, size_t, ConvertIndex::Yes>(indices);
 
   thrust::scatter(
       thrust::constant_iterator<size_t, size_t>(value, 0),
@@ -56,19 +48,15 @@ template <typename System>
 Rcpp::IntegerVector
 integer_vector_gather(Rcpp::XPtr<mob::vector<System, size_t>> v,
                       Rcpp::IntegerVector indices) {
-  for (size_t i : indices) {
-    if (i >= v->size()) {
-      Rcpp::stop("index out-of-bound: %d >= %d", i, v->size());
-    }
-  }
+  checkIndices(indices, v->size());
 
-  mob::vector<System, size_t> indices_v(indices.begin(), indices.end());
+  auto indices_v = fromRcppVector<System, size_t, ConvertIndex::Yes>(indices);
   mob::vector<System, size_t> result(indices.size());
 
   thrust::gather(indices_v.begin(), indices_v.end(), v->begin(),
                  result.begin());
 
-  return asRcppVector(result);
+  return asRcppVector<ConvertIndex::No>(std::move(result));
 }
 
 template <typename System>
@@ -83,5 +71,5 @@ integer_vector_match(Rcpp::XPtr<mob::vector<System, size_t>> v, size_t value) {
 
   result.erase(last, result.end());
 
-  return asRcppVector(result);
+  return asRcppVector<ConvertIndex::Yes>(std::move(result));
 }

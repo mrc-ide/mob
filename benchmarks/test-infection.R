@@ -27,7 +27,7 @@ mob_bench("household_infection_process (average size = {house_size})", {
     house_sizes <- tabulate(allocation, nbins = houses)
     expect_equal(sum(house_sizes), size)
 
-    partition <- mob:::partition_create(houses, allocation - 1)
+    partition <- mob:::partition_create(houses, allocation)
 
     I <- mob:::bitset_create(size)
     mob:::bitset_invert(I)

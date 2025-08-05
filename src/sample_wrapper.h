@@ -18,7 +18,7 @@ selection_sampler_wrapper(Rcpp::NumericVector data, size_t k,
       dust::random::seed<dust::random::xoroshiro128plus>(from_seed(seed)));
   auto rng_ptr = rng.get();
 
-  mob::vector<System, double> input{data.begin(), data.end()};
+  auto input = fromRcppVector<System, double>(data);
   mob::vector<System, double> result(k);
 
   mob::ds::span input_view(input);
@@ -41,7 +41,7 @@ betabinomial_sampler_wrapper(Rcpp::NumericVector data, size_t k,
       dust::random::seed<dust::random::xoroshiro128plus>(from_seed(seed)));
   auto rng_ptr = rng.get();
 
-  mob::vector<System, double> input{data.begin(), data.end()};
+  auto input = fromRcppVector<System, double>(data);
   mob::vector<System, double> result(k);
 
   mob::ds::span input_view(input);
@@ -62,7 +62,7 @@ bernoulli_sampler_wrapper(Rcpp::NumericVector data, double p,
                           Rcpp::Nullable<Rcpp::NumericVector> seed) {
   auto rng = mob::make_unique<System, dust::random::xoroshiro128plus>(
       dust::random::seed<dust::random::xoroshiro128plus>(from_seed(seed)));
-  mob::vector<System, double> input(data.begin(), data.end());
+  auto input = fromRcppVector<System, double>(data);
 
   auto rng_ptr = rng.get();
   mob::ds::span input_view(input);

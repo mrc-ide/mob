@@ -22,7 +22,7 @@ alias_table_sample_wrapper(Rcpp::XPtr<mob::alias_table<System>> table,
   }
 
   auto result = table->sample(*rngs, k);
-  return asRcppVector(result);
+  return asRcppVector<ConvertIndex::Yes>(result);
 }
 
 template <typename System>
@@ -63,9 +63,8 @@ Rcpp::IntegerMatrix alias_table_sample_wor_ragged_matrix_wrapper(
     }
   }
 
-  mob::vector<System, size_t> ks_vector(ks.begin(), ks.end());
-
-  auto result = table->sample_wor_ragged_matrix(*rngs, ks_vector, maxk);
+  auto ks_v = fromRcppVector<System, size_t, ConvertIndex::No>(ks);
+  auto result = table->sample_wor_ragged_matrix(*rngs, ks_v, maxk);
 
   // TODO: change sample_wor_ragged_matrix to a column-major output so we don't
   // have to transpose here. Might even help with coalesced memory access.
@@ -79,5 +78,5 @@ Rcpp::DataFrame
 alias_table_values_wrapper(Rcpp::XPtr<mob::alias_table<System>> table) {
   return Rcpp::DataFrame::create(
       Rcpp::Named("probability") = asRcppVector(table->probabilities),
-      Rcpp::Named("alias") = asRcppVector(table->aliases));
+      Rcpp::Named("alias") = asRcppVector<ConvertIndex::Yes>(table->aliases));
 }
