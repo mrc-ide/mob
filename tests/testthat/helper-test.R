@@ -1,5 +1,7 @@
 skip_if_no_cuda <- function() {
-  skip_if(isTRUE(as.logical(Sys.getenv("SKIP_DEVICE_TESTS", "false"))))
+  skip_if(
+    isTRUE(as.logical(Sys.getenv("SKIP_DEVICE_TESTS", "false"))),
+    "device tests are disabled")
 }
 
 mob_test <- function(name, code) {
