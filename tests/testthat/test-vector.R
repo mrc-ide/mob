@@ -13,6 +13,29 @@ mob_test("integer vector scatter", {
   expect_identical(integer_vector_values(v), c(42L, 4L, 67L, 0L, 56L))
 })
 
+mob_test("integer vector bitset scatter", {
+  values <- c(9L, 4L, 12L, 0L, 56L)
+  v <- integer_vector_create(values)
+
+  integer_vector_scatter_bitset(v, bitset_from_vector(5, c(1L, 3L)), c(42L, 67L))
+
+  expect_identical(integer_vector_values(v), c(42L, 4L, 67L, 0L, 56L))
+})
+
+mob_test("integer vector bitset scatter random", {
+  v1 <- integer_vector_create(rep(0, 500))
+  v2 <- integer_vector_create(rep(0, 500))
+
+  idx <- sample.int(500, 100)
+  vs <- sample.int(1000, 100)
+
+  integer_vector_scatter_bitset(v1, bitset_from_vector(500, sort(idx)), vs[order(idx)])
+  integer_vector_scatter(v2, idx, vs)
+
+  expect_equal(integer_vector_values(v1),
+               integer_vector_values(v2))
+})
+
 mob_test("integer vector scatter scalar", {
   values <- c(9L, 4L, 12L, 0L, 56L)
   v <- integer_vector_create(values)
@@ -38,4 +61,32 @@ mob_test("integer vector match", {
   expect_identical(integer_vector_match(v, 12L), c(3L, 6L))
   expect_identical(integer_vector_match(v, 56L), 5L)
   expect_identical(integer_vector_match(v, 42L), integer(0))
+})
+
+mob_test("integer vector match bitset", {
+  values <- c(9L, 4L, 12L, 0L, 56L, 12L, 3L, 4L)
+  v <- integer_vector_create(values)
+
+  expect_identical(bitset_to_vector(integer_vector_match_bitset(v, 12L)), c(3L, 6L))
+  expect_identical(bitset_to_vector(integer_vector_match_bitset(v, 56L)), 5L)
+  expect_identical(bitset_to_vector(integer_vector_match_bitset(v, 42L)), integer(0))
+})
+
+mob_test("integer vector match random", {
+  values <- sample.int(200, 150, replace = TRUE)
+  v <- integer_vector_create(values)
+
+  for (x in 1L:200L) {
+    expect_identical(
+      integer_vector_match(v, x),
+      which(values == x)
+    )
+    expect_identical(
+      bitset_to_vector(integer_vector_match_bitset(v, x)),
+      which(values == x)
+    )
+  }
+
+  expect_identical(integer_vector_match(v, 0), integer(0))
+  expect_identical(integer_vector_match(v, 1000), integer(0))
 })

@@ -59,6 +59,8 @@ alias_table_sample_wor_ragged_matrix <- create_wrapper("alias_table_sample_wor_r
 integer_vector_create <- create_wrapper("integer_vector_create")
 integer_vector_values <- create_wrapper("integer_vector_values")
 integer_vector_scatter <- create_wrapper("integer_vector_scatter")
+integer_vector_scatter_bitset <- create_wrapper("integer_vector_scatter_bitset")
 integer_vector_scatter_scalar <- create_wrapper("integer_vector_scatter_scalar")
 integer_vector_gather <- create_wrapper("integer_vector_gather")
 integer_vector_match <- create_wrapper("integer_vector_match")
+integer_vector_match_bitset <- create_wrapper("integer_vector_match_bitset")
