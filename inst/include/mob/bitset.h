@@ -35,6 +35,11 @@ struct bitset {
             }));
   }
 
+  // Presumably this should acce
+  bool operator==(const bitset<System> &other) const {
+    return bitset_view(*this) == bitset_view(other);
+  }
+
   void remove(bitset_view<System> other) {
     if (capacity_ != other.capacity()) {
       throw std::logic_error("bitsets have different sizes");
@@ -163,6 +168,14 @@ struct bitset_view {
       std::conditional_t<IsConst, const bitset<System>, bitset<System>> &bitset)
       : data_(bitset.data()), capacity_(bitset.capacity()) {}
 
+  template <bool OtherIsConst>
+  bool operator==(bitset_view<System, OtherIsConst> other) const {
+    if (capacity_ != other.capacity()) {
+      throw std::logic_error("bitsets have different sizes");
+    }
+    return thrust::equal(data_.begin(), data_.end(), other.data().begin());
+  }
+
   size_t size() const {
     return thrust::transform_reduce(
         data_.begin(), data_.end(),
@@ -217,8 +230,8 @@ struct bitset_view {
    * as big as `size()`.
    */
   template <typename OutputIt, typename InputIt>
-    requires std::random_access_iterator<InputIt> &&
-             std::random_access_iterator<OutputIt>
+    requires cuda::std::random_access_iterator<InputIt> &&
+             cuda::std::random_access_iterator<OutputIt>
   void scatter(OutputIt output, InputIt input) {
     mob::vector<System, uint32_t> offsets(data_.size());
     thrust::transform(data_.begin(), data_.end(), offsets.begin(),

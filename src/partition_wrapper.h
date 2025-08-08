@@ -1,14 +1,26 @@
 #pragma once
 
 #include "conversion.h"
+#include "vector_wrapper.h"
 #include <mob/ds/partition.h>
 #include <mob/random.h>
 
 template <typename System>
-Rcpp::XPtr<mob::ds::partition<System>>
-partition_create_wrapper(size_t capacity, Rcpp::IntegerVector population) {
-  checkIndices(population, capacity);
-  auto data = fromRcppVector<System, uint32_t, ConvertIndex::Yes>(population);
+Rcpp::XPtr<mob::ds::partition<System>> partition_create_wrapper(
+    size_t capacity, Rcpp::XPtr<mob::integer_vector<System>> population) {
+  checkIndices(*population, capacity);
+
+  // This is needed to convert from 1-index to 0-index.
+  //
+  // We could probably redesign partition's constructor so we don't require
+  // this. On the other hand we will always need to make this allocation
+  // anyway since partition owns a copy, and we wouldn't want to consume
+  // the argument.
+  mob::integer_vector<System> data(population->size());
+  thrust::transform(
+      population->begin(), population->end(), data.begin(),
+      [] __host__ __device__(size_t i) -> uint32_t { return i - 1; });
+
   return Rcpp::XPtr(new mob::ds::partition<System>(capacity, std::move(data)));
 }
 
@@ -69,11 +81,11 @@ Rcpp::IntegerVector ragged_vector_get_wrapper(
 }
 
 template <typename System>
-Rcpp::IntegerVector ragged_vector_random_select_wrapper(
+Rcpp::XPtr<mob::integer_vector<System>> ragged_vector_random_select_wrapper(
     Rcpp::XPtr<mob::parallel_random<System>> rngs,
     Rcpp::XPtr<mob::ds::ragged_vector<System, uint32_t>> data) {
   mob::ds::ragged_vector_view<System, uint32_t> data_view = *data;
-  mob::vector<System, uint32_t> result(data->size());
+  mob::integer_vector<System> result(data->size());
 
   // TODO: it would be nice if ragged_vector was a range itself that yielded
   // slices.
@@ -88,5 +100,5 @@ Rcpp::IntegerVector ragged_vector_random_select_wrapper(
         return mob::random_select(rng, data_view[i]);
       }));
 
-  return asRcppVector<ConvertIndex::No>(std::move(result));
+  return make_externalptr<System>(std::move(result));
 }

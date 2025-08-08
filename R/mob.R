@@ -1,3 +1,5 @@
+library(S7)
+
 #' Create a wrapper function that dispatches to either the device or host implementation.
 #'
 #' This produces a wrapper function that will call either `{name}_host` or
@@ -29,6 +31,10 @@ create_wrapper <- function(name) {
   wrapper
 }
 
+class_integer_vector <- S7::new_S3_class("integer_vector")
+class_double_vector <- S7::new_S3_class("double_vector")
+class_bitset <- S7::new_S3_class("bitset")
+
 #' Create a parallel random number generator.
 #' 
 #' @export
@@ -37,13 +43,14 @@ random_create <- create_wrapper("random_create")
 #' @export
 random_uniform <- create_wrapper("random_uniform")
 
-random_uniform_benchmark <- create_wrapper("random_uniform_benchmark")
-
 #' @export
 random_poisson <- create_wrapper("random_poisson")
 
 #' @export
 random_binomial <- create_wrapper("random_binomial")
+
+#' @export
+random_gamma <- create_wrapper("random_gamma")
 
 #' @export
 selection_sampler <- create_wrapper("selection_sampler")
@@ -55,7 +62,11 @@ betabinomial_sampler <- create_wrapper("betabinomial_sampler")
 bernoulli_sampler <- create_wrapper("bernoulli_sampler")
 
 #' @export
-partition_create <- create_wrapper("partition_create")
+partition_create <- new_generic("partition_create", c("capacity", "population"))
+method(partition_create, list(class_numeric, class_integer_vector)) <- create_wrapper("partition_create")
+method(partition_create, list(class_numeric, class_numeric)) <- function(capacity, population, ...) {
+  partition_create(capacity, integer_vector_create(population), ...)
+}
 
 #' @export
 partition_sizes <- create_wrapper("partition_sizes")
@@ -114,6 +125,10 @@ bitset_invert <- create_wrapper("bitset_invert")
 #' @export
 bitset_insert <- create_wrapper("bitset_insert")
 
+#' Returns true if the two bitsets are equal.
+#' @export
+bitset_equal <- create_wrapper("bitset_equal")
+
 #' Return the number of set bits.
 #' @export
 bitset_size <- create_wrapper("bitset_size")
@@ -165,23 +180,69 @@ alias_table_sample_wor_ragged_matrix <- create_wrapper("alias_table_sample_wor_r
 #' @export
 integer_vector_create <- create_wrapper("integer_vector_create")
 
+#' Get the contents of the vector as an R atomic vector.
 #' @export
-integer_vector_values <- create_wrapper("integer_vector_values")
+vector_values <- new_generic("vector_values", c("v"))
+method(vector_values, class_integer_vector) <- create_wrapper("integer_vector_values")
+method(vector_values, class_double_vector) <- create_wrapper("double_vector_values")
 
 #' @export
-integer_vector_scatter <- create_wrapper("integer_vector_scatter")
+vector_scatter <- new_generic("vector_scatter", c("vector", "indices", "values"))
+method(vector_scatter, list(class_any, class_numeric, class_any)) <- function(vector, indices, values) {
+  vector_scatter(vector, integer_vector_create(indices), values)
+}
+
+method(vector_scatter, list(class_integer_vector, class_integer_vector, class_integer_vector)) <- create_wrapper("integer_vector_scatter")
+method(vector_scatter, list(class_integer_vector, class_bitset, class_integer_vector)) <- create_wrapper("integer_vector_scatter_bitset")
+method(vector_scatter, list(class_integer_vector, class_any, class_numeric)) <- function(vector, indices, values, ...) {
+  vector_scatter(vector, indices, integer_vector_create(values), ...)
+}
+
+method(vector_scatter, list(class_double_vector, class_integer_vector, class_double_vector)) <- create_wrapper("double_vector_scatter")
+method(vector_scatter, list(class_double_vector, class_bitset, class_double_vector)) <- create_wrapper("double_vector_scatter_bitset")
+method(vector_scatter, list(class_double_vector, class_any, class_numeric)) <- function(vector, indices, values, ...) {
+  vector_scatter(vector, indices, double_vector_create(values), ...)
+}
 
 #' @export
-integer_vector_scatter_bitset <- create_wrapper("integer_vector_scatter_bitset")
+vector_scatter_scalar <- new_generic("vector_scatter_scalar", c("vector", "indices"))
+method(vector_scatter_scalar, list(class_integer_vector, class_integer_vector)) <- create_wrapper("integer_vector_scatter_scalar")
+method(vector_scatter_scalar, list(class_double_vector, class_integer_vector)) <- create_wrapper("double_vector_scatter_scalar")
+method(vector_scatter_scalar, list(class_any, class_numeric)) <- function(vector, indices, ...) {
+  vector_scatter_scalar(vector, integer_vector_create(indices), ...)
+}
 
 #' @export
-integer_vector_scatter_scalar <- create_wrapper("integer_vector_scatter_scalar")
+vector_gather <- new_generic("vector_gather", c("vector", "indices"))
+method(vector_gather, list(class_integer_vector, class_integer_vector)) <- create_wrapper("integer_vector_gather")
+method(vector_gather, list(class_double_vector, class_integer_vector)) <- create_wrapper("double_vector_gather")
+method(vector_gather, list(class_any, class_numeric)) <- function(vector, indices, ...) {
+  vector_gather(vector, integer_vector_create(indices), ...)
+}
+
+#' Find indices of elements equal to the given value.
+#' @export
+integer_vector_match_eq <- create_wrapper("integer_vector_match_eq")
+
+#' Find indices of elements greaher than the given value.
+#' @export
+integer_vector_match_gt <- create_wrapper("integer_vector_match_gt")
 
 #' @export
-integer_vector_gather <- create_wrapper("integer_vector_gather")
+integer_vector_match_eq_as_bitset <- create_wrapper("integer_vector_match_eq_as_bitset")
 
 #' @export
-integer_vector_match <- create_wrapper("integer_vector_match")
+integer_vector_match_gt_as_bitset <- create_wrapper("integer_vector_match_gt_as_bitset")
 
 #' @export
-integer_vector_match_bitset <- create_wrapper("integer_vector_match_bitset")
+vector_add_scalar <- new_generic("vector_add_scalar", c("v"))
+method(vector_add_scalar, class_integer_vector) <- create_wrapper("integer_vector_add_scalar")
+method(vector_add_scalar, class_double_vector) <- create_wrapper("double_vector_add_scalar")
+
+#' @export
+vector_div_scalar <- new_generic("vector_div_scalar", c("v"))
+method(vector_div_scalar, class_double_vector) <- create_wrapper("double_vector_div_scalar")
+
+#' Round values of the vector to the nearest integer.
+#' @export
+double_vector_lround <- create_wrapper("double_vector_lround")

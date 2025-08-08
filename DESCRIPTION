@@ -20,7 +20,8 @@ LinkingTo:
 Imports:
     Rcpp,
     dust,
-    cli
+    cli,
+    S7
 Remotes:
     mrc-ide/dust
 Suggests:

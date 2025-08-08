@@ -169,6 +169,7 @@
             (pkgs.radianWrapper.override {
               wrapR = true;
               packages = [
+                pkgs.rPackages.S7
                 pkgs.rPackages.bench
                 pkgs.rPackages.devtools
                 pkgs.rPackages.dplyr
