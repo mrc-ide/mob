@@ -8,13 +8,13 @@
 
 template <typename System>
 Rcpp::XPtr<mob::bitset<System>> bitset_create(size_t capacity) {
-  return Rcpp::XPtr(new mob::bitset<System>(capacity));
+  return make_externalptr<System>(mob::bitset<System>(capacity));
 }
 
 template <typename System>
 Rcpp::XPtr<mob::bitset<System>>
 bitset_clone(Rcpp::XPtr<mob::bitset<System>> ptr) {
-  return Rcpp::XPtr(new mob::bitset<System>(*ptr));
+  return make_externalptr<System>(mob::bitset<System>(*ptr));
 }
 
 template <typename System>
@@ -26,6 +26,12 @@ template <typename System>
 void bitset_or(Rcpp::XPtr<mob::bitset<System>> left,
                Rcpp::XPtr<mob::bitset<System>> right) {
   *left |= *right;
+}
+
+template <typename System>
+bool bitset_equal(Rcpp::XPtr<mob::bitset<System>> left,
+                  Rcpp::XPtr<mob::bitset<System>> right) {
+  return *left == *right;
 }
 
 template <typename System>

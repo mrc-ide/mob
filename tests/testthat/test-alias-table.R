@@ -47,9 +47,9 @@ mob_test("alias table sample matrix", {
   ks <- sample(0:N, rows, replace = TRUE)
   maxk <- N
 
-  rngs <- mob:::random_create(rows)
+  rngs <- random_create(rows)
 
-  values <- mob:::alias_table_sample_wor_ragged_matrix(table, rngs, ks, maxk)
+  values <- alias_table_sample_wor_ragged_matrix(table, rngs, ks, maxk)
   expect_equal(dim(values), c(rows, maxk))
 
   for (i in seq_len(rows)) {
