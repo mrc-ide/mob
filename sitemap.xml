@@ -1,0 +1,23 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://mrc-ide.github.io/mob/404.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/LICENSE-text.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/LICENSE.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/authors.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/bibliography.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/index.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/bitset_choose.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/bitset_clone.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/bitset_create.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/bitset_from_vector.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/bitset_insert.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/bitset_invert.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/bitset_or.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/bitset_remove.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/bitset_sample.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/bitset_size.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/bitset_to_vector.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/create_wrapper.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/index.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/random_create.html</loc></url>
+</urlset>
+
