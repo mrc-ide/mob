@@ -4,7 +4,7 @@
 \alias{bitset_equal}
 \title{Returns true if the two bitsets are equal.}
 \usage{
-bitset_equal(left, right, ..., system = getOption("mob.system"))
+bitset_equal(left, right)
 }
 \description{
 Returns true if the two bitsets are equal.

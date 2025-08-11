@@ -4,7 +4,7 @@
 \alias{bitset_remove}
 \title{Perform an in-place difference of two bitsets.}
 \usage{
-bitset_remove(left, right, ..., system = getOption("mob.system"))
+bitset_remove(left, right)
 }
 \description{
 Perform an in-place difference of two bitsets.

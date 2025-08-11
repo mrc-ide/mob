@@ -85,12 +85,29 @@
             '';
           };
 
-        packages.mob = pkgs.rPackages.buildRPackage {
-          name = "mob";
-          src = ./.;
+        packages.mob-build = pkgs.rPackages.buildRPackage {
+          name = "mob.build";
+          src = ./mob.build;
           buildInputs = [
             pkgs.R
-            cudaPackages.cudatoolkit
+          ];
+          propagatedBuildInputs = [
+            pkgs.rPackages.fs
+            pkgs.rPackages.glue
+          ];
+        };
+
+        packages.mob = pkgs.rPackages.buildRPackage {
+          name = "mob";
+          src = lib.sources.sourceByRegex ./. [
+            "^DESCRIPTION$"
+            "^NAMESPACE$"
+            "^src(/.*)?"
+            "^R(/.*)?"
+            "^inst(/.*)?"
+          ];
+          buildInputs = [
+            pkgs.R
             cudaPackages.cuda_cudart
             cudaPackages.cuda_cccl
           ];
@@ -104,8 +121,27 @@
             pkgs.rPackages.testthat
             pkgs.rPackages.withr
             pkgs.rPackages.S7
+            self'.packages.mob-build
           ];
         };
+
+        packages.mob-device = pkgs.rPackages.buildRPackage {
+          name = "mob.device";
+          unpackPhase = ''
+            R --vanilla -e "mob::generate_device('source')"
+            cd source
+          '';
+          buildInputs = [
+            pkgs.R
+            cudaPackages.cudatoolkit
+            cudaPackages.cuda_cudart
+            cudaPackages.cuda_cccl
+          ];
+          propagatedBuildInputs = [
+            self'.packages.mob
+          ];
+        };
+
         packages.default = self'.packages.mob;
 
         devShells.benchmark = pkgs.mkShell {
@@ -132,6 +168,7 @@
             cudaPackages.cuda_cudart
             cudaPackages.cuda_cccl
             pkgs.R
+            self'.packages.mob-build
           ];
           shellHook = self'.packages.selectDriver.shellHook;
         };
@@ -142,6 +179,7 @@
             cudaPackages.cuda_cudart
             cudaPackages.cuda_cccl
             cudaPackages.nsight_compute
+            cudaPackages.nsight_systems
             pkgs.gdb
             pkgs.eog
             pkgs.pprof

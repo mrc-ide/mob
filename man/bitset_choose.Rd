@@ -4,7 +4,7 @@
 \alias{bitset_choose}
 \title{Retain only a given number of bits.}
 \usage{
-bitset_choose(ptr, rngs, k, ..., system = getOption("mob.system"))
+bitset_choose(ptr, rngs, k)
 }
 \description{
 Retain only a given number of bits.

@@ -1,0 +1,2 @@
+importFrom(Rcpp,sourceCpp)
+useDynLib(mob.{{ system }}, .registration = TRUE)

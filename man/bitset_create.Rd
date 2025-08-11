@@ -4,7 +4,7 @@
 \alias{bitset_create}
 \title{Create a new bitset.}
 \usage{
-bitset_create(capacity, ..., system = getOption("mob.system"))
+bitset_create(capacity)
 }
 \description{
 Create a new bitset.

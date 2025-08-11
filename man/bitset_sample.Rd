@@ -4,7 +4,7 @@
 \alias{bitset_sample}
 \title{Retain only a random portion of bits, using on independent bernoulli trials.}
 \usage{
-bitset_sample(ptr, rngs, p, ..., system = getOption("mob.system"))
+bitset_sample(ptr, rngs, p)
 }
 \description{
 Retain only a random portion of bits, using on independent bernoulli trials.

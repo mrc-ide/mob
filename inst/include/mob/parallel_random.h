@@ -150,7 +150,8 @@ struct parallel_random {
   // GPU threads. I cannot find a suitable abstraction in thrust, nor can I
   // figure out what it should be called. This is similar, but not quite the
   // same, as a prefix sum. Or possibly some kind of tree traversal.
-  void populate(const rng_state &initial, thrust::device_system_tag) {
+#if THRUST_DEVICE_SYSTEM == THRUST_DEVICE_SYSTEM_CUDA
+  void populate(const rng_state &initial, thrust::system::cuda::tag) {
     if (size_ >= std::numeric_limits<uint32_t>::max()) {
       throw std::logic_error("Maximum size is 32 bits");
     }
@@ -172,6 +173,7 @@ struct parallel_random {
                        output[n].put(state);
                      });
   }
+#endif
 
   struct iterator;
 
