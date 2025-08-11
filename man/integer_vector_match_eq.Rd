@@ -4,7 +4,7 @@
 \alias{integer_vector_match_eq}
 \title{Find indices of elements equal to the given value.}
 \usage{
-integer_vector_match_eq(v, value, ..., system = getOption("mob.system"))
+integer_vector_match_eq(v, value)
 }
 \description{
 Find indices of elements equal to the given value.

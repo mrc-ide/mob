@@ -4,7 +4,7 @@
 \alias{bitset_insert}
 \title{Insert an R integer vector into a bitset.}
 \usage{
-bitset_insert(ptr, values, ..., system = getOption("mob.system"))
+bitset_insert(ptr, values)
 }
 \description{
 Insert an R integer vector into a bitset.

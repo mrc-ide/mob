@@ -3,20 +3,17 @@ library(S7)
 #' Create a wrapper function that dispatches to either the device or host implementation.
 #'
 #' This produces a wrapper function that will call either `{name}_host` or
-#' `{name}_device`. The wrapper has a `system` named argument that is used to
-#' choose the implementation. All other arguments are forwarded to the
-#' underlying function.
+#' `{name}_device`. All arguments are forwarded to the underlying function.
 #'
 #' The wrapper function is generated using metaprogramming, allowing it to have
 #' an explicit list of formal parameter names. If we just used `...` to forward
 #' argument the argument names wouldn't show up in the documentation.
 create_wrapper <- function(name) {
   f_host <- sprintf("%s_host", name)
-  f_device <- sprintf("%s_device", name)
-
-  if (!identical(formals(f_host), formals(f_device))) {
-    abort(sprintf("host and device implementations of %s has different formals", name))
-  }
+  f_device <- rlang::call2(
+    rlang::sym(":::"),
+    rlang::sym("mob.device"),
+    rlang::sym(sprintf("%s_device", name)))
 
   nm <- names(formals(f_host))
   wrapper <- rlang::new_function(formals(f_host), rlang::expr({
@@ -62,8 +59,8 @@ bernoulli_sampler <- create_wrapper("bernoulli_sampler")
 #' @export
 partition_create <- new_generic("partition_create", c("capacity", "population"))
 method(partition_create, list(class_numeric, class_integer_vector)) <- create_wrapper("partition_create")
-method(partition_create, list(class_numeric, class_numeric)) <- function(capacity, population, ...) {
-  partition_create(capacity, integer_vector_create(population), ...)
+method(partition_create, list(class_numeric, class_numeric)) <- function(capacity, population) {
+  partition_create(capacity, integer_vector_create(population))
 }
 
 #' @export
@@ -76,7 +73,25 @@ infection_list_create <- create_wrapper("infection_list_create")
 homogeneous_infection_process <- create_wrapper("homogeneous_infection_process")
 
 #' @export
-household_infection_process <- create_wrapper("household_infection_process")
+household_infection_process <- new_generic("household_infection_process", c("rngs", "output", "susceptible", "infected", "households", "infection_probability"))
+method(household_infection_process,
+       list(rngs = class_any,
+            output = class_any,
+            susceptible = class_any,
+            infected = class_any,
+            households = class_any,
+            infection_probability = class_double_vector)) <- create_wrapper("household_infection_process")
+method(household_infection_process,
+       list(rngs = class_any,
+            output = class_any,
+            susceptible = class_any,
+            infected = class_any,
+            households = class_any,
+            infection_probability = class_numeric)) <- function(rngs, output, susceptible, infected, households, infection_probability) {
+  household_infection_process(rngs, output, susceptible, infected, households, double_vector_create(infection_probability))
+}
+
+create_wrapper("household_infection_process")
 
 #' @export
 infection_victims <- create_wrapper("infection_victims")
@@ -178,6 +193,9 @@ alias_table_sample_wor_ragged_matrix <- create_wrapper("alias_table_sample_wor_r
 #' @export
 integer_vector_create <- create_wrapper("integer_vector_create")
 
+#' @export
+double_vector_create <- create_wrapper("double_vector_create")
+
 #' Get the contents of the vector as an R atomic vector.
 #' @export
 vector_values <- new_generic("vector_values", c("v"))
@@ -192,30 +210,30 @@ method(vector_scatter, list(class_any, class_numeric, class_any)) <- function(ve
 
 method(vector_scatter, list(class_integer_vector, class_integer_vector, class_integer_vector)) <- create_wrapper("integer_vector_scatter")
 method(vector_scatter, list(class_integer_vector, class_bitset, class_integer_vector)) <- create_wrapper("integer_vector_scatter_bitset")
-method(vector_scatter, list(class_integer_vector, class_any, class_numeric)) <- function(vector, indices, values, ...) {
-  vector_scatter(vector, indices, integer_vector_create(values), ...)
+method(vector_scatter, list(class_integer_vector, class_any, class_numeric)) <- function(vector, indices, values) {
+  vector_scatter(vector, indices, integer_vector_create(values))
 }
 
 method(vector_scatter, list(class_double_vector, class_integer_vector, class_double_vector)) <- create_wrapper("double_vector_scatter")
 method(vector_scatter, list(class_double_vector, class_bitset, class_double_vector)) <- create_wrapper("double_vector_scatter_bitset")
-method(vector_scatter, list(class_double_vector, class_any, class_numeric)) <- function(vector, indices, values, ...) {
-  vector_scatter(vector, indices, double_vector_create(values), ...)
+method(vector_scatter, list(class_double_vector, class_any, class_numeric)) <- function(vector, indices, values) {
+  vector_scatter(vector, indices, double_vector_create(values))
 }
 
 #' @export
 vector_scatter_scalar <- new_generic("vector_scatter_scalar", c("vector", "indices"))
 method(vector_scatter_scalar, list(class_integer_vector, class_integer_vector)) <- create_wrapper("integer_vector_scatter_scalar")
 method(vector_scatter_scalar, list(class_double_vector, class_integer_vector)) <- create_wrapper("double_vector_scatter_scalar")
-method(vector_scatter_scalar, list(class_any, class_numeric)) <- function(vector, indices, ...) {
-  vector_scatter_scalar(vector, integer_vector_create(indices), ...)
+method(vector_scatter_scalar, list(class_any, class_numeric)) <- function(vector, indices, value) {
+  vector_scatter_scalar(vector, integer_vector_create(indices), value)
 }
 
 #' @export
 vector_gather <- new_generic("vector_gather", c("vector", "indices"))
 method(vector_gather, list(class_integer_vector, class_integer_vector)) <- create_wrapper("integer_vector_gather")
 method(vector_gather, list(class_double_vector, class_integer_vector)) <- create_wrapper("double_vector_gather")
-method(vector_gather, list(class_any, class_numeric)) <- function(vector, indices, ...) {
-  vector_gather(vector, integer_vector_create(indices), ...)
+method(vector_gather, list(class_any, class_numeric)) <- function(vector, indices) {
+  vector_gather(vector, integer_vector_create(indices))
 }
 
 #' Find indices of elements equal to the given value.

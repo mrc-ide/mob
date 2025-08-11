@@ -38,7 +38,7 @@ size_t household_infection_process_wrapper(
     Rcpp::XPtr<mob::bitset<System>> susceptible,
     Rcpp::XPtr<mob::bitset<System>> infected,
     Rcpp::XPtr<mob::ds::partition<System>> households,
-    Rcpp::DoubleVector infection_probability) {
+    Rcpp::XPtr<mob::double_vector<System>> infection_probability) {
   if (rngs->size() < susceptible->capacity()) {
     Rcpp::stop("RNG state is too small: %d < %d", rngs->size(),
                susceptible->capacity());
@@ -53,21 +53,17 @@ size_t household_infection_process_wrapper(
   if (infected->capacity() != households->population_size()) {
     Rcpp::stop("bad susceptible");
   }
-  if (infection_probability.size() != 1 &&
-      households->partitions_count() !=
-          static_cast<size_t>(infection_probability.size())) {
+  if (infection_probability->size() != 1 &&
+      households->partitions_count() != infection_probability->size()) {
     Rcpp::stop("infection probability size is incorrect: got %d households but "
                "%d probabilities",
-               households->partitions_count(), infection_probability.size());
+               households->partitions_count(), infection_probability->size());
   }
-
-  mob::vector<System, double> infection_probability_data(
-      infection_probability.begin(), infection_probability.end());
 
   auto infected_data = mob::bitset_view(*infected).to_vector();
   return mob::household_infection_process<System>(*rngs, *output, infected_data,
                                                   *susceptible, *households,
-                                                  infection_probability_data);
+                                                  *infection_probability);
 }
 
 template <typename System>

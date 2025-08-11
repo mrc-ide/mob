@@ -4,7 +4,7 @@
 \alias{random_create}
 \title{Create a parallel random number generator.}
 \usage{
-random_create(size, seed = NULL, ..., system = getOption("mob.system"))
+random_create(size, seed = NULL)
 }
 \description{
 Create a parallel random number generator.

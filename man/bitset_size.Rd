@@ -4,7 +4,7 @@
 \alias{bitset_size}
 \title{Return the number of set bits.}
 \usage{
-bitset_size(ptr, ..., system = getOption("mob.system"))
+bitset_size(ptr)
 }
 \description{
 Return the number of set bits.

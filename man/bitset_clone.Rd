@@ -4,7 +4,7 @@
 \alias{bitset_clone}
 \title{Create a copy of an existing bitset.}
 \usage{
-bitset_clone(ptr, ..., system = getOption("mob.system"))
+bitset_clone(ptr)
 }
 \description{
 Create a copy of an existing bitset.
