@@ -29,7 +29,9 @@ run_benchmarks <- function(path = ".", ..., load_package = "source") {
 library(ggplot2)
 
 # Make sure device is initialized
-withr::with_options(list("mob.system" = "device"), mob::bitset_create(1))
+withr::with_options(list("mob.system" = "device"), {
+  invisible(mob::bitset_create(1))
+})
 
 results <- run_benchmarks(load_package = "installed")
 

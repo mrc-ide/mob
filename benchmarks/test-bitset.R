@@ -1,6 +1,7 @@
 mob_bench("bitset_create", {
   bench::mark({
     mob::bitset_create(size)
+    gc()
   }, check = FALSE)
 }, size = c(1e3, 1e4, 1e5, 1e6, 1e7, 1e8))
 
@@ -8,6 +9,7 @@ mob_bench("bitset_clone", {
   b <- mob::bitset_create(size)
   bench::mark({
     mob::bitset_clone(b)
+    gc()
   }, check = FALSE)
 }, size = c(1e3, 1e4, 1e5, 1e6, 1e7, 1e8))
 
