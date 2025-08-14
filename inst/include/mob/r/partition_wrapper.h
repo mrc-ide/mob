@@ -26,9 +26,11 @@ partition_create_wrapper(size_t capacity,
 }
 
 template <typename System>
-Rcpp::IntegerVector
+Rcpp::XPtr<mob::integer_vector<System>>
 partition_sizes_wrapper(Rcpp::XPtr<mob::ds::partition<System>> p) {
-  return asRcppVector<ConvertIndex::No>(p->sizes());
+  // This has a conversion in it: sizes() returns a vector<size_t> but
+  // integer_vector is a vector<uint32_t>
+  return make_externalptr<System>(mob::integer_vector<System>(p->sizes()));
 }
 
 template <typename System>

@@ -88,7 +88,7 @@ Rcpp::XPtr<mob::ds::partition<mob::system::{{ system }}>> partition_create_{{ sy
 }
 
 // [[Rcpp::export]]
-Rcpp::IntegerVector
+Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>>
 partition_sizes_{{ system }}(Rcpp::XPtr<mob::ds::partition<mob::system::{{ system }}>> p) {
   return partition_sizes_wrapper<mob::system::{{ system }}>(p);
 }
@@ -308,9 +308,28 @@ integer_vector_create_{{ system }}(Rcpp::IntegerVector values) {
 }
 
 // [[Rcpp::export]]
+Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>>
+integer_vector_clone_{{ system }}(
+    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> vector) {
+  return vector_clone<mob::system::{{ system }}>(vector);
+}
+
+// [[Rcpp::export]]
 Rcpp::IntegerVector integer_vector_values_{{ system }}(
-    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> v) {
-  return vector_values<mob::system::{{ system }}>(v);
+    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> vector) {
+  return vector_values<mob::system::{{ system }}>(vector);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>>
+integer_vector_rep_{{ system }}(Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> vector, size_t n) {
+  return vector_rep<mob::system::{{ system }}>(vector, n);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>>
+integer_vector_to_double_{{ system }}(Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> vector) {
+  return integer_vector_to_double<mob::system::{{ system }}>(vector);
 }
 
 // [[Rcpp::export]]
@@ -347,34 +366,60 @@ integer_vector_gather_{{ system }}(
 
 // [[Rcpp::export]]
 Rcpp::IntegerVector integer_vector_match_eq_{{ system }}(
-    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> v, size_t value) {
-  return integer_vector_match_eq<mob::system::{{ system }}>(v, value);
-}
-
-// [[Rcpp::export]]
-Rcpp::IntegerVector integer_vector_match_gt_{{ system }}(
-    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> v, size_t value) {
-  return integer_vector_match_gt<mob::system::{{ system }}>(v, value);
+    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> vector, uint32_t value) {
+  return vector_match_eq<mob::system::{{ system }}>(vector, value);
 }
 
 // [[Rcpp::export]]
 Rcpp::XPtr<mob::bitset<mob::system::{{ system }}>>
 integer_vector_match_eq_as_bitset_{{ system }}(
-    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> v, size_t value) {
-  return integer_vector_match_eq_as_bitset<mob::system::{{ system }}>(v, value);
+    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> vector, uint32_t value) {
+  return vector_match_eq_as_bitset<mob::system::{{ system }}>(vector, value);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector integer_vector_match_gt_{{ system }}(
+    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> vector, uint32_t value) {
+  return vector_match_gt<mob::system::{{ system }}>(vector, value);
 }
 
 // [[Rcpp::export]]
 Rcpp::XPtr<mob::bitset<mob::system::{{ system }}>>
 integer_vector_match_gt_as_bitset_{{ system }}(
-    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> v, size_t value) {
-  return integer_vector_match_gt_as_bitset<mob::system::{{ system }}>(v, value);
+    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> vector, uint32_t value) {
+  return vector_match_gt_as_bitset<mob::system::{{ system }}>(vector, value);
 }
 
 // [[Rcpp::export]]
 void integer_vector_add_scalar_{{ system }}(
-    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> v, int32_t delta) {
-  return vector_add_scalar<mob::system::{{ system }}>(v, delta);
+    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> vector, int32_t addend) {
+  return vector_add_scalar<mob::system::{{ system }}>(vector, addend);
+}
+
+// [[Rcpp::export]]
+void integer_vector_mul_scalar_{{ system }}(
+    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> vector, int32_t factor) {
+  return vector_mul_scalar<mob::system::{{ system }}>(vector, factor);
+}
+
+// [[Rcpp::export]]
+void integer_vector_add_{{ system }}(
+    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> left,
+    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> right) {
+  return vector_add<mob::system::{{ system }}>(left, right);
+}
+
+// [[Rcpp::export]]
+void integer_vector_mul_{{ system }}(
+    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> left,
+    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> right) {
+  return vector_mul<mob::system::{{ system }}>(left, right);
+}
+
+// [[Rcpp::export]]
+void integer_vector_neg_{{ system }}(
+    Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>> vector) {
+  return vector_neg<mob::system::{{ system }}>(vector);
 }
 
 // [[Rcpp::export]]
@@ -384,9 +429,22 @@ double_vector_create_{{ system }}(Rcpp::NumericVector values) {
 }
 
 // [[Rcpp::export]]
+Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>>
+double_vector_clone_{{ system }}(
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> vector) {
+  return vector_clone<mob::system::{{ system }}>(vector);
+}
+
+// [[Rcpp::export]]
 Rcpp::NumericVector double_vector_values_{{ system }}(
-    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> v) {
-  return vector_values<mob::system::{{ system }}>(v);
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> vector) {
+  return vector_values<mob::system::{{ system }}>(vector);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>>
+double_vector_rep_{{ system }}(Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> vector, size_t n) {
+  return vector_rep<mob::system::{{ system }}>(vector, n);
 }
 
 // [[Rcpp::export]]
@@ -421,20 +479,79 @@ Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> double_vector_gather_{
 }
 
 // [[Rcpp::export]]
+Rcpp::IntegerVector double_vector_match_gt_{{ system }}(
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> vector, double value) {
+  return vector_match_gt<mob::system::{{ system }}>(vector, value);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::bitset<mob::system::{{ system }}>>
+double_vector_match_gt_as_bitset_{{ system }}(
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> vector, double value) {
+  return vector_match_gt_as_bitset<mob::system::{{ system }}>(vector, value);
+}
+
+
+// [[Rcpp::export]]
 void double_vector_add_scalar_{{ system }}(
-    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> v, double delta) {
-  return vector_add_scalar<mob::system::{{ system }}>(v, delta);
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> vector, double addend) {
+  return vector_add_scalar<mob::system::{{ system }}>(vector, addend);
+}
+
+// [[Rcpp::export]]
+void double_vector_mul_scalar_{{ system }}(
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> vector, double factor) {
+  return vector_mul_scalar<mob::system::{{ system }}>(vector, factor);
 }
 
 // [[Rcpp::export]]
 void double_vector_div_scalar_{{ system }}(
-    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> v, double divisor) {
-  return vector_div_scalar<mob::system::{{ system }}>(v, divisor);
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> vector, double divisor) {
+  return vector_div_scalar<mob::system::{{ system }}>(vector, divisor);
+}
+
+// [[Rcpp::export]]
+void double_vector_add_{{ system }}(
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> left,
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> right) {
+  return vector_add<mob::system::{{ system }}>(left, right);
+}
+
+// [[Rcpp::export]]
+void double_vector_mul_{{ system }}(
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> left,
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> right) {
+  return vector_mul<mob::system::{{ system }}>(left, right);
+}
+
+// [[Rcpp::export]]
+void double_vector_div_{{ system }}(
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> left,
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> right) {
+  return vector_div<mob::system::{{ system }}>(left, right);
+}
+
+// [[Rcpp::export]]
+void double_vector_neg_{{ system }}(
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> vector) {
+  return vector_neg<mob::system::{{ system }}>(vector);
+}
+
+// [[Rcpp::export]]
+void double_vector_exp_{{ system }}(
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> vector) {
+  return vector_exp<mob::system::{{ system }}>(vector);
+}
+
+// [[Rcpp::export]]
+void double_vector_reciprocal_{{ system }}(
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> vector) {
+  return vector_reciprocal<mob::system::{{ system }}>(vector);
 }
 
 // [[Rcpp::export]]
 Rcpp::XPtr<mob::integer_vector<mob::system::{{ system }}>>
 double_vector_lround_{{ system }}(
-    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> values) {
-  return double_vector_lround<mob::system::{{ system }}>(values);
+    Rcpp::XPtr<mob::double_vector<mob::system::{{ system }}>> vector) {
+  return double_vector_lround<mob::system::{{ system }}>(vector);
 }

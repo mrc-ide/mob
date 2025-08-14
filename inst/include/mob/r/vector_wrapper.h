@@ -2,6 +2,7 @@
 
 #include "conversion.h"
 
+#include <cuda/std/functional>
 #include <thrust/gather.h>
 #include <thrust/iterator/counting_iterator.h>
 
@@ -19,6 +20,14 @@ double_vector_create(Rcpp::NumericVector values) {
   return make_externalptr<System>(std::move(v));
 }
 
+template <typename System, typename T>
+Rcpp::XPtr<mob::vector<System, T>>
+vector_clone(Rcpp::XPtr<mob::vector<System, T>> vector) {
+  mob::vector<System, T> result(vector->size());
+  thrust::copy(vector->begin(), vector->end(), result.begin());
+  return make_externalptr<System>(std::move(result));
+}
+
 template <typename System>
 Rcpp::IntegerVector vector_values(Rcpp::XPtr<mob::integer_vector<System>> v) {
   return asRcppVector<ConvertIndex::No>(*v);
@@ -27,6 +36,21 @@ Rcpp::IntegerVector vector_values(Rcpp::XPtr<mob::integer_vector<System>> v) {
 template <typename System>
 Rcpp::DoubleVector vector_values(Rcpp::XPtr<mob::double_vector<System>> v) {
   return asRcppVector(*v);
+}
+
+template <typename System, typename T>
+Rcpp::XPtr<mob::vector<System, T>>
+vector_rep(Rcpp::XPtr<mob::vector<System, T>> vector, size_t n) {
+  mob::ds::span<System, T> input(*vector);
+  size_t width = input.size();
+
+  mob::vector<System, T> result(width * n);
+  thrust::tabulate(result.begin(), result.end(),
+                   [width, input] __device__ __host__(size_t i) -> T {
+                     return input[i % width];
+                   });
+
+  return make_externalptr<System>(std::move(result));
 }
 
 template <typename System, typename T>
@@ -94,11 +118,10 @@ vector_gather(Rcpp::XPtr<mob::vector<System, T>> vector,
   return make_externalptr<System>(std::move(result));
 }
 
-template <typename System, typename Predicate>
-  requires std::predicate<Predicate, uint32_t>
-Rcpp::IntegerVector
-integer_vector_match(Rcpp::XPtr<mob::integer_vector<System>> v,
-                     Predicate pred) {
+template <typename System, typename T, typename Predicate>
+  requires std::predicate<Predicate, T>
+Rcpp::IntegerVector vector_match(Rcpp::XPtr<mob::vector<System, T>> v,
+                                 Predicate pred) {
   mob::integer_vector<System> result(v->size());
 
   auto last = thrust::copy_if(thrust::counting_iterator<size_t>(0),
@@ -110,11 +133,10 @@ integer_vector_match(Rcpp::XPtr<mob::integer_vector<System>> v,
   return asRcppVector<ConvertIndex::Yes>(std::move(result));
 }
 
-template <typename System, typename Predicate>
-  requires std::predicate<Predicate, uint32_t>
+template <typename System, typename T, typename Predicate>
+  requires std::predicate<Predicate, T>
 Rcpp::XPtr<mob::bitset<System>>
-integer_vector_match_as_bitset(Rcpp::XPtr<mob::integer_vector<System>> v,
-                               Predicate pred) {
+vector_match_as_bitset(Rcpp::XPtr<mob::vector<System, T>> v, Predicate pred) {
   size_t capacity = v->size();
 
   mob::bitset<System> result(capacity);
@@ -143,59 +165,128 @@ integer_vector_match_as_bitset(Rcpp::XPtr<mob::integer_vector<System>> v,
   return make_externalptr<System>(std::move(result));
 }
 
-template <typename System>
-Rcpp::IntegerVector
-integer_vector_match_eq(Rcpp::XPtr<mob::integer_vector<System>> v,
-                        size_t value) {
-  return integer_vector_match<System>(
-      v, [value] __device__ __host__(size_t i) { return i == value; });
+template <typename System, typename T>
+Rcpp::IntegerVector vector_match_eq(Rcpp::XPtr<mob::vector<System, T>> v,
+                                    T value) {
+  return vector_match<System>(
+      v, [value] __device__ __host__(T i) { return i == value; });
 }
 
-template <typename System>
+template <typename System, typename T>
 Rcpp::XPtr<mob::bitset<System>>
-integer_vector_match_eq_as_bitset(Rcpp::XPtr<mob::integer_vector<System>> v,
-                                  size_t value) {
-  return integer_vector_match_as_bitset<System>(
-      v, [value] __device__ __host__(size_t i) { return i == value; });
+vector_match_eq_as_bitset(Rcpp::XPtr<mob::vector<System, T>> v, T value) {
+  return vector_match_as_bitset<System>(
+      v, [value] __device__ __host__(T i) { return i == value; });
 }
 
-template <typename System>
-Rcpp::IntegerVector
-integer_vector_match_gt(Rcpp::XPtr<mob::integer_vector<System>> v,
-                        size_t value) {
-  return integer_vector_match<System>(
-      v, [value] __device__ __host__(size_t i) { return i > value; });
+template <typename System, typename T>
+Rcpp::IntegerVector vector_match_gt(Rcpp::XPtr<mob::vector<System, T>> v,
+                                    T value) {
+  return vector_match<System>(
+      v, [value] __device__ __host__(T i) { return i > value; });
 }
 
-template <typename System>
+template <typename System, typename T>
 Rcpp::XPtr<mob::bitset<System>>
-integer_vector_match_gt_as_bitset(Rcpp::XPtr<mob::integer_vector<System>> v,
-                                  size_t value) {
-  return integer_vector_match_as_bitset<System>(
-      v, [value] __device__ __host__(size_t i) { return i > value; });
+vector_match_gt_as_bitset(Rcpp::XPtr<mob::vector<System, T>> v, T value) {
+  return vector_match_as_bitset<System>(
+      v, [value] __device__ __host__(T i) { return i > value; });
 }
 
-template <typename System>
-void vector_add_scalar(Rcpp::XPtr<mob::integer_vector<System>> v,
-                       int32_t delta) {
-  thrust::for_each(
-      v->begin(), v->end(),
-      [delta] __host__ __device__(uint32_t &value) { value += delta; });
+// Annoyingly, std::make_signed_t is not defined on floating points.
+template <typename T>
+struct signed_type;
+
+template <>
+struct signed_type<double> {
+  using type = double;
+};
+
+template <>
+struct signed_type<uint32_t> {
+  using type = int32_t;
+};
+
+template <typename System, typename T, typename F>
+  requires std::regular_invocable<F, T> &&
+           std::convertible_to<std::invoke_result_t<F, T>, T>
+void vector_unary_operator(Rcpp::XPtr<mob::vector<System, T>> v, F f) {
+  thrust::for_each(v->begin(), v->end(),
+                   [f] __host__ __device__(T & value) { value = f(value); });
 }
 
-template <typename System>
-void vector_add_scalar(Rcpp::XPtr<mob::double_vector<System>> v, double delta) {
-  thrust::for_each(
-      v->begin(), v->end(),
-      [delta] __host__ __device__(double &value) { value += delta; });
+template <typename System, typename T1, typename T2, typename F>
+  requires std::regular_invocable<F, T1, T2> &&
+           std::convertible_to<std::invoke_result_t<F, T1, T2>, T1>
+void vector_binary_operator(Rcpp::XPtr<mob::vector<System, T1>> lhs,
+                            Rcpp::XPtr<mob::vector<System, T2>> rhs, F f) {
+  if (lhs->size() != rhs->size()) {
+    Rcpp::stop("argument sizes mismatch: %d != %d", lhs->size(), rhs->size());
+  }
+  thrust::for_each(thrust::make_zip_iterator(lhs->begin(), rhs->begin()),
+                   thrust::make_zip_iterator(lhs->end(), rhs->end()),
+                   thrust::make_zip_function(
+                       [f] __host__ __device__(T1 & left, const T2 &right) {
+                         left = f(left, right);
+                       }));
+}
+
+template <typename System, typename T>
+void vector_add_scalar(Rcpp::XPtr<mob::vector<System, T>> v,
+                       typename signed_type<T>::type addend) {
+  vector_unary_operator<System>(
+      v, [addend] __host__ __device__(T value) { return value + addend; });
+}
+
+template <typename System, typename T>
+void vector_mul_scalar(Rcpp::XPtr<mob::vector<System, T>> v,
+                       typename signed_type<T>::type factor) {
+  vector_unary_operator<System>(
+      v, [factor] __host__ __device__(T value) { return value * factor; });
 }
 
 template <typename System>
 void vector_div_scalar(Rcpp::XPtr<mob::double_vector<System>> v,
                        double divisor) {
-  thrust::for_each(
-      v->begin(), v->end(),
-      [divisor] __host__ __device__(double &value) { value /= divisor; });
+  vector_unary_operator<System>(v, [divisor] __host__ __device__(double value) {
+    return value / divisor;
+  });
+}
+
+template <typename System>
+void vector_exp(Rcpp::XPtr<mob::double_vector<System>> v) {
+  vector_unary_operator<System>(v, [] __host__ __device__(double value) {
+    return cuda::std::exp(value);
+  });
+}
+
+template <typename System>
+void vector_reciprocal(Rcpp::XPtr<mob::double_vector<System>> v) {
+  vector_unary_operator<System>(
+      v, [] __host__ __device__(double value) { return 1 / value; });
+}
+
+template <typename System, typename T>
+void vector_neg(Rcpp::XPtr<mob::vector<System, T>> v) {
+  vector_unary_operator<System>(v, cuda::std::negate<T>());
+}
+
+template <typename System, typename T, typename U>
+void vector_add(Rcpp::XPtr<mob::vector<System, T>> lhs,
+                Rcpp::XPtr<mob::vector<System, U>> rhs) {
+  vector_binary_operator<System>(lhs, rhs, cuda::std::plus<T>{});
+}
+
+template <typename System, typename T, typename U>
+void vector_mul(Rcpp::XPtr<mob::vector<System, T>> lhs,
+                Rcpp::XPtr<mob::vector<System, U>> rhs) {
+  vector_binary_operator<System>(lhs, rhs, cuda::std::multiplies<T>{});
+}
+
+template <typename System, typename T, typename U>
+void vector_div(Rcpp::XPtr<mob::vector<System, T>> lhs,
+                Rcpp::XPtr<mob::vector<System, U>> rhs) {
+  vector_binary_operator<System>(lhs, rhs, cuda::std::divides<T>{});
 }
 
 template <typename System>
@@ -207,5 +298,13 @@ double_vector_lround(Rcpp::XPtr<mob::double_vector<System>> values) {
                       return cuda::std::lround(v);
                     });
 
+  return make_externalptr<System>(std::move(result));
+}
+
+template <typename System>
+Rcpp::XPtr<mob::double_vector<System>>
+integer_vector_to_double(Rcpp::XPtr<mob::integer_vector<System>> vector) {
+  mob::double_vector<System> result(vector->size());
+  thrust::copy(vector->begin(), vector->end(), result.begin());
   return make_externalptr<System>(std::move(result));
 }

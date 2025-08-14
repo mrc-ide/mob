@@ -88,7 +88,7 @@ Rcpp::XPtr<mob::ds::partition<mob::system::host>> partition_create_host(
 }
 
 // [[Rcpp::export]]
-Rcpp::IntegerVector
+Rcpp::XPtr<mob::integer_vector<mob::system::host>>
 partition_sizes_host(Rcpp::XPtr<mob::ds::partition<mob::system::host>> p) {
   return partition_sizes_wrapper<mob::system::host>(p);
 }
@@ -308,9 +308,28 @@ integer_vector_create_host(Rcpp::IntegerVector values) {
 }
 
 // [[Rcpp::export]]
+Rcpp::XPtr<mob::integer_vector<mob::system::host>>
+integer_vector_clone_host(
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector) {
+  return vector_clone<mob::system::host>(vector);
+}
+
+// [[Rcpp::export]]
 Rcpp::IntegerVector integer_vector_values_host(
-    Rcpp::XPtr<mob::integer_vector<mob::system::host>> v) {
-  return vector_values<mob::system::host>(v);
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector) {
+  return vector_values<mob::system::host>(vector);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::integer_vector<mob::system::host>>
+integer_vector_rep_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector, size_t n) {
+  return vector_rep<mob::system::host>(vector, n);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::double_vector<mob::system::host>>
+integer_vector_to_double_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector) {
+  return integer_vector_to_double<mob::system::host>(vector);
 }
 
 // [[Rcpp::export]]
@@ -347,34 +366,60 @@ integer_vector_gather_host(
 
 // [[Rcpp::export]]
 Rcpp::IntegerVector integer_vector_match_eq_host(
-    Rcpp::XPtr<mob::integer_vector<mob::system::host>> v, size_t value) {
-  return integer_vector_match_eq<mob::system::host>(v, value);
-}
-
-// [[Rcpp::export]]
-Rcpp::IntegerVector integer_vector_match_gt_host(
-    Rcpp::XPtr<mob::integer_vector<mob::system::host>> v, size_t value) {
-  return integer_vector_match_gt<mob::system::host>(v, value);
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector, uint32_t value) {
+  return vector_match_eq<mob::system::host>(vector, value);
 }
 
 // [[Rcpp::export]]
 Rcpp::XPtr<mob::bitset<mob::system::host>>
 integer_vector_match_eq_as_bitset_host(
-    Rcpp::XPtr<mob::integer_vector<mob::system::host>> v, size_t value) {
-  return integer_vector_match_eq_as_bitset<mob::system::host>(v, value);
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector, uint32_t value) {
+  return vector_match_eq_as_bitset<mob::system::host>(vector, value);
+}
+
+// [[Rcpp::export]]
+Rcpp::IntegerVector integer_vector_match_gt_host(
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector, uint32_t value) {
+  return vector_match_gt<mob::system::host>(vector, value);
 }
 
 // [[Rcpp::export]]
 Rcpp::XPtr<mob::bitset<mob::system::host>>
 integer_vector_match_gt_as_bitset_host(
-    Rcpp::XPtr<mob::integer_vector<mob::system::host>> v, size_t value) {
-  return integer_vector_match_gt_as_bitset<mob::system::host>(v, value);
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector, uint32_t value) {
+  return vector_match_gt_as_bitset<mob::system::host>(vector, value);
 }
 
 // [[Rcpp::export]]
 void integer_vector_add_scalar_host(
-    Rcpp::XPtr<mob::integer_vector<mob::system::host>> v, int32_t delta) {
-  return vector_add_scalar<mob::system::host>(v, delta);
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector, int32_t addend) {
+  return vector_add_scalar<mob::system::host>(vector, addend);
+}
+
+// [[Rcpp::export]]
+void integer_vector_mul_scalar_host(
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector, int32_t factor) {
+  return vector_mul_scalar<mob::system::host>(vector, factor);
+}
+
+// [[Rcpp::export]]
+void integer_vector_add_host(
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> left,
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> right) {
+  return vector_add<mob::system::host>(left, right);
+}
+
+// [[Rcpp::export]]
+void integer_vector_mul_host(
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> left,
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> right) {
+  return vector_mul<mob::system::host>(left, right);
+}
+
+// [[Rcpp::export]]
+void integer_vector_neg_host(
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector) {
+  return vector_neg<mob::system::host>(vector);
 }
 
 // [[Rcpp::export]]
@@ -384,9 +429,22 @@ double_vector_create_host(Rcpp::NumericVector values) {
 }
 
 // [[Rcpp::export]]
+Rcpp::XPtr<mob::double_vector<mob::system::host>>
+double_vector_clone_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> vector) {
+  return vector_clone<mob::system::host>(vector);
+}
+
+// [[Rcpp::export]]
 Rcpp::NumericVector double_vector_values_host(
-    Rcpp::XPtr<mob::double_vector<mob::system::host>> v) {
-  return vector_values<mob::system::host>(v);
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> vector) {
+  return vector_values<mob::system::host>(vector);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::double_vector<mob::system::host>>
+double_vector_rep_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> vector, size_t n) {
+  return vector_rep<mob::system::host>(vector, n);
 }
 
 // [[Rcpp::export]]
@@ -421,20 +479,79 @@ Rcpp::XPtr<mob::double_vector<mob::system::host>> double_vector_gather_host(
 }
 
 // [[Rcpp::export]]
+Rcpp::IntegerVector double_vector_match_gt_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> vector, double value) {
+  return vector_match_gt<mob::system::host>(vector, value);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::bitset<mob::system::host>>
+double_vector_match_gt_as_bitset_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> vector, double value) {
+  return vector_match_gt_as_bitset<mob::system::host>(vector, value);
+}
+
+
+// [[Rcpp::export]]
 void double_vector_add_scalar_host(
-    Rcpp::XPtr<mob::double_vector<mob::system::host>> v, double delta) {
-  return vector_add_scalar<mob::system::host>(v, delta);
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> vector, double addend) {
+  return vector_add_scalar<mob::system::host>(vector, addend);
+}
+
+// [[Rcpp::export]]
+void double_vector_mul_scalar_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> vector, double factor) {
+  return vector_mul_scalar<mob::system::host>(vector, factor);
 }
 
 // [[Rcpp::export]]
 void double_vector_div_scalar_host(
-    Rcpp::XPtr<mob::double_vector<mob::system::host>> v, double divisor) {
-  return vector_div_scalar<mob::system::host>(v, divisor);
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> vector, double divisor) {
+  return vector_div_scalar<mob::system::host>(vector, divisor);
+}
+
+// [[Rcpp::export]]
+void double_vector_add_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> left,
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> right) {
+  return vector_add<mob::system::host>(left, right);
+}
+
+// [[Rcpp::export]]
+void double_vector_mul_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> left,
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> right) {
+  return vector_mul<mob::system::host>(left, right);
+}
+
+// [[Rcpp::export]]
+void double_vector_div_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> left,
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> right) {
+  return vector_div<mob::system::host>(left, right);
+}
+
+// [[Rcpp::export]]
+void double_vector_neg_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> vector) {
+  return vector_neg<mob::system::host>(vector);
+}
+
+// [[Rcpp::export]]
+void double_vector_exp_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> vector) {
+  return vector_exp<mob::system::host>(vector);
+}
+
+// [[Rcpp::export]]
+void double_vector_reciprocal_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> vector) {
+  return vector_reciprocal<mob::system::host>(vector);
 }
 
 // [[Rcpp::export]]
 Rcpp::XPtr<mob::integer_vector<mob::system::host>>
 double_vector_lround_host(
-    Rcpp::XPtr<mob::double_vector<mob::system::host>> values) {
-  return double_vector_lround<mob::system::host>(values);
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> vector) {
+  return double_vector_lround<mob::system::host>(vector);
 }

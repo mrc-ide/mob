@@ -161,8 +161,20 @@ integer_vector_create_host <- function(values) {
     .Call(`_mob_integer_vector_create_host`, values)
 }
 
-integer_vector_values_host <- function(v) {
-    .Call(`_mob_integer_vector_values_host`, v)
+integer_vector_clone_host <- function(vector) {
+    .Call(`_mob_integer_vector_clone_host`, vector)
+}
+
+integer_vector_values_host <- function(vector) {
+    .Call(`_mob_integer_vector_values_host`, vector)
+}
+
+integer_vector_rep_host <- function(vector, n) {
+    .Call(`_mob_integer_vector_rep_host`, vector, n)
+}
+
+integer_vector_to_double_host <- function(vector) {
+    .Call(`_mob_integer_vector_to_double_host`, vector)
 }
 
 integer_vector_scatter_host <- function(vector, indices, values) {
@@ -181,32 +193,56 @@ integer_vector_gather_host <- function(vector, indices) {
     .Call(`_mob_integer_vector_gather_host`, vector, indices)
 }
 
-integer_vector_match_eq_host <- function(v, value) {
-    .Call(`_mob_integer_vector_match_eq_host`, v, value)
+integer_vector_match_eq_host <- function(vector, value) {
+    .Call(`_mob_integer_vector_match_eq_host`, vector, value)
 }
 
-integer_vector_match_gt_host <- function(v, value) {
-    .Call(`_mob_integer_vector_match_gt_host`, v, value)
+integer_vector_match_eq_as_bitset_host <- function(vector, value) {
+    .Call(`_mob_integer_vector_match_eq_as_bitset_host`, vector, value)
 }
 
-integer_vector_match_eq_as_bitset_host <- function(v, value) {
-    .Call(`_mob_integer_vector_match_eq_as_bitset_host`, v, value)
+integer_vector_match_gt_host <- function(vector, value) {
+    .Call(`_mob_integer_vector_match_gt_host`, vector, value)
 }
 
-integer_vector_match_gt_as_bitset_host <- function(v, value) {
-    .Call(`_mob_integer_vector_match_gt_as_bitset_host`, v, value)
+integer_vector_match_gt_as_bitset_host <- function(vector, value) {
+    .Call(`_mob_integer_vector_match_gt_as_bitset_host`, vector, value)
 }
 
-integer_vector_add_scalar_host <- function(v, delta) {
-    invisible(.Call(`_mob_integer_vector_add_scalar_host`, v, delta))
+integer_vector_add_scalar_host <- function(vector, addend) {
+    invisible(.Call(`_mob_integer_vector_add_scalar_host`, vector, addend))
+}
+
+integer_vector_mul_scalar_host <- function(vector, factor) {
+    invisible(.Call(`_mob_integer_vector_mul_scalar_host`, vector, factor))
+}
+
+integer_vector_add_host <- function(left, right) {
+    invisible(.Call(`_mob_integer_vector_add_host`, left, right))
+}
+
+integer_vector_mul_host <- function(left, right) {
+    invisible(.Call(`_mob_integer_vector_mul_host`, left, right))
+}
+
+integer_vector_neg_host <- function(vector) {
+    invisible(.Call(`_mob_integer_vector_neg_host`, vector))
 }
 
 double_vector_create_host <- function(values) {
     .Call(`_mob_double_vector_create_host`, values)
 }
 
-double_vector_values_host <- function(v) {
-    .Call(`_mob_double_vector_values_host`, v)
+double_vector_clone_host <- function(vector) {
+    .Call(`_mob_double_vector_clone_host`, vector)
+}
+
+double_vector_values_host <- function(vector) {
+    .Call(`_mob_double_vector_values_host`, vector)
+}
+
+double_vector_rep_host <- function(vector, n) {
+    .Call(`_mob_double_vector_rep_host`, vector, n)
 }
 
 double_vector_scatter_host <- function(vector, indices, values) {
@@ -225,15 +261,51 @@ double_vector_gather_host <- function(vector, indices) {
     .Call(`_mob_double_vector_gather_host`, vector, indices)
 }
 
-double_vector_add_scalar_host <- function(v, delta) {
-    invisible(.Call(`_mob_double_vector_add_scalar_host`, v, delta))
+double_vector_match_gt_host <- function(vector, value) {
+    .Call(`_mob_double_vector_match_gt_host`, vector, value)
 }
 
-double_vector_div_scalar_host <- function(v, divisor) {
-    invisible(.Call(`_mob_double_vector_div_scalar_host`, v, divisor))
+double_vector_match_gt_as_bitset_host <- function(vector, value) {
+    .Call(`_mob_double_vector_match_gt_as_bitset_host`, vector, value)
 }
 
-double_vector_lround_host <- function(values) {
-    .Call(`_mob_double_vector_lround_host`, values)
+double_vector_add_scalar_host <- function(vector, addend) {
+    invisible(.Call(`_mob_double_vector_add_scalar_host`, vector, addend))
+}
+
+double_vector_mul_scalar_host <- function(vector, factor) {
+    invisible(.Call(`_mob_double_vector_mul_scalar_host`, vector, factor))
+}
+
+double_vector_div_scalar_host <- function(vector, divisor) {
+    invisible(.Call(`_mob_double_vector_div_scalar_host`, vector, divisor))
+}
+
+double_vector_add_host <- function(left, right) {
+    invisible(.Call(`_mob_double_vector_add_host`, left, right))
+}
+
+double_vector_mul_host <- function(left, right) {
+    invisible(.Call(`_mob_double_vector_mul_host`, left, right))
+}
+
+double_vector_div_host <- function(left, right) {
+    invisible(.Call(`_mob_double_vector_div_host`, left, right))
+}
+
+double_vector_neg_host <- function(vector) {
+    invisible(.Call(`_mob_double_vector_neg_host`, vector))
+}
+
+double_vector_exp_host <- function(vector) {
+    invisible(.Call(`_mob_double_vector_exp_host`, vector))
+}
+
+double_vector_reciprocal_host <- function(vector) {
+    invisible(.Call(`_mob_double_vector_reciprocal_host`, vector))
+}
+
+double_vector_lround_host <- function(vector) {
+    .Call(`_mob_double_vector_lround_host`, vector)
 }
 

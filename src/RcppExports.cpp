@@ -129,7 +129,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // partition_sizes_host
-Rcpp::IntegerVector partition_sizes_host(Rcpp::XPtr<mob::ds::partition<mob::system::host>> p);
+Rcpp::XPtr<mob::integer_vector<mob::system::host>> partition_sizes_host(Rcpp::XPtr<mob::ds::partition<mob::system::host>> p);
 RcppExport SEXP _mob_partition_sizes_host(SEXP pSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -514,14 +514,48 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// integer_vector_values_host
-Rcpp::IntegerVector integer_vector_values_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> v);
-RcppExport SEXP _mob_integer_vector_values_host(SEXP vSEXP) {
+// integer_vector_clone_host
+Rcpp::XPtr<mob::integer_vector<mob::system::host>> integer_vector_clone_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector);
+RcppExport SEXP _mob_integer_vector_clone_host(SEXP vectorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type v(vSEXP);
-    rcpp_result_gen = Rcpp::wrap(integer_vector_values_host(v));
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type vector(vectorSEXP);
+    rcpp_result_gen = Rcpp::wrap(integer_vector_clone_host(vector));
+    return rcpp_result_gen;
+END_RCPP
+}
+// integer_vector_values_host
+Rcpp::IntegerVector integer_vector_values_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector);
+RcppExport SEXP _mob_integer_vector_values_host(SEXP vectorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type vector(vectorSEXP);
+    rcpp_result_gen = Rcpp::wrap(integer_vector_values_host(vector));
+    return rcpp_result_gen;
+END_RCPP
+}
+// integer_vector_rep_host
+Rcpp::XPtr<mob::integer_vector<mob::system::host>> integer_vector_rep_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector, size_t n);
+RcppExport SEXP _mob_integer_vector_rep_host(SEXP vectorSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type vector(vectorSEXP);
+    Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(integer_vector_rep_host(vector, n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// integer_vector_to_double_host
+Rcpp::XPtr<mob::double_vector<mob::system::host>> integer_vector_to_double_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector);
+RcppExport SEXP _mob_integer_vector_to_double_host(SEXP vectorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type vector(vectorSEXP);
+    rcpp_result_gen = Rcpp::wrap(integer_vector_to_double_host(vector));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -574,61 +608,104 @@ BEGIN_RCPP
 END_RCPP
 }
 // integer_vector_match_eq_host
-Rcpp::IntegerVector integer_vector_match_eq_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> v, size_t value);
-RcppExport SEXP _mob_integer_vector_match_eq_host(SEXP vSEXP, SEXP valueSEXP) {
+Rcpp::IntegerVector integer_vector_match_eq_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector, uint32_t value);
+RcppExport SEXP _mob_integer_vector_match_eq_host(SEXP vectorSEXP, SEXP valueSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type v(vSEXP);
-    Rcpp::traits::input_parameter< size_t >::type value(valueSEXP);
-    rcpp_result_gen = Rcpp::wrap(integer_vector_match_eq_host(v, value));
-    return rcpp_result_gen;
-END_RCPP
-}
-// integer_vector_match_gt_host
-Rcpp::IntegerVector integer_vector_match_gt_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> v, size_t value);
-RcppExport SEXP _mob_integer_vector_match_gt_host(SEXP vSEXP, SEXP valueSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type v(vSEXP);
-    Rcpp::traits::input_parameter< size_t >::type value(valueSEXP);
-    rcpp_result_gen = Rcpp::wrap(integer_vector_match_gt_host(v, value));
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type vector(vectorSEXP);
+    Rcpp::traits::input_parameter< uint32_t >::type value(valueSEXP);
+    rcpp_result_gen = Rcpp::wrap(integer_vector_match_eq_host(vector, value));
     return rcpp_result_gen;
 END_RCPP
 }
 // integer_vector_match_eq_as_bitset_host
-Rcpp::XPtr<mob::bitset<mob::system::host>> integer_vector_match_eq_as_bitset_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> v, size_t value);
-RcppExport SEXP _mob_integer_vector_match_eq_as_bitset_host(SEXP vSEXP, SEXP valueSEXP) {
+Rcpp::XPtr<mob::bitset<mob::system::host>> integer_vector_match_eq_as_bitset_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector, uint32_t value);
+RcppExport SEXP _mob_integer_vector_match_eq_as_bitset_host(SEXP vectorSEXP, SEXP valueSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type v(vSEXP);
-    Rcpp::traits::input_parameter< size_t >::type value(valueSEXP);
-    rcpp_result_gen = Rcpp::wrap(integer_vector_match_eq_as_bitset_host(v, value));
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type vector(vectorSEXP);
+    Rcpp::traits::input_parameter< uint32_t >::type value(valueSEXP);
+    rcpp_result_gen = Rcpp::wrap(integer_vector_match_eq_as_bitset_host(vector, value));
+    return rcpp_result_gen;
+END_RCPP
+}
+// integer_vector_match_gt_host
+Rcpp::IntegerVector integer_vector_match_gt_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector, uint32_t value);
+RcppExport SEXP _mob_integer_vector_match_gt_host(SEXP vectorSEXP, SEXP valueSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type vector(vectorSEXP);
+    Rcpp::traits::input_parameter< uint32_t >::type value(valueSEXP);
+    rcpp_result_gen = Rcpp::wrap(integer_vector_match_gt_host(vector, value));
     return rcpp_result_gen;
 END_RCPP
 }
 // integer_vector_match_gt_as_bitset_host
-Rcpp::XPtr<mob::bitset<mob::system::host>> integer_vector_match_gt_as_bitset_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> v, size_t value);
-RcppExport SEXP _mob_integer_vector_match_gt_as_bitset_host(SEXP vSEXP, SEXP valueSEXP) {
+Rcpp::XPtr<mob::bitset<mob::system::host>> integer_vector_match_gt_as_bitset_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector, uint32_t value);
+RcppExport SEXP _mob_integer_vector_match_gt_as_bitset_host(SEXP vectorSEXP, SEXP valueSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type v(vSEXP);
-    Rcpp::traits::input_parameter< size_t >::type value(valueSEXP);
-    rcpp_result_gen = Rcpp::wrap(integer_vector_match_gt_as_bitset_host(v, value));
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type vector(vectorSEXP);
+    Rcpp::traits::input_parameter< uint32_t >::type value(valueSEXP);
+    rcpp_result_gen = Rcpp::wrap(integer_vector_match_gt_as_bitset_host(vector, value));
     return rcpp_result_gen;
 END_RCPP
 }
 // integer_vector_add_scalar_host
-void integer_vector_add_scalar_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> v, int32_t delta);
-RcppExport SEXP _mob_integer_vector_add_scalar_host(SEXP vSEXP, SEXP deltaSEXP) {
+void integer_vector_add_scalar_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector, int32_t addend);
+RcppExport SEXP _mob_integer_vector_add_scalar_host(SEXP vectorSEXP, SEXP addendSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type v(vSEXP);
-    Rcpp::traits::input_parameter< int32_t >::type delta(deltaSEXP);
-    integer_vector_add_scalar_host(v, delta);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type vector(vectorSEXP);
+    Rcpp::traits::input_parameter< int32_t >::type addend(addendSEXP);
+    integer_vector_add_scalar_host(vector, addend);
+    return R_NilValue;
+END_RCPP
+}
+// integer_vector_mul_scalar_host
+void integer_vector_mul_scalar_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector, int32_t factor);
+RcppExport SEXP _mob_integer_vector_mul_scalar_host(SEXP vectorSEXP, SEXP factorSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type vector(vectorSEXP);
+    Rcpp::traits::input_parameter< int32_t >::type factor(factorSEXP);
+    integer_vector_mul_scalar_host(vector, factor);
+    return R_NilValue;
+END_RCPP
+}
+// integer_vector_add_host
+void integer_vector_add_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> left, Rcpp::XPtr<mob::integer_vector<mob::system::host>> right);
+RcppExport SEXP _mob_integer_vector_add_host(SEXP leftSEXP, SEXP rightSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type left(leftSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type right(rightSEXP);
+    integer_vector_add_host(left, right);
+    return R_NilValue;
+END_RCPP
+}
+// integer_vector_mul_host
+void integer_vector_mul_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> left, Rcpp::XPtr<mob::integer_vector<mob::system::host>> right);
+RcppExport SEXP _mob_integer_vector_mul_host(SEXP leftSEXP, SEXP rightSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type left(leftSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type right(rightSEXP);
+    integer_vector_mul_host(left, right);
+    return R_NilValue;
+END_RCPP
+}
+// integer_vector_neg_host
+void integer_vector_neg_host(Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector);
+RcppExport SEXP _mob_integer_vector_neg_host(SEXP vectorSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::integer_vector<mob::system::host>> >::type vector(vectorSEXP);
+    integer_vector_neg_host(vector);
     return R_NilValue;
 END_RCPP
 }
@@ -643,14 +720,37 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// double_vector_values_host
-Rcpp::NumericVector double_vector_values_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> v);
-RcppExport SEXP _mob_double_vector_values_host(SEXP vSEXP) {
+// double_vector_clone_host
+Rcpp::XPtr<mob::double_vector<mob::system::host>> double_vector_clone_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> vector);
+RcppExport SEXP _mob_double_vector_clone_host(SEXP vectorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type v(vSEXP);
-    rcpp_result_gen = Rcpp::wrap(double_vector_values_host(v));
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type vector(vectorSEXP);
+    rcpp_result_gen = Rcpp::wrap(double_vector_clone_host(vector));
+    return rcpp_result_gen;
+END_RCPP
+}
+// double_vector_values_host
+Rcpp::NumericVector double_vector_values_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> vector);
+RcppExport SEXP _mob_double_vector_values_host(SEXP vectorSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type vector(vectorSEXP);
+    rcpp_result_gen = Rcpp::wrap(double_vector_values_host(vector));
+    return rcpp_result_gen;
+END_RCPP
+}
+// double_vector_rep_host
+Rcpp::XPtr<mob::double_vector<mob::system::host>> double_vector_rep_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> vector, size_t n);
+RcppExport SEXP _mob_double_vector_rep_host(SEXP vectorSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type vector(vectorSEXP);
+    Rcpp::traits::input_parameter< size_t >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(double_vector_rep_host(vector, n));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -702,36 +802,134 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// double_vector_match_gt_host
+Rcpp::IntegerVector double_vector_match_gt_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> vector, double value);
+RcppExport SEXP _mob_double_vector_match_gt_host(SEXP vectorSEXP, SEXP valueSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type vector(vectorSEXP);
+    Rcpp::traits::input_parameter< double >::type value(valueSEXP);
+    rcpp_result_gen = Rcpp::wrap(double_vector_match_gt_host(vector, value));
+    return rcpp_result_gen;
+END_RCPP
+}
+// double_vector_match_gt_as_bitset_host
+Rcpp::XPtr<mob::bitset<mob::system::host>> double_vector_match_gt_as_bitset_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> vector, double value);
+RcppExport SEXP _mob_double_vector_match_gt_as_bitset_host(SEXP vectorSEXP, SEXP valueSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type vector(vectorSEXP);
+    Rcpp::traits::input_parameter< double >::type value(valueSEXP);
+    rcpp_result_gen = Rcpp::wrap(double_vector_match_gt_as_bitset_host(vector, value));
+    return rcpp_result_gen;
+END_RCPP
+}
 // double_vector_add_scalar_host
-void double_vector_add_scalar_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> v, double delta);
-RcppExport SEXP _mob_double_vector_add_scalar_host(SEXP vSEXP, SEXP deltaSEXP) {
+void double_vector_add_scalar_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> vector, double addend);
+RcppExport SEXP _mob_double_vector_add_scalar_host(SEXP vectorSEXP, SEXP addendSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type v(vSEXP);
-    Rcpp::traits::input_parameter< double >::type delta(deltaSEXP);
-    double_vector_add_scalar_host(v, delta);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type vector(vectorSEXP);
+    Rcpp::traits::input_parameter< double >::type addend(addendSEXP);
+    double_vector_add_scalar_host(vector, addend);
+    return R_NilValue;
+END_RCPP
+}
+// double_vector_mul_scalar_host
+void double_vector_mul_scalar_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> vector, double factor);
+RcppExport SEXP _mob_double_vector_mul_scalar_host(SEXP vectorSEXP, SEXP factorSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type vector(vectorSEXP);
+    Rcpp::traits::input_parameter< double >::type factor(factorSEXP);
+    double_vector_mul_scalar_host(vector, factor);
     return R_NilValue;
 END_RCPP
 }
 // double_vector_div_scalar_host
-void double_vector_div_scalar_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> v, double divisor);
-RcppExport SEXP _mob_double_vector_div_scalar_host(SEXP vSEXP, SEXP divisorSEXP) {
+void double_vector_div_scalar_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> vector, double divisor);
+RcppExport SEXP _mob_double_vector_div_scalar_host(SEXP vectorSEXP, SEXP divisorSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type v(vSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type vector(vectorSEXP);
     Rcpp::traits::input_parameter< double >::type divisor(divisorSEXP);
-    double_vector_div_scalar_host(v, divisor);
+    double_vector_div_scalar_host(vector, divisor);
+    return R_NilValue;
+END_RCPP
+}
+// double_vector_add_host
+void double_vector_add_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> left, Rcpp::XPtr<mob::double_vector<mob::system::host>> right);
+RcppExport SEXP _mob_double_vector_add_host(SEXP leftSEXP, SEXP rightSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type left(leftSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type right(rightSEXP);
+    double_vector_add_host(left, right);
+    return R_NilValue;
+END_RCPP
+}
+// double_vector_mul_host
+void double_vector_mul_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> left, Rcpp::XPtr<mob::double_vector<mob::system::host>> right);
+RcppExport SEXP _mob_double_vector_mul_host(SEXP leftSEXP, SEXP rightSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type left(leftSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type right(rightSEXP);
+    double_vector_mul_host(left, right);
+    return R_NilValue;
+END_RCPP
+}
+// double_vector_div_host
+void double_vector_div_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> left, Rcpp::XPtr<mob::double_vector<mob::system::host>> right);
+RcppExport SEXP _mob_double_vector_div_host(SEXP leftSEXP, SEXP rightSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type left(leftSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type right(rightSEXP);
+    double_vector_div_host(left, right);
+    return R_NilValue;
+END_RCPP
+}
+// double_vector_neg_host
+void double_vector_neg_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> vector);
+RcppExport SEXP _mob_double_vector_neg_host(SEXP vectorSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type vector(vectorSEXP);
+    double_vector_neg_host(vector);
+    return R_NilValue;
+END_RCPP
+}
+// double_vector_exp_host
+void double_vector_exp_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> vector);
+RcppExport SEXP _mob_double_vector_exp_host(SEXP vectorSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type vector(vectorSEXP);
+    double_vector_exp_host(vector);
+    return R_NilValue;
+END_RCPP
+}
+// double_vector_reciprocal_host
+void double_vector_reciprocal_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> vector);
+RcppExport SEXP _mob_double_vector_reciprocal_host(SEXP vectorSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type vector(vectorSEXP);
+    double_vector_reciprocal_host(vector);
     return R_NilValue;
 END_RCPP
 }
 // double_vector_lround_host
-Rcpp::XPtr<mob::integer_vector<mob::system::host>> double_vector_lround_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> values);
-RcppExport SEXP _mob_double_vector_lround_host(SEXP valuesSEXP) {
+Rcpp::XPtr<mob::integer_vector<mob::system::host>> double_vector_lround_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> vector);
+RcppExport SEXP _mob_double_vector_lround_host(SEXP vectorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type values(valuesSEXP);
-    rcpp_result_gen = Rcpp::wrap(double_vector_lround_host(values));
+    Rcpp::traits::input_parameter< Rcpp::XPtr<mob::double_vector<mob::system::host>> >::type vector(vectorSEXP);
+    rcpp_result_gen = Rcpp::wrap(double_vector_lround_host(vector));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -777,24 +975,42 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mob_alias_table_sample_wor_host", (DL_FUNC) &_mob_alias_table_sample_wor_host, 4},
     {"_mob_alias_table_sample_wor_ragged_matrix_host", (DL_FUNC) &_mob_alias_table_sample_wor_ragged_matrix_host, 4},
     {"_mob_integer_vector_create_host", (DL_FUNC) &_mob_integer_vector_create_host, 1},
+    {"_mob_integer_vector_clone_host", (DL_FUNC) &_mob_integer_vector_clone_host, 1},
     {"_mob_integer_vector_values_host", (DL_FUNC) &_mob_integer_vector_values_host, 1},
+    {"_mob_integer_vector_rep_host", (DL_FUNC) &_mob_integer_vector_rep_host, 2},
+    {"_mob_integer_vector_to_double_host", (DL_FUNC) &_mob_integer_vector_to_double_host, 1},
     {"_mob_integer_vector_scatter_host", (DL_FUNC) &_mob_integer_vector_scatter_host, 3},
     {"_mob_integer_vector_scatter_scalar_host", (DL_FUNC) &_mob_integer_vector_scatter_scalar_host, 3},
     {"_mob_integer_vector_scatter_bitset_host", (DL_FUNC) &_mob_integer_vector_scatter_bitset_host, 3},
     {"_mob_integer_vector_gather_host", (DL_FUNC) &_mob_integer_vector_gather_host, 2},
     {"_mob_integer_vector_match_eq_host", (DL_FUNC) &_mob_integer_vector_match_eq_host, 2},
-    {"_mob_integer_vector_match_gt_host", (DL_FUNC) &_mob_integer_vector_match_gt_host, 2},
     {"_mob_integer_vector_match_eq_as_bitset_host", (DL_FUNC) &_mob_integer_vector_match_eq_as_bitset_host, 2},
+    {"_mob_integer_vector_match_gt_host", (DL_FUNC) &_mob_integer_vector_match_gt_host, 2},
     {"_mob_integer_vector_match_gt_as_bitset_host", (DL_FUNC) &_mob_integer_vector_match_gt_as_bitset_host, 2},
     {"_mob_integer_vector_add_scalar_host", (DL_FUNC) &_mob_integer_vector_add_scalar_host, 2},
+    {"_mob_integer_vector_mul_scalar_host", (DL_FUNC) &_mob_integer_vector_mul_scalar_host, 2},
+    {"_mob_integer_vector_add_host", (DL_FUNC) &_mob_integer_vector_add_host, 2},
+    {"_mob_integer_vector_mul_host", (DL_FUNC) &_mob_integer_vector_mul_host, 2},
+    {"_mob_integer_vector_neg_host", (DL_FUNC) &_mob_integer_vector_neg_host, 1},
     {"_mob_double_vector_create_host", (DL_FUNC) &_mob_double_vector_create_host, 1},
+    {"_mob_double_vector_clone_host", (DL_FUNC) &_mob_double_vector_clone_host, 1},
     {"_mob_double_vector_values_host", (DL_FUNC) &_mob_double_vector_values_host, 1},
+    {"_mob_double_vector_rep_host", (DL_FUNC) &_mob_double_vector_rep_host, 2},
     {"_mob_double_vector_scatter_host", (DL_FUNC) &_mob_double_vector_scatter_host, 3},
     {"_mob_double_vector_scatter_scalar_host", (DL_FUNC) &_mob_double_vector_scatter_scalar_host, 3},
     {"_mob_double_vector_scatter_bitset_host", (DL_FUNC) &_mob_double_vector_scatter_bitset_host, 3},
     {"_mob_double_vector_gather_host", (DL_FUNC) &_mob_double_vector_gather_host, 2},
+    {"_mob_double_vector_match_gt_host", (DL_FUNC) &_mob_double_vector_match_gt_host, 2},
+    {"_mob_double_vector_match_gt_as_bitset_host", (DL_FUNC) &_mob_double_vector_match_gt_as_bitset_host, 2},
     {"_mob_double_vector_add_scalar_host", (DL_FUNC) &_mob_double_vector_add_scalar_host, 2},
+    {"_mob_double_vector_mul_scalar_host", (DL_FUNC) &_mob_double_vector_mul_scalar_host, 2},
     {"_mob_double_vector_div_scalar_host", (DL_FUNC) &_mob_double_vector_div_scalar_host, 2},
+    {"_mob_double_vector_add_host", (DL_FUNC) &_mob_double_vector_add_host, 2},
+    {"_mob_double_vector_mul_host", (DL_FUNC) &_mob_double_vector_mul_host, 2},
+    {"_mob_double_vector_div_host", (DL_FUNC) &_mob_double_vector_div_host, 2},
+    {"_mob_double_vector_neg_host", (DL_FUNC) &_mob_double_vector_neg_host, 1},
+    {"_mob_double_vector_exp_host", (DL_FUNC) &_mob_double_vector_exp_host, 1},
+    {"_mob_double_vector_reciprocal_host", (DL_FUNC) &_mob_double_vector_reciprocal_host, 1},
     {"_mob_double_vector_lround_host", (DL_FUNC) &_mob_double_vector_lround_host, 1},
     {NULL, NULL, 0}
 };
