@@ -19,16 +19,6 @@
           config.nvidia.acceptLicense = true;
           overlays = [
             inputs.reside.overlays.default
-            (inputs.reside.lib.rPackagesOverlay (pkgs: self: super: {
-              dust = super.dust.overrideAttrs {
-                src = pkgs.fetchFromGitHub {
-                  owner = "mrc-ide";
-                  repo = "dust";
-                  rev = "gamma";
-                  hash = "sha256-rTNW/ksmDBoqCPL8zDTgffeJo4jYX2AOim+ibn4H9kY=";
-                };
-              };
-            }))
           ];
         };
 
