@@ -39,27 +39,31 @@ random_create_device(size_t size,
 }
 
 // [[Rcpp::export]]
-Rcpp::NumericVector random_uniform_device(Rcpp::XPtr<mob::device_random> rngs,
-                                          size_t n, double min, double max) {
+Rcpp::XPtr<mob::double_vector<mob::system::device>>
+random_uniform_device(Rcpp::XPtr<mob::device_random> rngs, size_t n, double min,
+                      double max) {
   return random_uniform_wrapper<mob::system::device>(rngs, n, min, max);
 }
 
 // [[Rcpp::export]]
-void random_uniform_benchmark_device(Rcpp::XPtr<mob::device_random> rngs,
-                                     size_t n, double min, double max) {
-  random_uniform_benchmark_wrapper<mob::system::device>(rngs, n, min, max);
-}
-
-// [[Rcpp::export]]
-Rcpp::NumericVector random_poisson_device(Rcpp::XPtr<mob::device_random> rngs,
-                                          size_t n, double lambda) {
+Rcpp::XPtr<mob::double_vector<mob::system::device>>
+random_poisson_device(Rcpp::XPtr<mob::device_random> rngs, size_t n,
+                      double lambda) {
   return random_poisson_wrapper<mob::system::device>(rngs, n, lambda);
 }
 
 // [[Rcpp::export]]
-Rcpp::NumericVector random_binomial_device(Rcpp::XPtr<mob::device_random> rngs,
-                                           size_t n, size_t size, double prob) {
+Rcpp::XPtr<mob::double_vector<mob::system::device>>
+random_binomial_device(Rcpp::XPtr<mob::device_random> rngs, size_t n,
+                       size_t size, double prob) {
   return random_binomial_wrapper<mob::system::device>(rngs, n, size, prob);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::double_vector<mob::system::device>>
+random_gamma_device(Rcpp::XPtr<mob::device_random> rngs, size_t n, double shape,
+                    double scale) {
+  return random_gamma<mob::system::device>(rngs, n, shape, scale);
 }
 
 // [[Rcpp::export]]
@@ -87,8 +91,9 @@ size_t homogeneous_infection_process_device(
 }
 
 // [[Rcpp::export]]
-Rcpp::XPtr<mob::ds::partition<mob::system::device>>
-partition_create_device(size_t capacity, Rcpp::IntegerVector population) {
+Rcpp::XPtr<mob::ds::partition<mob::system::device>> partition_create_device(
+    size_t capacity,
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> population) {
   return partition_create_wrapper<mob::system::device>(capacity, population);
 }
 
@@ -112,7 +117,8 @@ Rcpp::IntegerVector ragged_vector_get_device(
 }
 
 // [[Rcpp::export]]
-Rcpp::IntegerVector ragged_vector_random_select_device(
+Rcpp::XPtr<mob::integer_vector<mob::system::device>>
+ragged_vector_random_select_device(
     Rcpp::XPtr<mob::parallel_random<mob::system::device>> rngs,
     Rcpp::XPtr<mob::ds::ragged_vector<mob::system::device, uint32_t>> data) {
   return ragged_vector_random_select_wrapper<mob::system::device>(rngs, data);
@@ -234,6 +240,12 @@ void bitset_remove_device(Rcpp::XPtr<mob::bitset<mob::system::device>> left,
 }
 
 // [[Rcpp::export]]
+bool bitset_equal_device(Rcpp::XPtr<mob::bitset<mob::system::device>> left,
+                         Rcpp::XPtr<mob::bitset<mob::system::device>> right) {
+  return bitset_equal<mob::system::device>(left, right);
+}
+
+// [[Rcpp::export]]
 void bitset_invert_device(Rcpp::XPtr<mob::bitset<mob::system::device>> ptr) {
   return bitset_invert<mob::system::device>(ptr);
 }
@@ -300,56 +312,141 @@ Rcpp::IntegerMatrix alias_table_sample_wor_ragged_matrix_device(
 }
 
 // [[Rcpp::export]]
-Rcpp::XPtr<mob::vector<mob::system::device, size_t>>
+Rcpp::XPtr<mob::integer_vector<mob::system::device>>
 integer_vector_create_device(Rcpp::IntegerVector values) {
   return integer_vector_create<mob::system::device>(values);
 }
 
 // [[Rcpp::export]]
 Rcpp::IntegerVector integer_vector_values_device(
-    Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v) {
-  return integer_vector_values<mob::system::device>(v);
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> v) {
+  return vector_values<mob::system::device>(v);
 }
 
 // [[Rcpp::export]]
 void integer_vector_scatter_device(
-    Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v,
-    Rcpp::IntegerVector indices, Rcpp::IntegerVector values) {
-  integer_vector_scatter<mob::system::device>(v, indices, values);
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> vector,
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> indices,
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> values) {
+  vector_scatter<mob::system::device>(vector, indices, values);
 }
 
 // [[Rcpp::export]]
 void integer_vector_scatter_scalar_device(
-    Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v,
-    Rcpp::IntegerVector indices, size_t value) {
-  integer_vector_scatter_scalar<mob::system::device>(v, indices, value);
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> vector,
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> indices,
+    uint32_t value) {
+  vector_scatter_scalar<mob::system::device>(vector, indices, value);
 }
 
 // [[Rcpp::export]]
 void integer_vector_scatter_bitset_device(
-    Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v,
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> vector,
     Rcpp::XPtr<mob::bitset<mob::system::device>> indices,
-    Rcpp::IntegerVector values) {
-  integer_vector_scatter_bitset<mob::system::device>(v, indices, values);
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> values) {
+  vector_scatter_bitset<mob::system::device>(vector, indices, values);
 }
 
 // [[Rcpp::export]]
-Rcpp::IntegerVector integer_vector_gather_device(
-    Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v,
-    Rcpp::IntegerVector indices) {
-  return integer_vector_gather<mob::system::device>(v, indices);
+Rcpp::XPtr<mob::integer_vector<mob::system::device>>
+integer_vector_gather_device(
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> vector,
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> indices) {
+  return vector_gather<mob::system::device>(vector, indices);
 }
 
 // [[Rcpp::export]]
-Rcpp::IntegerVector integer_vector_match_device(
-    Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v, size_t value) {
-  return integer_vector_match<mob::system::device>(v, value);
+Rcpp::IntegerVector integer_vector_match_eq_device(
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> v, size_t value) {
+  return integer_vector_match_eq<mob::system::device>(v, value);
 }
 
 // [[Rcpp::export]]
-Rcpp::XPtr<mob::bitset<mob::system::device>> integer_vector_match_bitset_device(
-    Rcpp::XPtr<mob::vector<mob::system::device, size_t>> v, size_t value) {
-  return integer_vector_match_bitset<mob::system::device>(v, value);
+Rcpp::IntegerVector integer_vector_match_gt_device(
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> v, size_t value) {
+  return integer_vector_match_gt<mob::system::device>(v, value);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::bitset<mob::system::device>>
+integer_vector_match_eq_as_bitset_device(
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> v, size_t value) {
+  return integer_vector_match_eq_as_bitset<mob::system::device>(v, value);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::bitset<mob::system::device>>
+integer_vector_match_gt_as_bitset_device(
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> v, size_t value) {
+  return integer_vector_match_gt_as_bitset<mob::system::device>(v, value);
+}
+
+// [[Rcpp::export]]
+void integer_vector_add_scalar_device(
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> v, int32_t delta) {
+  return vector_add_scalar<mob::system::device>(v, delta);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::double_vector<mob::system::device>>
+double_vector_create_device(Rcpp::NumericVector values) {
+  return double_vector_create<mob::system::device>(values);
+}
+
+// [[Rcpp::export]]
+Rcpp::NumericVector double_vector_values_device(
+    Rcpp::XPtr<mob::double_vector<mob::system::device>> v) {
+  return vector_values<mob::system::device>(v);
+}
+
+// [[Rcpp::export]]
+void double_vector_scatter_device(
+    Rcpp::XPtr<mob::double_vector<mob::system::device>> vector,
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> indices,
+    Rcpp::XPtr<mob::double_vector<mob::system::device>> values) {
+  vector_scatter<mob::system::device>(vector, indices, values);
+}
+
+// [[Rcpp::export]]
+void double_vector_scatter_scalar_device(
+    Rcpp::XPtr<mob::double_vector<mob::system::device>> vector,
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> indices,
+    double value) {
+  vector_scatter_scalar<mob::system::device>(vector, indices, value);
+}
+
+// [[Rcpp::export]]
+void double_vector_scatter_bitset_device(
+    Rcpp::XPtr<mob::double_vector<mob::system::device>> vector,
+    Rcpp::XPtr<mob::bitset<mob::system::device>> indices,
+    Rcpp::XPtr<mob::double_vector<mob::system::device>> values) {
+  vector_scatter_bitset<mob::system::device>(vector, indices, values);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::double_vector<mob::system::device>> double_vector_gather_device(
+    Rcpp::XPtr<mob::double_vector<mob::system::device>> vector,
+    Rcpp::XPtr<mob::integer_vector<mob::system::device>> indices) {
+  return vector_gather<mob::system::device>(vector, indices);
+}
+
+// [[Rcpp::export]]
+void double_vector_add_scalar_device(
+    Rcpp::XPtr<mob::double_vector<mob::system::device>> v, double delta) {
+  return vector_add_scalar<mob::system::device>(v, delta);
+}
+
+// [[Rcpp::export]]
+void double_vector_div_scalar_device(
+    Rcpp::XPtr<mob::double_vector<mob::system::device>> v, double divisor) {
+  return vector_div_scalar<mob::system::device>(v, divisor);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::integer_vector<mob::system::device>>
+double_vector_lround_device(
+    Rcpp::XPtr<mob::double_vector<mob::system::device>> values) {
+  return double_vector_lround<mob::system::device>(values);
 }
 
 #endif // __NVCC__
@@ -362,27 +459,31 @@ random_create_host(size_t size,
 }
 
 // [[Rcpp::export]]
-Rcpp::NumericVector random_uniform_host(Rcpp::XPtr<mob::host_random> rngs,
-                                        size_t n, double min, double max) {
+Rcpp::XPtr<mob::double_vector<mob::system::host>>
+random_uniform_host(Rcpp::XPtr<mob::host_random> rngs, size_t n, double min,
+                    double max) {
   return random_uniform_wrapper<mob::system::host>(rngs, n, min, max);
 }
 
 // [[Rcpp::export]]
-void random_uniform_benchmark_host(Rcpp::XPtr<mob::host_random> rngs, size_t n,
-                                   double min, double max) {
-  random_uniform_benchmark_wrapper<mob::system::host>(rngs, n, min, max);
-}
-
-// [[Rcpp::export]]
-Rcpp::NumericVector random_poisson_host(Rcpp::XPtr<mob::host_random> rngs,
-                                        size_t n, double lambda) {
+Rcpp::XPtr<mob::double_vector<mob::system::host>>
+random_poisson_host(Rcpp::XPtr<mob::host_random> rngs, size_t n,
+                    double lambda) {
   return random_poisson_wrapper<mob::system::host>(rngs, n, lambda);
 }
 
 // [[Rcpp::export]]
-Rcpp::NumericVector random_binomial_host(Rcpp::XPtr<mob::host_random> rngs,
-                                         size_t n, size_t size, double prob) {
+Rcpp::XPtr<mob::double_vector<mob::system::host>>
+random_binomial_host(Rcpp::XPtr<mob::host_random> rngs, size_t n, size_t size,
+                     double prob) {
   return random_binomial_wrapper<mob::system::host>(rngs, n, size, prob);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::double_vector<mob::system::host>>
+random_gamma_host(Rcpp::XPtr<mob::host_random> rngs, size_t n, double shape,
+                  double scale) {
+  return random_gamma<mob::system::host>(rngs, n, shape, scale);
 }
 
 // [[Rcpp::export]]
@@ -403,8 +504,9 @@ size_t homogeneous_infection_process_host(
 }
 
 // [[Rcpp::export]]
-Rcpp::XPtr<mob::ds::partition<mob::system::host>>
-partition_create_host(size_t capacity, Rcpp::IntegerVector population) {
+Rcpp::XPtr<mob::ds::partition<mob::system::host>> partition_create_host(
+    size_t capacity,
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> population) {
   return partition_create_wrapper<mob::system::host>(capacity, population);
 }
 
@@ -428,7 +530,8 @@ Rcpp::IntegerVector ragged_vector_get_host(
 }
 
 // [[Rcpp::export]]
-Rcpp::IntegerVector ragged_vector_random_select_host(
+Rcpp::XPtr<mob::integer_vector<mob::system::host>>
+ragged_vector_random_select_host(
     Rcpp::XPtr<mob::parallel_random<mob::system::host>> rngs,
     Rcpp::XPtr<mob::ds::ragged_vector<mob::system::host, uint32_t>> data) {
   return ragged_vector_random_select_wrapper<mob::system::host>(rngs, data);
@@ -560,6 +663,12 @@ void bitset_invert_host(Rcpp::XPtr<mob::bitset<mob::system::host>> ptr) {
 }
 
 // [[Rcpp::export]]
+bool bitset_equal_host(Rcpp::XPtr<mob::bitset<mob::system::host>> left,
+                       Rcpp::XPtr<mob::bitset<mob::system::host>> right) {
+  return bitset_equal<mob::system::host>(left, right);
+}
+
+// [[Rcpp::export]]
 void bitset_insert_host(Rcpp::XPtr<mob::bitset<mob::system::host>> ptr,
                         Rcpp::IntegerVector values) {
   return bitset_insert<mob::system::host>(ptr, values);
@@ -621,55 +730,136 @@ Rcpp::IntegerMatrix alias_table_sample_wor_ragged_matrix_host(
 }
 
 // [[Rcpp::export]]
-Rcpp::XPtr<mob::vector<mob::system::host, size_t>>
+Rcpp::XPtr<mob::integer_vector<mob::system::host>>
 integer_vector_create_host(Rcpp::IntegerVector values) {
   return integer_vector_create<mob::system::host>(values);
 }
 
 // [[Rcpp::export]]
 Rcpp::IntegerVector integer_vector_values_host(
-    Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v) {
-  return integer_vector_values<mob::system::host>(v);
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> v) {
+  return vector_values<mob::system::host>(v);
 }
 
 // [[Rcpp::export]]
 void integer_vector_scatter_host(
-    Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v,
-    Rcpp::IntegerVector indices, Rcpp::IntegerVector values) {
-  integer_vector_scatter<mob::system::host>(v, indices, values);
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector,
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> indices,
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> values) {
+  vector_scatter<mob::system::host>(vector, indices, values);
 }
 
 // [[Rcpp::export]]
 void integer_vector_scatter_scalar_host(
-    Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v,
-    Rcpp::IntegerVector indices, size_t value) {
-  integer_vector_scatter_scalar<mob::system::host>(v, indices, value);
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector,
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> indices,
+    uint32_t value) {
+  vector_scatter_scalar<mob::system::host>(vector, indices, value);
 }
 
 // [[Rcpp::export]]
 void integer_vector_scatter_bitset_host(
-    Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v,
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector,
     Rcpp::XPtr<mob::bitset<mob::system::host>> indices,
-    Rcpp::IntegerVector values) {
-  integer_vector_scatter_bitset<mob::system::host>(v, indices, values);
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> values) {
+  vector_scatter_bitset<mob::system::host>(vector, indices, values);
 }
 
 // [[Rcpp::export]]
-Rcpp::IntegerVector
-integer_vector_gather_host(Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v,
-                           Rcpp::IntegerVector indices) {
-  return integer_vector_gather<mob::system::host>(v, indices);
+Rcpp::XPtr<mob::integer_vector<mob::system::host>> integer_vector_gather_host(
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> vector,
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> indices) {
+  return vector_gather<mob::system::host>(vector, indices);
 }
 
 // [[Rcpp::export]]
-Rcpp::IntegerVector
-integer_vector_match_host(Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v,
-                          size_t value) {
-  return integer_vector_match<mob::system::host>(v, value);
+Rcpp::IntegerVector integer_vector_match_eq_host(
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> v, size_t value) {
+  return integer_vector_match_eq<mob::system::host>(v, value);
 }
 
 // [[Rcpp::export]]
-Rcpp::XPtr<mob::bitset<mob::system::host>> integer_vector_match_bitset_host(
-    Rcpp::XPtr<mob::vector<mob::system::host, size_t>> v, size_t value) {
-  return integer_vector_match_bitset<mob::system::host>(v, value);
+Rcpp::IntegerVector integer_vector_match_gt_host(
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> v, size_t value) {
+  return integer_vector_match_gt<mob::system::host>(v, value);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::bitset<mob::system::host>>
+integer_vector_match_eq_as_bitset_host(
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> v, size_t value) {
+  return integer_vector_match_eq_as_bitset<mob::system::host>(v, value);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::bitset<mob::system::host>>
+integer_vector_match_gt_as_bitset_host(
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> v, size_t value) {
+  return integer_vector_match_gt_as_bitset<mob::system::host>(v, value);
+}
+
+// [[Rcpp::export]]
+void integer_vector_add_scalar_host(
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> v, int32_t delta) {
+  return vector_add_scalar<mob::system::host>(v, delta);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::double_vector<mob::system::host>>
+double_vector_create_host(Rcpp::NumericVector values) {
+  return double_vector_create<mob::system::host>(values);
+}
+
+// [[Rcpp::export]]
+Rcpp::NumericVector
+double_vector_values_host(Rcpp::XPtr<mob::double_vector<mob::system::host>> v) {
+  return vector_values<mob::system::host>(v);
+}
+
+// [[Rcpp::export]]
+void double_vector_scatter_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> vector,
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> indices,
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> values) {
+  vector_scatter<mob::system::host>(vector, indices, values);
+}
+
+// [[Rcpp::export]]
+void double_vector_scatter_scalar_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> vector,
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> indices, double value) {
+  vector_scatter_scalar<mob::system::host>(vector, indices, value);
+}
+
+// [[Rcpp::export]]
+void double_vector_scatter_bitset_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> vector,
+    Rcpp::XPtr<mob::bitset<mob::system::host>> indices,
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> values) {
+  vector_scatter_bitset<mob::system::host>(vector, indices, values);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::double_vector<mob::system::host>> double_vector_gather_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> vector,
+    Rcpp::XPtr<mob::integer_vector<mob::system::host>> indices) {
+  return vector_gather<mob::system::host>(vector, indices);
+}
+
+// [[Rcpp::export]]
+void double_vector_add_scalar_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> v, double delta) {
+  return vector_add_scalar<mob::system::host>(v, delta);
+}
+
+// [[Rcpp::export]]
+void double_vector_div_scalar_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> v, double divisor) {
+  return vector_div_scalar<mob::system::host>(v, divisor);
+}
+
+// [[Rcpp::export]]
+Rcpp::XPtr<mob::integer_vector<mob::system::host>> double_vector_lround_host(
+    Rcpp::XPtr<mob::double_vector<mob::system::host>> values) {
+  return double_vector_lround<mob::system::host>(values);
 }

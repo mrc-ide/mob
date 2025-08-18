@@ -161,9 +161,9 @@ infection_victims_wrapper(Rcpp::XPtr<mob::infection_list<System>> infections,
   //
   // Also having capacity as an argument here is a bit weird. Maybe it needs to
   // be moved to infection_list_create.
-  auto result = Rcpp::XPtr(new mob::bitset<System>(capacity));
-  result->insert(infection_victims(*infections));
-  return result;
+  mob::bitset<System> result(capacity);
+  result.insert(infection_victims(*infections));
+  return make_externalptr<System>(std::move(result));
 }
 
 template <typename System>

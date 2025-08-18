@@ -17,7 +17,9 @@
           inherit system;
           config.allowUnfree = true;
           config.nvidia.acceptLicense = true;
-          overlays = [ inputs.reside.overlays.default ];
+          overlays = [
+            inputs.reside.overlays.default
+          ];
         };
 
         # Using CUDA is quite a mess. You need both a "userspace driver" and a
@@ -103,6 +105,7 @@
             pkgs.rPackages.rcmdcheck
             pkgs.rPackages.testthat
             pkgs.rPackages.withr
+            pkgs.rPackages.S7
           ];
         };
         packages.default = self'.packages.mob;
@@ -125,29 +128,12 @@
 
         # This shell is used to run the testsuite in buildkite
         devShells.ci = pkgs.mkShell {
+          inputsFrom = [ self'.packages.mob ];
           buildInputs = [
             cudaPackages.cudatoolkit
             cudaPackages.cuda_cudart
             cudaPackages.cuda_cccl
-            (pkgs.rWrapper.override {
-              packages = [
-                pkgs.rPackages.Rcpp
-                pkgs.rPackages.cli
-                pkgs.rPackages.dplyr
-                pkgs.rPackages.dust
-                pkgs.rPackages.patrick
-                pkgs.rPackages.rcmdcheck
-                pkgs.rPackages.testthat
-                pkgs.rPackages.withr
-
-                # benchmark stuff
-                pkgs.rPackages.ggplot2
-                pkgs.rPackages.purrr
-                pkgs.rPackages.tidyr
-                pkgs.rPackages.ggbeeswarm
-                pkgs.rPackages.ggpubr
-              ];
-            })
+            pkgs.R
           ];
           shellHook = self'.packages.selectDriver.shellHook;
         };
@@ -169,6 +155,7 @@
             (pkgs.radianWrapper.override {
               wrapR = true;
               packages = [
+                pkgs.rPackages.S7
                 pkgs.rPackages.bench
                 pkgs.rPackages.devtools
                 pkgs.rPackages.dplyr
