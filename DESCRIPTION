@@ -22,7 +22,7 @@ Imports:
     cli,
     S7
 Remotes:
-    mrc-ide/dust@gamma
+    mrc-ide/dust
 Suggests:
     patrick,
     rlang,
