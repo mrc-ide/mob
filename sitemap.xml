@@ -8,6 +8,7 @@
 <url><loc>https://mrc-ide.github.io/mob/reference/bitset_choose.html</loc></url>
 <url><loc>https://mrc-ide.github.io/mob/reference/bitset_clone.html</loc></url>
 <url><loc>https://mrc-ide.github.io/mob/reference/bitset_create.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/bitset_equal.html</loc></url>
 <url><loc>https://mrc-ide.github.io/mob/reference/bitset_from_vector.html</loc></url>
 <url><loc>https://mrc-ide.github.io/mob/reference/bitset_insert.html</loc></url>
 <url><loc>https://mrc-ide.github.io/mob/reference/bitset_invert.html</loc></url>
@@ -17,7 +18,11 @@
 <url><loc>https://mrc-ide.github.io/mob/reference/bitset_size.html</loc></url>
 <url><loc>https://mrc-ide.github.io/mob/reference/bitset_to_vector.html</loc></url>
 <url><loc>https://mrc-ide.github.io/mob/reference/create_wrapper.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/double_vector_lround.html</loc></url>
 <url><loc>https://mrc-ide.github.io/mob/reference/index.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/integer_vector_match_eq.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/integer_vector_match_gt.html</loc></url>
 <url><loc>https://mrc-ide.github.io/mob/reference/random_create.html</loc></url>
+<url><loc>https://mrc-ide.github.io/mob/reference/vector_values.html</loc></url>
 </urlset>
 
