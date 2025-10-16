@@ -187,7 +187,6 @@ struct alias_table {
    */
   template <typename rng_state>
   mob::vector<System, size_t> sample(rng_state &rngs, size_t k) const {
-    size_t n = probabilities.size();
     mob::vector<System, size_t> result(k);
     alias_table_view<System> table(probabilities, aliases);
     thrust::transform(
@@ -203,8 +202,6 @@ struct alias_table {
   template <typename rng_state>
   mob::vector<System, size_t> sample_wor(rng_state &rngs, size_t rows,
                                          size_t k) const {
-    size_t n = probabilities.size();
-
     mob::vector<System, size_t> result(k * rows);
     mob::ds::span<System, size_t> result_view(result);
 
@@ -229,8 +226,6 @@ struct alias_table {
   mob::vector<System, size_t>
   sample_wor_ragged_matrix(rng_state &rngs, mob::ds::span<System, size_t> ks,
                            size_t maxk) const {
-    size_t n = probabilities.size();
-
     mob::vector<System, size_t> result(maxk * ks.size());
     mob::ds::span<System, size_t> result_view(result);
 

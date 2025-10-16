@@ -4,7 +4,7 @@
 \alias{double_vector_lround}
 \title{Round values of the vector to the nearest integer.}
 \usage{
-double_vector_lround(values, ..., system = getOption("mob.system"))
+double_vector_lround(values)
 }
 \description{
 Round values of the vector to the nearest integer.

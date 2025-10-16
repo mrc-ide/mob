@@ -8,9 +8,7 @@ create_wrapper(name)
 }
 \description{
 This produces a wrapper function that will call either \verb{\{name\}_host} or
-\verb{\{name\}_device}. The wrapper has a \code{system} named argument that is used to
-choose the implementation. All other arguments are forwarded to the
-underlying function.
+\verb{\{name\}_device}. All arguments are forwarded to the underlying function.
 }
 \details{
 The wrapper function is generated using metaprogramming, allowing it to have

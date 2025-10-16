@@ -1,0 +1,10 @@
+Package: mob.{{ system }}
+Version: 0.0.0.9000
+LinkingTo:
+    Rcpp,
+    dust,
+    mob
+Imports:
+    Rcpp
+SystemRequirements: C++20
+URL: https://mrc-ide.github.io/mob/

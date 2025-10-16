@@ -20,7 +20,8 @@ LinkingTo:
 Imports:
     Rcpp,
     cli,
-    S7
+    S7,
+    mob.build
 Remotes:
     mrc-ide/dust
 Suggests:

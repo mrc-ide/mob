@@ -68,7 +68,8 @@ mob_test("household_infection_process", {
     rngs, result,
     bitset_from_vector(length(population), sort(susceptible)),
     bitset_from_vector(length(population), sort(infected)),
-    households_partition, 0.3)
+    households_partition,
+    0.3)
 
   df <- infections_as_dataframe(result)
   expect_in(df$source, infected)

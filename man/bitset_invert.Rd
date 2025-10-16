@@ -4,7 +4,7 @@
 \alias{bitset_invert}
 \title{Perform an in-place negation of a bitset.}
 \usage{
-bitset_invert(ptr, ..., system = getOption("mob.system"))
+bitset_invert(ptr)
 }
 \description{
 Perform an in-place negation of a bitset.

@@ -4,7 +4,7 @@
 \alias{bitset_or}
 \title{Perform an in-place union of two bitsets.}
 \usage{
-bitset_or(left, right, ..., system = getOption("mob.system"))
+bitset_or(left, right)
 }
 \description{
 Perform an in-place union of two bitsets.

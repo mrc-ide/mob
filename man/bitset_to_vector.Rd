@@ -4,7 +4,7 @@
 \alias{bitset_to_vector}
 \title{Convert the bitset into an R integer vector.}
 \usage{
-bitset_to_vector(ptr, ..., system = getOption("mob.system"))
+bitset_to_vector(ptr)
 }
 \description{
 Convert the bitset into an R integer vector.

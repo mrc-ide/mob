@@ -10,5 +10,4 @@ jobs:
       uses: jidicula/clang-format-action@v4.15.0
       with:
         clang-format-version: '20'
-        check-path: 'src' # TODO: do `inst` as well?
-        exclude-regex: '^src/RcppExports\.cpp$'
+        exclude-regex: '(^src/RcppExports\.cpp$)|(mob_types.h$)'

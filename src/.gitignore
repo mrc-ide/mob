@@ -1,6 +1,0 @@
-*.o
-*.so
-*.dll
-.deps
-.libs
-/RcppExports.cuda.cu
